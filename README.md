@@ -7,7 +7,31 @@
 
 ## Installation
 
+# Requirements:
+- **Conda** *(Installation instructions for your system can be found at https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)*
 
+# Download library from git with HTTP:
+
+**Using HTTP:**
+   ```
+   git clone https://github.com/amirkas/ePIC-Benchmark-lib.git
+   ```
+# Access the library directory:
+  ```
+  cd ePIC-Benchmark-Lib
+  ```
+# Create the conda environment from the library's environment.yml configuration
+  ```
+  conda env create -f environment.yml
+  ```
+
+## Using the library:
+
+# Activating the conda environment
+
+  ```
+  ```
+  
 
 ### Modules to support benchmark workflows:
 
