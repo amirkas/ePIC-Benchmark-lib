@@ -8,7 +8,8 @@
 ## Installation
 
 # Requirements:
-- **Conda** *(Installation instructions for your system can be found at https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)*
+- **Conda** 
+	*(Installation instructions for your system can be found at https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)*
 
 # Download library from git with HTTP:
 
@@ -43,11 +44,12 @@ cd /path/to/ePIC_Benchmark-Lib
 ```
 
 ```
-conda update --file environment.yml --prune
+conda env update --file environment.yml --prune
 ```
 	
 	
 
 ### Modules to support benchmark workflows:
 
-## 
+**Under Construction**
+
