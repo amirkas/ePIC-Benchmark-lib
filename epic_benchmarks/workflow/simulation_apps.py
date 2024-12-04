@@ -1,9 +1,9 @@
 from parsl import bash_app,AUTO_LOGNAME
-from epic_benchmarks.ParslApp.workflow_manager import ParslWorkflowManager
+from epic_benchmarks.workflow.manager import ParslWorkflowManager
 
 @bash_app
 def run_simulations(manager : ParslWorkflowManager, benchmark_name : str, simulation_name : str, future, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
-    from epic_benchmarks.ConfigUtils.SimulationConfig import simulation_config_to_npsim_arg
+    from epic_benchmarks.configurations.simulation_config import simulation_config_to_npsim_arg
     
 
     detector_path = manager.detector_build_path(benchmark_name)
@@ -21,7 +21,7 @@ def run_simulations(manager : ParslWorkflowManager, benchmark_name : str, simula
 
 @bash_app
 def run_reconstructions(manager : ParslWorkflowManager, benchmark_name : str, simulation_name : str, future, nthreads : int, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
-    from epic_benchmarks.ConfigUtils.SimulationConfig import simulation_config_to_eicrecon_arg
+    from epic_benchmarks.configurations.simulation_config import simulation_config_to_eicrecon_arg
 
     detector_path = manager.detector_build_path(benchmark_name)
     common_simulation_config = manager.get_common_simulation_config(benchmark_name)

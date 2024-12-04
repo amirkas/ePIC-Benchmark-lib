@@ -1,5 +1,5 @@
 from parsl import python_app, bash_app, join_app, AUTO_LOGNAME
-from epic_benchmarks.workflow.workflow_manager import ParslWorkflowManager
+from epic_benchmarks.workflow.manager import ParslWorkflowManager
 import time
 
 @python_app

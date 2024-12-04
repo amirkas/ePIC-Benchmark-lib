@@ -1,5 +1,5 @@
 from parsl import python_app, bash_app, AUTO_LOGNAME
-from epic_benchmarks.ParslApp.workflow_manager import ParslWorkflowManager
+from epic_benchmarks.workflow.manager import ParslWorkflowManager
 
 @bash_app
 def pull_image(manager : ParslWorkflowManager, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
@@ -22,7 +22,7 @@ def checkout_branch(benchmark_name : str, manager : ParslWorkflowManager, future
 
 @python_app
 def load_detector_configs(benchmark_name : str, manager : ParslWorkflowManager, future, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
-    import epic_benchmarks.ParslApp.DetectorEditorTools as de
+    import epic_benchmarks.workflow.detector_editor as de
 
     de.edit_all_detectors(manager, benchmark_name=benchmark_name)
 

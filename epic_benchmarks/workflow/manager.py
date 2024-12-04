@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import copy
-from epic_benchmarks.ConfigUtils import BenchmarkSuiteConfig
+from epic_benchmarks.configurations import benchmark_suite_config
 
 BENCHMARK_DIR_NAME = "Benchmarks"
 EPIC_DIR_NAME = "epic"
@@ -217,7 +217,7 @@ class ParslWorkflowManager:
         
         backup_dir = os.path.join(self.workdir, backup_dir_name)
         suite_filepath = os.path.join(backup_dir, "backup_config.yml")
-        new_suite_instance = BenchmarkSuiteConfig(suite_filepath)
+        new_suite_instance = benchmark_suite_config(suite_filepath)
         self.benchmark_suite = new_suite_instance
         self.dir_name = backup_dir_name
         self.suite_dir_path = backup_dir

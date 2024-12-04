@@ -1,7 +1,7 @@
 import yaml
 import os
 from pathlib import Path
-from .BenchmarkConfig import BenchmarkConfig
+from .benchmark_config import BenchmarkConfig
 
 CWD = os.getcwd()
 NAME_KEY = "name"

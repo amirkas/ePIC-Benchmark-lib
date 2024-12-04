@@ -5,13 +5,13 @@ import parsl
 from dataclasses import dataclass, field
 from parsl.config import Config
 import re
-from epic_benchmarks.ConfigUtils.BenchmarkSuiteConfig import BenchmarkSuiteConfig
-from epic_benchmarks.ParslApp.RepoApps import pull_image, clone_epic, checkout_branch, load_detector_configs, compile_epic
-from epic_benchmarks.ParslApp.SimulationApps import run_simulations, run_reconstructions
-from epic_benchmarks.ParslApp.AnalysisApps import save_performance_plot
-from epic_benchmarks.ParslApp.ParslConfigs import SlurmProviderConfig, HeadlessConfig, load_config
-from epic_benchmarks.Utils.TimeUtils import convert_hours_to_seconds, convert_minutes_to_seconds, convert_seconds_to_time_tuple
-from epic_benchmarks.ParslApp.workflow_manager import ParslWorkflowManager
+from epic_benchmarks.configurations.benchmark_suite_config import BenchmarkSuiteConfig
+from epic_benchmarks.workflow.repo_apps import pull_image, clone_epic, checkout_branch, load_detector_configs, compile_epic
+from epic_benchmarks.workflow.simulation_apps import run_simulations, run_reconstructions
+from epic_benchmarks.workflow.analysis_apps import save_performance_plot
+from epic_benchmarks.workflow.parsl_configs import SlurmProviderConfig, HeadlessConfig, load_config
+from epic_benchmarks.utils.time import convert_hours_to_seconds, convert_minutes_to_seconds, convert_seconds_to_time_tuple
+from epic_benchmarks.workflow.manager import ParslWorkflowManager
 
 CWD = os.getcwd()
 DEFAULT_DIR = os.path.join(CWD, "Benchmarks")

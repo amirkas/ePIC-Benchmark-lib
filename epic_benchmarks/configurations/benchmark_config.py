@@ -1,6 +1,6 @@
 
-from .SimulationConfig import SimulationConfig, SimulationCommonConfig, SIMULATION_NAME_KEY
-from .DetectorConfig import DetectorConfig
+from .simulation_config import SimulationConfig, SimulationCommonConfig, SIMULATION_NAME_KEY
+from .detector_config import DetectorConfig
 
 DEFAULT_BRANCH = "main"
 
