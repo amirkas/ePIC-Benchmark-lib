@@ -1,0 +1,22 @@
+name: eic-benchmark-env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pyyaml
+  - lxml
+  - jupyter 
+  - numpy
+  - pandas
+  - uproot
+  - matplotlib
+  - seaborn
+  - uncertainties
+  - lmfit
+  - fsspec-xrootd
+  - parsl
+  - snakemake
+  - setuptools
+  - pip
+  - pip:
+    - /global/cfs/cdirs/m3763/amir/workspace/benchmarks/lib/

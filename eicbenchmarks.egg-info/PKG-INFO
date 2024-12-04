@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: eicbenchmarks
+Version: 1.0
+Requires-Dist: pyyaml
+Requires-Dist: lxml
+Requires-Dist: jupyter
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: seaborn
+Requires-Dist: uproot
+Requires-Dist: uncertainties
+Requires-Dist: parsl
+Requires-Dist: lmfit
+Requires-Dist: fsspec-xrootd
+Requires-Dist: matplotlib

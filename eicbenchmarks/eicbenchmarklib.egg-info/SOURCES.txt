@@ -1,0 +1,7 @@
+setup.py
+eic_configs/eicbenchmarklib.egg-info/PKG-INFO
+eic_configs/eicbenchmarklib.egg-info/SOURCES.txt
+eic_configs/eicbenchmarklib.egg-info/dependency_links.txt
+eic_configs/eicbenchmarklib.egg-info/entry_points.txt
+eic_configs/eicbenchmarklib.egg-info/requires.txt
+eic_configs/eicbenchmarklib.egg-info/top_level.txt

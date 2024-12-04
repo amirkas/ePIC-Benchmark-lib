@@ -1,0 +1,13 @@
+pyyaml
+lxml
+jupyter
+numpy
+pandas
+scipy
+seaborn
+uproot
+uncertainties
+parsl
+lmfit
+fsspec-xrootd
+matplotlib

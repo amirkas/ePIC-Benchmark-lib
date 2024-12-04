@@ -1,0 +1,136 @@
+benchmarks:
+  - name : "Benchmark 1"
+
+    repository_config:
+      epic_dir: "/global/cfs/cdirs/m3763/amir/epic"
+      branch: "main"
+
+    detector_config:
+      - file : "vertex_barrel.xml"
+      modules:
+        - name : "Module1"
+        - configurations:
+          - type : "set"
+          - attribute : "sensitive"
+          - value : "false"
+          
+
+      components:
+        - component_tag : "Module1"
+          component_attributes:
+            - module_attribute_1 : "example1"
+          configurations:
+            - type: "set"
+              element_tag: "sensitive"
+              value_to_set : "false"
+            - type: "add"
+              tag_to_add: "Test"
+              value_to_add: "Successful"
+        - component_tag : "Module2"
+          component_attributes: {}
+          configurations:
+            - type: "set"
+            element_tag: "sensitive"
+            value_to_set : "true"
+            - type: "delete"
+            element_tag: "incorrect-tag"
+            condition: {}
+
+    simulations:
+      common:
+        detector_xml : "vertex_barrel.xml"
+        simulation_output_name : ""
+        reconstruction_output_name : ""
+        num_events : "10000"
+        enable_gun : true
+        particle : "pion"
+        gun_distribution : "eta"
+        momentum_max : "10GeV"
+        momentum_min : "10GeV"
+        multiplicity : 1
+      - name : "eta_3.5-4.0"
+        eta_max : 4
+        eta_min : 3.5
+      - name : "eta_3.0-3.5"
+        eta_max : 3.5
+        eta_min : 3
+
+    analyses:
+      disable_auto_analysis : false
+      - name : "Momentum Analysis"
+        paramater : "momentum"
+        analysis_types: 
+        - "resolution"
+        - "efficiency"
+      - name : "Rapidity Analysis"
+        parameter : "rapidity"
+        analysis_types:
+        - "resolution"
+        - "efficiency"
+
+
+
+  - name : "Benchmark 2"
+
+    repository_config:
+      epic_dir: "/global/cfs/cdirs/m3763/amir/epic"
+      branch: "main"
+
+    detector_config:
+      - file : "vertex_barrel.xml"
+      components:
+        - component_tag : "Module1"
+          component_attributes:
+            - module_attribute_1 : "example1"
+          configurations:
+            - type: "set"
+              element_tag: "sensitive"
+              value_to_set : "false"
+            - type: "add"
+              tag_to_add: "Test"
+              value_to_add: "Successful"
+        - component_tag : "Module2"
+          component_attributes: {}
+          configurations:
+            - type: "set"
+            element_tag: "sensitive"
+            value_to_set : "true"
+            - type: "delete"
+            element_tag: "incorrect-tag"
+            condition: {}
+
+    simulations:
+      common:
+        detector_xml : "vertex_barrel.xml"
+        simulation_output_name : ""
+        reconstruction_output_name : ""
+        num_events : "10000"
+        enable_gun : true
+        particle : "pion"
+        gun_distribution : "eta"
+        momentum_max : "10GeV"
+        momentum_min : "10GeV"
+        multiplicity : 1
+      - name : "eta_3.5-4.0"
+        eta_max : 4
+        eta_min : 3.5
+      - name : "eta_3.0-3.5"
+        eta_max : 3.5
+        eta_min : 3
+
+    analyses:
+      disable_auto_analysis : false
+      - name : "Momentum Analysis"
+        paramater : "momentum"
+        analysis_types: 
+        - "resolution"
+        - "efficiency"
+      - name : "Rapidity Analysis"
+        parameter : "rapidity"
+        analysis_types:
+        - "resolution"
+        - "efficiency"
+  
+      
+
+

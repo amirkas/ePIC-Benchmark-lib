@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: eicbenchmarklib
+Version: 1.0
+Requires-Dist: pyyaml
+Requires-Dist: lxml
+Requires-Dist: jupyter
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: uproot
+Requires-Dist: snakemake
