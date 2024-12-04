@@ -375,6 +375,6 @@ def performance_plot(fname,dir_path, output_name, eff_eta_bins=np.arange(-4, 4.1
                     temp = list(dump[0:-1])
                     temp = ' '.join(map(str,temp))
                     formatted_string = f"{output_name} {deg_lo} {deg_hi} {temp}"
-                    os.path.join(output_dir, 'resol_out_slices.txt')
-                    with open('resol_out_slices.txt', 'a') as resol_file:
+                    resolution_out_path = os.path.join(output_dir, 'resol_out_slices.txt')
+                    with open(resolution_out_path, 'a') as resol_file:
                         resol_file.write(formatted_string + '\n')

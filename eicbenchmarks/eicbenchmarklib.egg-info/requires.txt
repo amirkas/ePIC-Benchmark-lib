@@ -1,8 +1,0 @@
-pyyaml
-lxml
-jupyter
-numpy
-pandas
-scipy
-uproot
-snakemake

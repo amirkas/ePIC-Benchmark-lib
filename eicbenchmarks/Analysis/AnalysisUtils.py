@@ -40,16 +40,20 @@ plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['xaxis.labellocation'] = 'right'
 plt.rcParams['yaxis.labellocation'] = 'top'
+EXTRA_SMALL_SIZE = 8
 SMALL_SIZE = 10
 MEDIUM_SIZE = 12
 BIGGER_SIZE = 16
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title]
+
+#Set numpy to ignore divide by 0 errors that commonly occur in simulation context
+np.seterr(divide='ignore', invalid='ignore')
 
 CWD = os.getcwd()
 
@@ -375,6 +379,6 @@ def performance_plot(fname,dir_path, output_name, eff_eta_bins=np.arange(-4, 4.1
                     temp = list(dump[0:-1])
                     temp = ' '.join(map(str,temp))
                     formatted_string = f"{output_name} {deg_lo} {deg_hi} {temp}"
-                    os.path.join(output_dir, 'resol_out_slices.txt')
-                    with open('resol_out_slices.txt', 'a') as resol_file:
+                    resolution_out_path = os.path.join(output_dir, 'resol_out_slices.txt')
+                    with open(resolution_out_path, 'a') as resol_file:
                         resol_file.write(formatted_string + '\n')

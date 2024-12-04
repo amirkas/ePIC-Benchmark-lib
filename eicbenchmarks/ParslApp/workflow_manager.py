@@ -341,7 +341,6 @@ class ParslWorkflowManager:
     
     def analysis_output_dir_path(self, benchmark_name):
 
-
         return os.path.join(self.output_dir_path(benchmark_name), ANALYSIS_OUTPUT_NAME)
     
     def simulation_output_file_path(self, benchmark_name, simulation_name):
