@@ -5,9 +5,9 @@
 - Under the hood, simulations are run using npsim and eicrecon, which are contained within the eicshell container available as a stable or nightly build.
 - The library contains multiple modules to support benchmark workflows, such as configuration & filesystem management, execution configuration on various systems (local, HPC, etc.), and data analytic tools
 
-#Installation
+# Installation
 
-##Requirements:
+## Requirements:
 - **Conda** 
 	*(Installation instructions for your system can be found at https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)*
 
