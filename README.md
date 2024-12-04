@@ -30,8 +30,23 @@
 # Activating the conda environment
 
   ```
+	conda activate epic_benchmarks
   ```
   
+
+## For developers
+
+# To update the conda environment after editing the source code.
+
+	```
+	cd /path/to/ePIC_Benchmark-Lib
+	```
+
+	```
+	conda update --file environment.yml --prune
+	```
+	
+	
 
 ### Modules to support benchmark workflows:
 
