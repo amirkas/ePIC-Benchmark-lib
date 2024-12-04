@@ -6,7 +6,7 @@ from parsl.channels import LocalChannel
 from parsl.launchers import SrunLauncher
 from parsl.addresses import address_by_interface
 from parsl import DataFlowKernel
-from eicbenchmarks.ConfigUtils.BenchmarkSuiteConfig import BenchmarkSuiteConfig
+from epic_benchmarks.ConfigUtils.BenchmarkSuiteConfig import BenchmarkSuiteConfig
 
 def format_walltime(hours, minutes, seconds):
     return f"{hours:02}:{minutes:02}:{seconds:02}"

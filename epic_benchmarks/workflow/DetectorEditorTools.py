@@ -1,6 +1,6 @@
-from eicbenchmarks._constants import *
-from eicbenchmarks.ConfigUtils.ConfigFileUtils import XmlEditor
-from eicbenchmarks.ParslApp.workflow_manager import ParslWorkflowManager
+from epic_benchmarks._constants import *
+from epic_benchmarks.ConfigUtils.ConfigFileUtils import XmlEditor
+from epic_benchmarks.ParslApp.workflow_manager import ParslWorkflowManager
 
 def edit_detector(manager : ParslWorkflowManager, benchmark_name : str, detector_config : dict):
 

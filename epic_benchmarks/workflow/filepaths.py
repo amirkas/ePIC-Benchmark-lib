@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import copy
-from eicbenchmarks.ConfigUtils import BenchmarkSuiteConfig
+from epic_benchmarks.ConfigUtils import BenchmarkSuiteConfig
 
 BENCHMARK_DIR_NAME = "Benchmarks"
 EPIC_DIR_NAME = "epic"
@@ -139,7 +139,7 @@ class ParslWorkflowManager:
         CWD = os.getcwd()
         analysis_output_dir = self.analysis_output_dir_path()
         if CWD == analysis_output_dir:
-            raise Exception("Analysis output directory is the Current Working Directory -> Cannot Delete the Current Working Directory")
+            raise Exception("analysis output directory is the Current Working Directory -> Cannot Delete the Current Working Directory")
         else:
             shutil.rmtree(analysis_output_dir)
 

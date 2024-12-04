@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='eicbenchmarks',
+    name='epic_benchmarks',
     version='1.0',
-    packages=find_packages(where='.', include=['eicbenchmarks', 'eicbenchmarks.*']),
+    packages=find_packages(where='.', include=['epic_benchmarks', 'epic_benchmarks.*']),
     package_dir={'': '.'},
     install_requires=[
         'pyyaml',
