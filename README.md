@@ -38,13 +38,13 @@
 
 # To update the conda environment after editing the source code.
 
-	```
-	cd /path/to/ePIC_Benchmark-Lib
-	```
+```
+cd /path/to/ePIC_Benchmark-Lib
+```
 
-	```
-	conda update --file environment.yml --prune
-	```
+```
+conda update --file environment.yml --prune
+```
 	
 	
 
