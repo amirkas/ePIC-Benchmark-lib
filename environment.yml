@@ -2,6 +2,7 @@ name: epic_benchmarks
 channels:
   - conda-forge
 dependencies:
+  - python <= 3.12
   - pyyaml
   - lxml
   - jupyter 

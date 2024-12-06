@@ -60,7 +60,7 @@ def SlurmProviderConfig(num_nodes : int, num_cores_per_node : int, charge_accoun
                     worker_init='''
 shifterimg pull eicweb/jug_xl:24.10.1-stable
 module load python
-source activate eic-benchmark-env
+source activate epic_benchmarks
 '''
                 ),
             ),

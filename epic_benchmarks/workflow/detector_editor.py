@@ -29,7 +29,6 @@ def edit_detector(manager : ParslWorkflowManager, benchmark_name : str, detector
             attr=XPATH_COMPONENT_NAME_ATTR,
             name=component_name
         )
-
     edit_type = detector_config[DETECTOR_TYPE_KEY]
     if edit_type == "set":
         edit_attribute = detector_config[DETECTOR_ATTRIBUTE_KEY]
@@ -38,7 +37,6 @@ def edit_detector(manager : ParslWorkflowManager, benchmark_name : str, detector
         print(edit_attribute)
         print(edit_value)
         editor.set_attribute_xpath(xpath_query, edit_attribute, edit_value)
-
 
 def edit_all_detectors(manager : ParslWorkflowManager, benchmark_name : str):
 

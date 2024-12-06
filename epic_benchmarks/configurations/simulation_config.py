@@ -1,5 +1,6 @@
 import re
 import numbers
+from dataclasses import dataclass
 
 METADATA_DEFAULT = "default"
 METADATA_TYPES = "types"
@@ -29,6 +30,7 @@ SIMULATION_THETA_MAX_KEY = "theta_max"
 SIMULATION_THETA_MIN_KEY = "theta_min"
 SIMULATION_ETA_MAX_KEY = "eta_max"
 SIMULATION_ETA_MIN_KEY = "eta_min"
+RECONSTRUCTION_FLAGS_KEY = "eicrecon_flags"
 
 SIMULATION_KEYS = [
     SIMULATION_NAME_KEY,
@@ -45,6 +47,7 @@ SIMULATION_KEYS = [
     SIMULATION_THETA_MIN_KEY,
     SIMULATION_ETA_MAX_KEY,
     SIMULATION_ETA_MIN_KEY,
+    RECONSTRUCTION_FLAGS_KEY,
 ]
 
 argument_map = {
@@ -61,8 +64,9 @@ argument_map = {
         "min_theta" : SIMULATION_THETA_MIN_KEY,
         "max_eta" : SIMULATION_ETA_MAX_KEY,
         "min_eta" : SIMULATION_ETA_MIN_KEY,
-        "bin_names" : SIMULATION_BINS_KEY
-    }
+        "bin_names" : SIMULATION_BINS_KEY,
+        "recon_flags" : RECONSTRUCTION_FLAGS_KEY
+}
 
 def format_theta(theta):
 
@@ -104,7 +108,6 @@ def format_momentum(momentum, units="GeV"):
             raise Exception("Incorrect format")
         units = suffixes[0]
         
-
     #check if units are valid
     if not len(units) == 3 and not len(units) == 2:
         raise Exception("Units must be either 2 or 3 characters long")
@@ -153,14 +156,11 @@ class SimulationConfig:
             self.use_bins = use_bins
             setattr(self, SIMULATION_NAME_KEY, simulation_name)
 
-    def get_config(self):
-        return self.config
-
     def set_params(
         self, detector_path=None, num_events=None, enable_gun=None,
         gun_distribution=None, particle=None, multiplicity=None,
         max_momentum=None, min_momentum=None, max_theta=None,
-        min_theta=None, max_eta=None, min_eta=None, bin_names=None):
+        min_theta=None, max_eta=None, min_eta=None, bin_names=None, recon_flags=None):
 
         for key, value in locals().items():
             if key != "self":
@@ -325,7 +325,7 @@ def simulation_config_to_npsim_arg(output_filepath : str, common_config : Simula
                 cmd_str += "{cmd}{detector}/{arg} ".format(cmd=CONFIG_TO_SIM_CMD[key], detector=detector_path, arg=value)
             elif key in NON_STRING_ARGUMENTS:
                 cmd_str += "{cmd}{arg} ".format(cmd=CONFIG_TO_SIM_CMD[key], arg=value)
-            else:
+            elif key in STRING_ARGUMENTS:
                 cmd_str += '{cmd}"{arg}" '.format(cmd=CONFIG_TO_SIM_CMD[key], arg=value)
     cmd_str += "--outputFile {output_path}".format(output_path=output_filepath)
     
@@ -340,6 +340,16 @@ def simulation_config_to_eicrecon_arg(input_filepath : str, output_filepath : st
     cmd_str += "{cmd}{events} ".format(cmd=CONFIG_TO_RECON_CMD[SIMULATION_NUM_EVENTS_KEY], events=combined_dict[SIMULATION_NUM_EVENTS_KEY])
     cmd_str += "{cmd}{output_path} ".format(cmd=RECON_OUTPUT_CMD, output_path=output_filepath)
     cmd_str += "{cmd}{num_threads} ".format(cmd=RECON_NUM_THREADS_FLAG, num_threads=nthreads)
+    additional_flags = combined_dict[RECONSTRUCTION_FLAGS_KEY]
+    if additional_flags is not None:
+        if isinstance(additional_flags, str):
+            cmd_str += f"{additional_flags} "
+        elif isinstance(additional_flags, list) and len(additional_flags) > 0:
+            flags = " ".join(additional_flags)
+            cmd_str += f"{flags} "
+        else:
+            raise Exception("Additional flags must be either a string or a list of strings")
+        
     # cmd_str += f"{RECON_NUM_THREADS_FLAG} "
     cmd_str += input_filepath
     return cmd_str

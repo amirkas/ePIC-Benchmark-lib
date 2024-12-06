@@ -97,9 +97,9 @@ class WorkflowExecutor:
             match = re.match(time_pattern, walltime_str)
             if not match:
                 raise ValueError(f"Invalid Walltime format: {walltime_str}.\nThe Walltime string, if defined, must use the format hh:mm:ss")
-            hours = match.group(1)
-            minutes = match.group(2)
-            seconds = match.group(3)
+            hours = int(match.group(1))
+            minutes = int(match.group(2))
+            seconds = int(match.group(3))
 
         else:
             total_seconds = walltime_seconds + convert_minutes_to_seconds(walltime_minutes) + convert_hours_to_seconds(walltime_hours)
@@ -115,7 +115,10 @@ class WorkflowExecutor:
             worker_run_dir = f'{self.benchmark_directory_name}/runinfo'
         self.parsl_config = SlurmProviderConfig(num_nodes, cores_per_node, charge_account, walltime_hours=hours, walltime_mins=minutes, walltime_secs=seconds, QoS=qos, num_cores_per_worker=cores_per_worker, rundir=worker_run_dir)
 
-        
+    def add_output_pipe(self, out_path):
+
+        self.workflow_manager.add_output_pipe(out_path)
+
     def run_benchmarks(self):
 
         if self.parsl_config == None:
@@ -141,7 +144,6 @@ class WorkflowExecutor:
         parsl.load(self.parsl_config)
 
         try:
-        
             #If debugging set to true, setup logging
             if self.debug:
                 setup_logging()
@@ -149,23 +151,25 @@ class WorkflowExecutor:
             #Initialize list of final futures to wait for
             final_futures = []
 
-            #Edge Case: If only analysis tasks need to be done, only complete those tasks without setting up
-            #           the simulation enviornment. 
-            if not incomplete_tasks.has_simulations():
-                for benchmark_name in incomplete_benchmark_names:
-                    analysis_names = incomplete_tasks.get_incomplete_analysis(benchmark_name)
-                    for analysis_name in analysis_names:
-                        analysis_future = save_performance_plot(self.workflow_manager, benchmark_name, analysis_name, None)
+            #Pull shifter image if specified
+            pull_container_future = None
+            if self.workflow_manager.has_container():
+                pull_container_future = pull_image(self.workflow_manager)
+            
+            for benchmark_name in incomplete_benchmark_names:
+
+                #Get lists of incomplete tasks to complete:
+                incomplete_npsim_names = incomplete_tasks.get_incomplete_npsims(benchmark_name)
+                incomplete_eicrecon_names = incomplete_tasks.get_incomplete_eicrecons(benchmark_name)
+                incomplete_analysis_names = incomplete_tasks.get_incomplete_analyses(benchmark_name)
+
+                #if only analyses need to be complete, do not setup the epic repository as it is redundant in this workflow
+                if len(incomplete_npsim_names) + len(incomplete_eicrecon_names) == 0:
+                    for analysis_name in incomplete_analysis_names:
+                        analysis_future = save_performance_plot(self.workflow_manager, benchmark_name, analysis_name, pull_container_future)
                         final_futures.append(analysis_future)
-
-            else:
-                #Pull shifter image if specified
-                pull_container_future = None
-                if self.workflow_manager.has_container():
-                    pull_container_future = pull_image(self.workflow_manager)
                 
-                for benchmark_name in incomplete_benchmark_names:
-
+                else:
                     #Delete epic repository if it exists for fresh repository
                     if self.workflow_manager.epic_dir_exists(benchmark_name):
                         epic_dir_path = self.workflow_manager.epic_dir_path(benchmark_name)
@@ -182,13 +186,11 @@ class WorkflowExecutor:
                     #Execute compile epic app
                     compile_future = compile_epic(benchmark_name, self.workflow_manager, detector_config_load_future, nthreads)
 
-                    incomplete_npsim_names = incomplete_tasks.get_incomplete_npsim(benchmark_name)
                     npsim_futures_map = {}
                     for npsim_name in incomplete_npsim_names:
                         npsim_future = run_simulations(self.workflow_manager, benchmark_name, npsim_name, compile_future)
                         npsim_futures_map[npsim_name] = npsim_future
 
-                    incomplete_eicrecon_names = incomplete_tasks.get_incomplete_eicrecon(benchmark_name)
                     eicrecon_futures_map = {}
                     for eicrecon_name in incomplete_eicrecon_names:
                         if eicrecon_name in npsim_futures_map.keys():
@@ -198,7 +200,6 @@ class WorkflowExecutor:
                         eicrecon_future = run_reconstructions(self.workflow_manager, benchmark_name, eicrecon_name, eicrecon_dependence_future, nthreads)
                         eicrecon_futures_map[eicrecon_name] = eicrecon_future
 
-                    incomplete_analysis_names = incomplete_tasks.get_incomplete_analysis(benchmark_name)
                     for analysis_name in incomplete_analysis_names:
                         if analysis_name in eicrecon_futures_map.keys():
                             analysis_dependence_future = eicrecon_futures_map[analysis_name]
@@ -213,23 +214,6 @@ class WorkflowExecutor:
         #Cleanup workflow resources and directories
         finally:
             try:
-                self.workflow_manager.cleanup_directories()
+                self.workflow_manager.cleanup_workflow()
             finally:
                 parsl.dfk().cleanup()
-
-
-            
-
-
-
-
-
-
-
-    
-
-    
-
-    
-            
-

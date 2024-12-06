@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import copy
-from epic_benchmarks.configurations import benchmark_suite_config
+from epic_benchmarks.configurations.benchmark_suite_config import BenchmarkSuiteConfig
 
 BENCHMARK_DIR_NAME = "Benchmarks"
 EPIC_DIR_NAME = "epic"
@@ -48,7 +48,6 @@ class _IncompleteBenchmarks:
 
     def __init__(self):
         self.incomplete = {}
-        self.simulation_to_run = False
 
     def add_npsim(self, benchmark_name, simulation_name):
         self._add_benchmark(benchmark_name)
@@ -58,7 +57,6 @@ class _IncompleteBenchmarks:
     def add_eicrecon(self, benchmark_name, simulation_name):
         self._add_benchmark(benchmark_name)
         self.incomplete[benchmark_name]["eicrecon"].add(simulation_name)
-        self.simulation_to_run = True
         self.add_analysis(benchmark_name, simulation_name)
 
     def add_analysis(self, benchmark_name, simulation_name):
@@ -68,34 +66,31 @@ class _IncompleteBenchmarks:
     def get_incomplete_benchmarks(self):
         return self.incomplete.keys()
 
-    def get_incomplete_npsim(self, benchmark_name):
+    def get_incomplete_npsims(self, benchmark_name):
         if benchmark_name not in self.incomplete.keys():
             print("Benchmark : {bc_name} is not incomplete".format(bc_name=benchmark_name))
         else:
             return self.incomplete[benchmark_name]["npsim"]
 
-    def get_incomplete_eicrecon(self, benchmark_name):
+    def get_incomplete_eicrecons(self, benchmark_name):
         if benchmark_name not in self.incomplete.keys():
             print("Benchmark : {bc_name} is not incomplete".format(bc_name=benchmark_name))
         else:
             return self.incomplete[benchmark_name]["eicrecon"]
 
-    def get_incomplete_analysis(self, benchmark_name):
+    def get_incomplete_analyses(self, benchmark_name):
         if benchmark_name not in self.incomplete.keys():
             print("Benchmark : {bc_name} is not incomplete".format(bc_name=benchmark_name))
         else:
             return self.incomplete[benchmark_name]["analysis"]
         
-    def has_simulations(self):
-        return self.simulation_to_run
-        
     def __repr__(self):
         incomplete_str = ""
         for benchmark_name in self.incomplete.keys():
             
-            npsim_list = self.get_incomplete_npsim(benchmark_name)
-            eicrecon_list = self.get_incomplete_eicrecon(benchmark_name)
-            analysis_list = self.get_incomplete_analysis(benchmark_name)
+            npsim_list = self.get_incomplete_npsims(benchmark_name)
+            eicrecon_list = self.get_incomplete_eicrecons(benchmark_name)
+            analysis_list = self.get_incomplete_analyses(benchmark_name)
             benchmark_name_str = "Benchmark to complete: {bc_name}".format(bc_name=benchmark_name)
             npsims_str = "npsim's to complete: {sims}".format(sims=" ".join(npsim_list))
             eicrecons_str = "eicrecons's to complete: {recons}".format(recons=" ".join(eicrecon_list))
@@ -107,10 +102,10 @@ class _IncompleteBenchmarks:
     def _add_benchmark(self, benchmark_name):
         if benchmark_name not in self.incomplete.keys():
             self.incomplete[benchmark_name] = {
-                    "npsim" : set(),
-                    "eicrecon" : set(),
-                    "analysis" : set()
-                }
+                "npsim" : set(),
+                "eicrecon" : set(),
+                "analysis" : set()
+            }
 
 
 #Manager class for internal use that:
@@ -122,7 +117,7 @@ class _IncompleteBenchmarks:
 class ParslWorkflowManager:
 
 
-    def __init__(self, benchmark_suite, workdir, directory_name="Benchmarks", container_img_name=None, container_entry_cmd="", backup_benchmarks=True):
+    def __init__(self, benchmark_suite, workdir, directory_name="Benchmarks", container_img_name=None, container_entry_cmd="", backup_benchmarks=True, output_pipes=[]):
         self.benchmark_suite = benchmark_suite
         self.benchmark_suite_name = self.benchmark_suite.get_benchmark_suite_name()
         self.workdir = workdir
@@ -131,6 +126,11 @@ class ParslWorkflowManager:
         self.container_img = container_img_name
         self.container_entry_cmd = container_entry_cmd
         self.is_backup = False
+
+        self.output_pipe_managers = []
+        if len(output_pipes) != 0:
+            for pipe_path in output_pipes:
+                self.add_output_pipe(pipe_path)
 
     #Workflow filesystem managers
 
@@ -190,7 +190,7 @@ class ParslWorkflowManager:
         for dir in directories_list:
             backup_match = re.match(pattern, dir)
             if backup_match:
-                backup_num = backup_match.group(1)
+                backup_num = int(backup_match.group(1))
                 last_backup = max(last_backup, backup_num)
         new_backup_num = last_backup + 1
         new_dir_name = f'{self.dir_name}_Backup_{new_backup_num}'
@@ -217,13 +217,13 @@ class ParslWorkflowManager:
         
         backup_dir = os.path.join(self.workdir, backup_dir_name)
         suite_filepath = os.path.join(backup_dir, "backup_config.yml")
-        new_suite_instance = benchmark_suite_config(suite_filepath)
+        new_suite_instance = BenchmarkSuiteConfig(suite_filepath)
         self.benchmark_suite = new_suite_instance
         self.dir_name = backup_dir_name
         self.suite_dir_path = backup_dir
         self.is_backup = True
 
-    def initialize_directories(self, overwrite : bool):
+    def initialize_directories(self, overwrite : bool, ignore_environment_dirs=False):
 
         if overwrite:
             self.overwrite_benchmark()
@@ -236,12 +236,36 @@ class ParslWorkflowManager:
             self.init_directory(self.reconstruction_output_dir_path(benchmark_name))
             self.init_directory(self.analysis_output_dir_path(benchmark_name))
             simulation_names = self.get_simulation_names(benchmark_name)
-            for simulation_name in simulation_names:
-                self.init_directory(self.simulation_environment_dir_path(benchmark_name, simulation_name))
-                self.init_directory(self.reconstruction_environment_dir_path(benchmark_name, simulation_name))
+            if not ignore_environment_dirs:
+                for simulation_name in simulation_names:
+                    self.init_directory(self.simulation_environment_dir_path(benchmark_name, simulation_name))
+                    self.init_directory(self.reconstruction_environment_dir_path(benchmark_name, simulation_name))
+
+    #Initialize another workflow manager instance with the output_path as its working directory. 
+    def add_output_pipe(self, output_path, override_pipe_paths=True):
+
+        pipe_manager = ParslWorkflowManager(self.benchmark_suite, output_path, "", None)
+        pipe_manager.initialize_directories(overwrite=override_pipe_paths, ignore_environment_dirs=True)
+        self.output_pipe_managers.append(pipe_manager)        
+
+    def copy_to_output_pipes(self, benchmark_name, simulation_name):
+
+        for pipe_manager in self.output_pipe_managers:
+            shutil.copy2(self.simulation_output_file_path(benchmark_name, simulation_name), pipe_manager.simulation_output_file_path(benchmark_name, simulation_name))
+            shutil.copy2(self.reconstruction_output_file_path(benchmark_name, simulation_name), pipe_manager.reconstruction_output_file_path(benchmark_name, simulation_name))
+
+    def cleanup_workflow(self):
+
+        incomplete_tasks = self.get_incomplete_tasks()
+        if len(incomplete_tasks.get_incomplete_benchmarks()) != 0:
+            print("Tasks that need still need to be completed:")
+            print(incomplete_tasks)
+
+        self.cleanup_directories()
+        
 
     def cleanup_directories(self):
-
+    
         benchmark_names = self.get_benchmark_names()
         for benchmark_name in benchmark_names:
             npsim_env_path = self.npsim_environment_dir_path(benchmark_name)
@@ -263,11 +287,14 @@ class ParslWorkflowManager:
                 simulation_output_exists = self.simulation_output_file_exists(benchmark_name, simulation_name)
                 reconstruction_output_exists = self.reconstruction_output_file_exists(benchmark_name, simulation_name)
                 analysis_complete_exists = self.analysis_complete_file_exists(benchmark_name, simulation_name)
+
                 if not simulation_output_exists or self.simulation_output_file_corrupted(benchmark_name, simulation_name):
                     incomplete_tasks.add_npsim(benchmark_name, simulation_name)
+
                 elif not reconstruction_output_exists or self.reconstruction_output_file_corrupted(benchmark_name, simulation_name):
                     incomplete_tasks.add_eicrecon(benchmark_name, simulation_name)
-                if not analysis_complete_exists:
+
+                elif not analysis_complete_exists:
                     incomplete_tasks.add_analysis(benchmark_name, simulation_name)
         return incomplete_tasks
 
