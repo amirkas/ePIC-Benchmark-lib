@@ -22,9 +22,7 @@ def checkout_branch(benchmark_name : str, manager : ParslWorkflowManager, future
 
 @python_app
 def load_detector_configs(benchmark_name : str, manager : ParslWorkflowManager, future, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
-    import epic_benchmarks.workflow.detector_editor as de
-
-    de.edit_all_detectors(manager, benchmark_name=benchmark_name)
+    manager.apply_detector_configs(benchmark_name)
 
 @bash_app
 def compile_epic(benchmark_name : str, manager : ParslWorkflowManager, future, nthreads : int, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):

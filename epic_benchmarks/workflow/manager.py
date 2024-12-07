@@ -108,6 +108,7 @@ class _IncompleteBenchmarks:
             }
 
 
+
 #Manager class for internal use that:
 #   - Manages the workflow filsystem including initialization, workflow status, and cleanup
 #   - Provides accessors for the workflow filesystem
@@ -298,6 +299,12 @@ class ParslWorkflowManager:
                     incomplete_tasks.add_analysis(benchmark_name, simulation_name)
         return incomplete_tasks
 
+    #Configurtion Appliers
+    def apply_detector_configs(self, benchmark_name):
+        detector_configs = self.get_detector_config_list(benchmark_name)
+        for detector_config in detector_configs:
+            detector_config.apply_update(self.detector_description_dir_path(benchmark_name))
+
 
     #Configuration Accessors
 
@@ -341,12 +348,15 @@ class ParslWorkflowManager:
 
         return os.path.join(self.benchmark_dir_path(benchmark_name), EPIC_DIR_NAME)
     
-    def detector_description_path(self, benchmark_name, detector_filename, compact_dir=None):
-
+    def detector_description_dir_path(self, benchmark_name, compact_dir=None):
         if compact_dir == None or len(compact_dir) == 0:
-            return os.path.join(self.epic_dir_path(benchmark_name), EPIC_COMPACT_NAME, detector_filename)
+            return os.path.join(self.epic_dir_path(benchmark_name), EPIC_COMPACT_NAME)
         else:
-            return os.path.join(self.epic_dir_path(benchmark_name), EPIC_COMPACT_NAME, compact_dir, detector_filename)
+            return os.path.join(self.epic_dir_path(benchmark_name), EPIC_COMPACT_NAME, compact_dir)
+        
+    def detector_description_file_path(self, benchmark_name, detector_filename, compact_dir=None):
+
+        return os.path.join(self.detector_description_dir_path(benchmark_name, compact_dir), detector_filename)
     
     def detector_build_path(self, benchmark_name, share_dir=None):
         if share_dir == None or len(share_dir) == 0:
