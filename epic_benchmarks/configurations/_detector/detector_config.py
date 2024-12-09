@@ -1,7 +1,7 @@
 from ctypes import ArgumentError
 from dataclasses import dataclass, fields
 import os
-
+from epic_benchmarks.configurations import BaseConfig, BaseConfigKeys
 from epic_benchmarks.configurations.utils import XmlEditor
 
 @dataclass
@@ -10,18 +10,6 @@ class DetectorConfigType:
     SET : str = "set"
     ADD : str = "add"
     DELETE : str = "delete"
-
-    @classmethod
-    def allTypes(cls):
-        return [field.default for field in fields(cls)]
-            
-    @classmethod
-    def allAttributes(cls):
-        return [field.name for field in fields(cls)]
-
-    @classmethod
-    def isValidType(cls, type):
-        return type in cls.allTypes()
     
 @dataclass    
 class DetectorConfigXpath:
@@ -78,7 +66,7 @@ class DetectorConfigXpath:
     
 
 @dataclass
-class DetectorConfigKeys:
+class DetectorConfigKeys(BaseConfigKeys):
 
     BENCHMARK_CONFIG_KEY : str = "detector_config"
 
@@ -100,7 +88,7 @@ class DetectorConfigKeys:
     def hasKey(cls, k):
         return k in cls.keys()
 
-class DetectorConfig:
+class DetectorConfig(BaseConfig):
 
     def __init__(self, load_config_dict=None, config_type=None, detector_file_name=None,
             detector_attributes={}, module_attributes={},

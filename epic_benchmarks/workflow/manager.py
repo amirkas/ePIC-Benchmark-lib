@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import copy
-from epic_benchmarks.configurations.benchmark_suite_config import BenchmarkSuiteConfig
+# from epic_benchmarks.configurations.benchmark_suite_config import BenchmarkSuiteConfig
 
 BENCHMARK_DIR_NAME = "Benchmarks"
 EPIC_DIR_NAME = "epic"
@@ -127,6 +127,7 @@ class ParslWorkflowManager:
         self.container_img = container_img_name
         self.container_entry_cmd = container_entry_cmd
         self.is_backup = False
+        self.incomplete_tasks = self._find_incomplete_tasks()
 
         self.output_pipe_managers = []
         if len(output_pipes) != 0:
@@ -236,11 +237,30 @@ class ParslWorkflowManager:
             self.init_directory(self.simulation_output_dir_path(benchmark_name))
             self.init_directory(self.reconstruction_output_dir_path(benchmark_name))
             self.init_directory(self.analysis_output_dir_path(benchmark_name))
+
             simulation_names = self.get_simulation_names(benchmark_name)
-            if not ignore_environment_dirs:
-                for simulation_name in simulation_names:
+            for simulation_name in simulation_names:
+                if not ignore_environment_dirs:
                     self.init_directory(self.simulation_environment_dir_path(benchmark_name, simulation_name))
                     self.init_directory(self.reconstruction_environment_dir_path(benchmark_name, simulation_name))
+        
+        incomplete_benchmarks = self.incomplete_tasks.get_incomplete_benchmarks()
+        for incomplete_benchmark in incomplete_benchmarks:
+            incomplete_simulations = self.incomplete_tasks.get_incomplete_npsims(incomplete_benchmark)
+            incomplete_reconstructions = self.incomplete_tasks.get_incomplete_eicrecons(incomplete_benchmark)
+            incomplete_analyses = self.incomplete_tasks.get_incomplete_analyses(incomplete_benchmark)
+            for simulation in incomplete_simulations:
+                if self.simulation_output_file_exists(incomplete_benchmark, simulation):
+                    os.remove(self.simulation_output_file_path(incomplete_benchmark, simulation))
+            for reconstruction in incomplete_reconstructions:
+                if self.reconstruction_output_file_exists(incomplete_benchmark, reconstruction):
+                    os.remove(self.reconstruction_output_file_path(incomplete_benchmark, reconstruction))
+            #Temporarily delete all files in analysis directory for a given benchmark as they are quick to run.
+            shutil.rmtree(self.analysis_output_dir_path(benchmark_name), ignore_errors=True)
+            self.init_directory(self.analysis_output_dir_path(benchmark_name))
+
+
+        
 
     #Initialize another workflow manager instance with the output_path as its working directory. 
     def add_output_pipe(self, output_path, override_pipe_paths=True):
@@ -275,9 +295,12 @@ class ParslWorkflowManager:
             shutil.rmtree(eicrecon_env_path, ignore_errors=True)
 
 
+    def get_incomplete_tasks(self):
+        return self.incomplete_tasks
+
     #Task completion analyzers
 
-    def get_incomplete_tasks(self):
+    def _find_incomplete_tasks(self):
 
         incomplete_tasks = _IncompleteBenchmarks()
 

@@ -83,6 +83,8 @@ def tag_to_xpath(tags=""):
         for tag in tags:
             path += tag_to_xpath(tag)
         return path
+    else:
+        return ""
 
 
 def attribute_to_xpath(attribute, value):
@@ -108,6 +110,16 @@ def attribute_dict_to_xpath(attribute_dict={}):
     return "[{all}]".format(all=attribute_str)
 
 
+def autosave(func):
+    def wrapper(self, *args, **kw):
+        #Call function before post-processing
+        out = func(self, *args, **kw)
+        #Auto save post processing
+        if (self.autosave):
+            self.save()
+        return out
+    return wrapper
+
 class XmlEditor:
 
     def __init__(self, filepath, autosave=False):
@@ -123,16 +135,6 @@ class XmlEditor:
     def get_root(self):
         return self.root
         
-    def autosave(func):
-        def wrapper(self, *args, **kw):
-            #Call function before post-processing
-            out = func(self, *args, **kw)
-            #Auto save post processing
-            if (self.autosave):
-                self.save()
-            return out
-        return wrapper
-
     def save(self, filepath=""):
         if (len(filepath) == 0):
             to_save = self.filepath
@@ -158,7 +160,7 @@ class XmlEditor:
         found_keys = self.root.xpath(full_xpath)
         
         if len(found_keys) == 0:
-            print("Could not find path: " + full_xpath)
+            raise Exception(f"Could not find path: {full_xpath}")
         elif len(found_keys) == 1:
             return found_keys[0]
         else:

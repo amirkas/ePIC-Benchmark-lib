@@ -40,17 +40,17 @@ plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['xaxis.labellocation'] = 'right'
 plt.rcParams['yaxis.labellocation'] = 'top'
-EXTRA_SMALL_SIZE = 8
-SMALL_SIZE = 10
-MEDIUM_SIZE = 12
-BIGGER_SIZE = 16
-plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title]
+XS_FONT = 8
+S_FONT = 9
+M_FONT = 12
+L_FONT = 16
+plt.rc('font', size=S_FONT)          # controls default text sizes
+plt.rc('axes', titlesize=M_FONT)     # fontsize of the axes title
+plt.rc('axes', labelsize=M_FONT)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=XS_FONT)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=M_FONT)    # fontsize of the tick labels
+plt.rc('legend', fontsize=S_FONT)    # legend fontsize
+plt.rc('figure', titlesize=L_FONT)  # fontsize of the figure title]
 
 #Set numpy to ignore divide by 0 errors that commonly occur in simulation context
 np.seterr(divide='ignore', invalid='ignore')
