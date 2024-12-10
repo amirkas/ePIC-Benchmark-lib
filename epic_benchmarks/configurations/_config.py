@@ -1,74 +1,124 @@
 from __future__ import annotations
+import copy
 from dataclasses import dataclass, fields, field, is_dataclass
 import os
 import yaml
-import copy
 from typing import Type, Callable, List, Any, Optional, ClassVar, Self, Dict
-from collections.abc import Iterable
 
 XML_EXT = ".xml"
 YML_EXT = ".yml"
 
-CONFIG_CONTAINER_ATTR = '_config_key_container'
-CONFIG_LIST_ATTR = '_config_keys'
-ANNOTATIONS_KEY = '__annotations__'
-
 @dataclass 
 class ConfigKey:
 
+    # Name of the key that will be used as the tag in a configuration file
     key_name : str
+
+    # Types that configuration value can have
     types : Type | List[Type]
+
+    # Default value for configuration
     default : Any = None
+
+    # Boolean indicating that a value must be provided for
+    # this configuration parameter
     optional : bool = True
+
+    # A callable that takes in the configuration value and returns a correctly formatted one
     factory : Optional[Callable[[Any], Any]] = None
+
+    # A callable that takes in a configuration value and does extra validation beyond type and optional checking
     validator : Optional[Callable[[Any], bool]] = None
+
+    # A dictionary to store metadata associated with a config key
+    # Example: BashExecFlags
     metadata : Optional[Dict[Any, Any]] = field(default_factory=dict)
+
+    # Indicates that this configuration key is associated with a configuration instance value.
+    # Nested configs allow 1 configuration class to have multiple sub-configuration classes
     nested_config : Optional[BaseConfig] | None = None
 
+    # Internal field that stores the current value assoicated with the key.
+    _current_value : Optional[Any] = None
+
+    # Internal field indicating whether the key has been externaly set.
+    _value_set : bool = field(default=False, init=False)
     def __post_init__(self):
 
         #If no types are provided in types list raise Exception.
         if isinstance(self.types, list) and len(self.types) == 0:
             raise Exception("Must provide at least one type. Can be 'Any' type.")
 
-        #If not optional and default not provided, create an appropiate default
-        if not self.optional and self.default is None:
+        #If optional and default not provided, create an appropriate default
+        if self.optional and self.default is None:
             if isinstance(self.types, list):
-                first_type = self.types[0]
-                self.default = first_type()
+                object_type = self.types[0]
             else:
-                self.default = self.types()
+                object_type = self.types
+            if isinstance(object_type, type):
+                self.default = object_type()
+            elif hasattr(object_type, '__origin__'):
+                self.default = object_type.__origin__()
 
         #Validate default value
-        self.validate(self.default)
+        self.validate(self.default, ignore_optional=True)
 
+        #Set current_value to the default value
+        self.current_value = self.default
+
+    def set_key_value(self, value):
+        try:
+            self.validate(value)
+        except Exception as e:
+            raise e
+        self._value_set = True
+        self._current_value = self.format(value)
+
+    def value(self):
+        return self._current_value
+
+    def is_optional(self) -> bool:
+        return self.optional
+
+    def is_value_set(self) -> bool:
+        return self._value_set
 
     def format(self, value):
         if self.factory:
             return self.factory(value)
         return value
     
-    def validate(self, value):
+    def validate(self, value, ignore_optional=False):
         type_list = self.types
         #Early check if value is optional and is none
         if value is None and self.optional:
             return
         if not isinstance(self.types, list):
             type_list = [self.types]
+        valid_type_found = False
         for t in type_list: # type: ignore
-            #Continue early
+            #Break early
             if t is Any:
-                continue
+                valid_type_found = True
+                break
             #Handle primitive types
-            if isinstance(t, type) and not isinstance(value, t):
-                err = f"Config key '{self.key_name} has value '{value}' which must have one of the following type(s): [{" ".join(map(str, type_list))}]. Got '{str(type(value))}'"
-                raise TypeError(err)
+            if isinstance(t, type) and isinstance(value, t):
+                valid_type_found = True
+                break
             #Handle non-primitive types
             elif hasattr(t, "__origin__"):
-                origin = t.__origin__
-                if not isinstance(value, origin):
-                    err = f"Config key '{self.key_name} has value '{value}' which must have one of the following type(s): [{" ".join(map(str, type_list))}]. Got '{str(type(value))}'"
-                    raise TypeError(err)
+                if isinstance(value, t.__origin__):
+                    valid_type_found = True
+                    break
+        if not valid_type_found:
+            if not self.optional and not self._value_set and not ignore_optional:
+                err = f"'{self.key_name}' is a non-Optional configuration which must be provided a value."
+                raise TypeError(err)
+            elif not self.optional and not self._value_set and ignore_optional:
+                pass
+            else:
+                err = f"Config key '{self.key_name}' has value '{value}' which must have one of the following type(s): [{" ".join(map(str, type_list))}]. Got '{str(type(value))}'"
+                raise TypeError(err)
         if self.validator:
             try:
                 is_valid = self.validator(value)
@@ -78,193 +128,37 @@ class ConfigKey:
                 err = f"Validation failed for key {self.key_name} with value {value}"
                 raise ValueError(err)
            
-@dataclass
-class ConfigKeyContainer:
-
-    # @classmethod
-    # def keys(cls) -> List[ConfigKey]:
-    #     return [field.default for field in fields(cls) if isinstance(field.default, ConfigKey)]
-    
-    def keys(self) -> List[ConfigKey]:
-        return [key for key in self.__dict__.values() if isinstance(key, ConfigKey)]
-
-class ConfigMetaClass(type):
-
-    def __new__(cls, name, bases, namespace):
-
-        key_container = None
-        key_list = None
-        if CONFIG_CONTAINER_ATTR in namespace.keys():
-            key_container = namespace[CONFIG_CONTAINER_ATTR]
-
-        if CONFIG_LIST_ATTR in namespace.keys():
-            key_list = namespace[CONFIG_LIST_ATTR]
-
-        class_instance = super().__new__(cls, name, bases, namespace)
-
-        if key_container:
-            config_key_lst = key_container.keys()
-            setattr(class_instance, CONFIG_LIST_ATTR, config_key_lst)
-        elif key_list:
-            config_key_lst = key_list
-        else:
-            config_key_lst = []
-
-        if ANNOTATIONS_KEY not in namespace.keys():
-            namespace[ANNOTATIONS_KEY] = {}
-
-        setattr(class_instance, "_metadata", {})
-        namespace["_metadata"] = {}
-        for config_key in config_key_lst:
-            
-
-            #Populate annotations for autocomplete
-            cls._populate_annotations(namespace, class_instance, config_key)
-
-            #Update setter and getter for config key property
-            cls._set_property_handlers(namespace, class_instance, config_key)
-
-            cls._set_metadata_map(class_instance, config_key)
-
-            cls._set_metadata_getter(namespace, class_instance, config_key)
-
-        cls._define_dir(namespace, class_instance, config_key_lst)
-
-        return class_instance
-
-
-    def __call__(cls, *args, load_dict=None, load_filepath=None, **kwargs):
-
-        key_container = getattr(cls, '_config_key_container', None)
-        key_lst = getattr(cls, '_config_keys', [])
-
-        if key_container:
-            config_key_lst = key_container.keys()
-        else:
-            config_key_lst = key_lst
-
-        instance = super().__call__(*args, **kwargs)
-
-        for config_key in config_key_lst:
-
-            #Set Default Attribute Values
-            cls._set_default(instance, config_key)
-
-        return instance
-
-
-    #Populate annotations for autocomplete
-    @staticmethod
-    def _populate_annotations(namespace, instance, config_key : ConfigKey):
-
-        attribute_name = config_key.key_name
-        attribute_types = config_key.types
-        
-        cls_local = object.__getattribute__(instance, '__class__')
-        if not hasattr(cls_local, ANNOTATIONS_KEY):
-            cls_local.__annotations__ = {}
-
-        cls_local.__annotations__[attribute_name] = attribute_types
-        instance.__annotations__[attribute_name] = attribute_types
-        namespace[ANNOTATIONS_KEY][attribute_name] = attribute_types
-
-    @staticmethod
-    def _define_dir(namespace, instance, config_key_list : List[ConfigKey]):
-        
-        def __dir__(self):
-            return list(self.__class__.__annotations__.keys())
-
-        instance.__dir__ = __dir__
-
-    @staticmethod
-    def _set_property_handlers(namespace, instance, config_key : ConfigKey):
-
-        attribute_name = config_key.key_name
-
-        def property_handlers(key : ConfigKey):
-
-            def getter(self):
-                return getattr(self, f"_{key.key_name}", key.default)
-            
-            def setter(self, value):
-                key.validate(value)
-                formatted_val = key.format(value)
-                setattr(self, f"_{key.key_name}", formatted_val)
-
-            return property(getter, setter)
-        
-        namespace[attribute_name] = property_handlers(config_key)
-        setattr(instance, attribute_name, property_handlers(config_key))
-
-
-    @staticmethod
-    def _set_metadata_map(instance, config_key : ConfigKey):
-
-        instance._metadata[config_key.key_name] = config_key.metadata
-
-
-    @staticmethod
-    def _set_metadata_getter(namespace, instance, config_key : ConfigKey):
-
-        def metadata_handler(config_key : ConfigKey):
-
-            def getter(self):
-
-                metadata = getattr(self, "_metadata_map", {})
-                return metadata[config_key.key_name]
-            
-            return getter
-        
-        func_str = f"get_{config_key.key_name}_Metadata"
-        namespace[func_str] = metadata_handler(config_key)
-        setattr(instance, func_str, metadata_handler(config_key))
-
-
-    @staticmethod
-    def _set_default(instance, config_key : ConfigKey):
-
-        if not hasattr(instance, config_key.key_name):
-            setattr(instance, config_key.key_name, config_key.default)
-
 
 @dataclass
-class BaseConfig(metaclass=ConfigMetaClass):
+class BaseConfig:
 
-    _config_key_container : ClassVar[Optional[ConfigKeyContainer]] = ConfigKeyContainer()
-    _config_keys : ClassVar[List[ConfigKey]] = []
-    _metadata_map : ClassVar[Dict[str, Any]] = {}
-
-    #Public methods
-
-    def __init__(self, load_dict : dict, load_filepath=None, **kargs):
-        
-        if load_dict:
-            self._load_dict(load_dict)
-        
-        elif load_filepath:
-            self._load_from_file(filepath=load_filepath)
-
-        self._load_params(**kargs)
+    load_dict : Optional[Dict[str, Any]] = field(init=True, default=None)
+    load_filepath : Optional[str] = field(init=True, default=None)
+    kwargs : Optional[Dict[str, Any]] = field(init=True, default=None)
+    _key_attribute_names : List[str] = field(default_factory=list, init=False)
 
     def keys(self):
-        return [key.key_name for key in self._config_keys]
+        return copy.deepcopy(self._key_attribute_names)
     
-    def isKey(self, key):
+    def is_key(self, key):
         return key in self.keys()
-    
-    def value(self, key):
-        try:
-            return copy.deepcopy(getattr(self, key))
-        except Exception as e:
-            raise e
-    
-    def keyMetadata(self, key):
-        try:
-            return copy.deepcopy(self._metadata_map[key])
-        except Exception as e:
-            raise e
 
-    def toDict(self):
+    def key_val(self, key):
+        config_key = object.__getattribute__(self, key)
+        if isinstance(config_key, ConfigKey):
+            return config_key.value()
+        err = f"Key '{key}' is not a valid key."
+        raise ValueError(err)
+
+    def key_metadata(self, key):
+
+        config_key = object.__getattribute__(self, key)
+        if isinstance(config_key, ConfigKey):
+            return config_key.metadata
+        err = f"Key '{key}' is not a valid key."
+        raise ValueError(err)
+
+    def to_dict(self):
         config_dict = {}
         for key in self.keys():
             val = getattr(self, key)
@@ -272,31 +166,38 @@ class BaseConfig(metaclass=ConfigMetaClass):
                 val = val.to_dict()
             config_dict[key] = val
         return config_dict
-    
+
     #Private methods
-
+    # Gets the configuration key associated with 'key'
     def _config_key(self, key):
-        for config_key in self._config_keys:
-            if key == config_key.key_name:
-                return config_key
-        raise Exception(f"Key '{key}' not found")
+        key_names = self.keys()
+        keys = [getattr(self, n) for n in key_names]
+        for _key in keys:
+            if isinstance(_key, ConfigKey) and _key.key_name == key:
+                return _key
+        raise ValueError(f"Key '{key}' not found")
 
+
+    # Retrieves the nested config class associated with a key.from.from
+    # Return class type if key found and class exists, otherwise none.from
+    # Throws exception if config key doesn't exist.
     def _nested_config(self, key):
         try:
             config_key = self._config_key(key)
-        except Exception as e:
-            raise e
+        except ValueError:
+            return None
         if config_key:
             return config_key.nested_config
         return None
 
-    def _load_params(self, **kargs):
-        for key, val in kargs.items():
+    def _load_params(self, **kwargs):
+        for key, val in kwargs.items():
             if key in self.keys():
                 nested_config = self._nested_config(key)
                 #Recursively initializes nested configurations if key is associated with a config
                 if nested_config and isinstance(val, dict):
                     new_config = nested_config(load_dict=val)
+                    setattr(self, key, new_config)
                 #If not a config, just set the value in the dictionary
                 else:
                     setattr(self, key, val)
@@ -304,6 +205,10 @@ class BaseConfig(metaclass=ConfigMetaClass):
     def _load_dict(self, load_dict : dict) -> None:
         self._load_params(**load_dict)
 
+
+    # Loads a configuration from any supported file type
+    # Currently supported file extensions:
+    #   - .yml
     def _load_from_file(self, filepath):
         if os.path.exists(filepath):
             file_ext = os.path.splitext(filepath)[-1]
@@ -317,7 +222,8 @@ class BaseConfig(metaclass=ConfigMetaClass):
         else:
             err = f"File at path '{filepath}' does not exist."
             raise Exception(err)
-    
+
+    # Loads a configuration via the dictionary pulled from a yml file.
     def _load_yml_file(self, yml_filepath):
         try:
             with open(yml_filepath, 'r') as f:
@@ -325,211 +231,54 @@ class BaseConfig(metaclass=ConfigMetaClass):
                 self._load_params(**yml_data)
         except Exception as e:
             raise e
-        
 
+    # Parses through input arguments, validates them, and sets their associated attributes
+    def __post_init__(self):
+
+        if self.load_dict:
+            self._load_dict(self.load_dict)
+
+        elif self.load_filepath:
+            self._load_from_file(filepath=self.load_filepath)
+
+        #Populate config keys list and validate all non-optional arguments are set.
+        for _field in fields(self):
+            if _field.type == ConfigKey:
+                self._key_attribute_names.append(_field.name)
+                config_key = object.__getattribute__(self, _field.name)
+                #Non-optional validation
+                try:
+                    config_key.validate(config_key.value(), ignore_optional=False)
+                except Exception as e:
+                    raise e
+
+    # Custom getter that retrieves the value held by a name's associated config key
+    # If the associated attribute is not a config key, use default getter.
     def __getattribute__(self, name: str) -> Any:
 
+        attr = object.__getattribute__(self, name)
+        if isinstance(attr, ConfigKey):
+            return attr.value()
 
-        cls = object.__getattribute__(self, '__class__')
-        annotations = object.__getattribute__(cls, '__annotations__')
-        formatted_name = f"_{name}"
-
-        if name in annotations and formatted_name in self.__dict__:
-            return self.__dict__[formatted_name]
-
-        return object.__getattribute__(self, name)
-
-        # formatted_name = f"_{name}"
-        # if formatted_name in self.__class__.__annotations__:
-        #     return self.__dict__.get(formatted_name, None)
-        # raise AttributeError("Attribute not found")
-        
-    # def combineAsCopy(self, other : BaseConfig) -> BaseConfig:
-    #     self_copy = copy.deepcopy(self)
-    #     for key, val in other.items():
-    #         if not self.isKey(key):
-    #             setattr(self_copy, key, copy.deepcopy(val))
-        
-    #     return self_copy
+        return super().__getattribute__(name)
 
 
+    # Custom setter that sets input values in the config key associated with the name
+    # Does not affect attributes that aren't config key instances
+    def __setattr__(self, name: str, value: Any):
 
-        
+        if hasattr(self, name):
+            attr = object.__getattribute__(self, name)
+            if isinstance(attr, ConfigKey):
+                attr.set_key_value(value)
+                return
+        if not hasattr(self, name) and name in self.__dataclass_fields__ and type(value) != ConfigKey:
+            _field = self.__dataclass_fields__[name]
+            if _field.type == ConfigKey:
+                config_key = _field.default_factory()
+                assert isinstance(config_key, ConfigKey)
+                config_key.set_key_value(value)
+                super().__setattr__(name, config_key)
+                return
 
-    
-
-
-# @dataclass
-# class BaseConfigKeys:
-
-#     @classmethod
-#     def allKeys(cls):
-#         return [field.name for field in fields(cls)]
-    
-#     @classmethod
-#     def items(cls):
-#         return [(field.name, field.default) for field in fields(cls)]
-    
-#     @classmethod
-#     def isKey(cls, key):
-#         return key in cls.allKeys()
-    
-#     @classmethod
-#     def keyField(cls, key):
-#         for field in fields(cls):
-#             if field.name == key:
-#                 return field
-#         return None
-    
-#     @classmethod
-#     def valueType(cls, key):
-#         field = cls.keyField(key)
-#         if field is None:
-#             raise AttributeError(f"Key '{key}' is not an attribute of ")   
-#         return field.type
-
-#     @classmethod
-#     def keyDefault(cls, attribute):
-#         field = cls.keyField(attribute)
-#         if field is None:
-#             raise AttributeError(f"Key '{attribute}' is not an attribute of ")   
-#         return field.default
-    
-#     #Further validation for attribute value. Defaults to throwing an exception and should be overriden by inherited classes.
-#     @classmethod
-#     def isValidValue(cls, key, val):
-#         raise NotImplementedError("Inherited Class must implement definition for this method")
-    
-#     #Formats value of the value of some key. Can be overriden by inherited classes to format unique key-value pairs.
-#     @classmethod
-#     def formatValue(cls, key, val):
-#         return val
-
-#     @classmethod
-#     def isValidArgument(cls, key, val):
-#         field = cls.keyField(key)
-#         if field is None:
-#             raise AttributeError(f"Key '{key}' is not an attribute of ")
-#         field_type = field.type
-#         return isinstance(val, field_type) and cls.isValidValue(key, val)
-
-            
-#     @classmethod
-#     def validateArgs(cls, **kargs):
-#         for key, val in kargs.items():
-#             if not cls.isValidArgument(key, val):
-#                 val_type = cls.valueType(key)
-#                 raise AttributeError(f"Value of Key '{key}' must have type '{val_type}'. Got '{type(val)}'")
-
-
-
-
-# @dataclass
-# class BaseConfig:
-
-#     key_dataclass : BaseConfigKeys
-
-#     def __init__(self, load_dict : dict, load_filepath=None, **kargs):
-
-#         #Validate args before setting instance attributes
-#         self._validate_args(**kargs)
-
-#         #Set default values for all instance attributes
-#         self._init_default_params()
-
-#         #Load Dictionary if one is given
-#         if load_dict:
-#             #Validate load dictionary before setting instance attributes
-#             self._validate_args(**load_dict)
-#             self._load_dict(load_dict)
-
-#         #Load file if one is given
-#         if load_filepath:
-#             pass
-
-#         #Validate args before setting instance attributes
-#         self._validate_args(**kargs)
-
-#         #Load all other arguments
-#         self._load_params(**kargs)
-
-#     def items(self):
-#         all_items = {}
-#         for field in fields(self):
-#             if field.name is not "key_dataclass":
-#                 key = field.name
-#                 value = getattr(self, key)
-#                 all_items[key] = value
-#         return all_items
-    
-#     def isKey(self, key):
-#         return hasattr(self, key)
-    
-#     def combine(self, other : BaseConfig):
-#         for key, val in other.items():
-#             if not self.isKey(key):
-#                 #TODO: Implement behaviour for iterable vals
-#                 setattr(self, key, copy.deepcopy(val))
-
-#     def combineAsCopy(self, other : BaseConfig):
-#         self_copy = copy.deepcopy(self)
-#         self_copy.combine(other)
-#         return self_copy
-
-#     def _validate_args(self, **kargs):
-#         try:
-#             self.key_dataclass.validateArgs(**kargs)
-#         except AttributeError as e:
-#             raise e
-        
-#     def _init_default_params(self):
-#         for key, default in self.key_dataclass.items():
-#             setattr(self, key, default)
-        
-#     def _load_params(self, **kargs):
-#         for key, val in kargs.items():
-#             formatted_val = self.key_dataclass.formatValue(key, val)
-#             setattr(self, key, formatted_val)
-    
-#     def _load_dict(self, load_dict : dict):
-#         self._load_params(**load_dict)
-
-#     def _load_from_file(self, filepath):
-#         if os.path.exists(filepath):
-#             file_ext = os.path.splitext(filepath)[-1]
-#             match file_ext:
-#                 case str(YML_EXT):
-#                     self._load_yml_file(yml_filepath=filepath)
-#                 #Add additional supported File extensions here
-#                 case _:
-#                     raise Exception(f"File with extension '{file_ext}' is not a valid file type.")
-#         else:
-#             raise Exception(f"File at path '{filepath}' does not exist.")
-        
-#     def _load_yml_file(self, yml_filepath):
-#         try:
-#             with open(yml_filepath, 'r') as f:
-#                 yml_data = yaml.safe_load(yml_filepath)
-#                 self._load_params(**yml_data)
-#         except Exception as e:
-#             raise e
-        
-#     #Annotate subclass init method for IDE autocompletion
-#     def __init_subclass__(cls, **kwargs):
-#         super().__init_subclass__(**kwargs)
-#         sub_key_dataclass = getattr(cls, 'key_dataclass', None)
-#         if sub_key_dataclass and is_dataclass(sub_key_dataclass):
-#             cls.__annotations__ = {field.name : field.type for field in fields(sub_key_dataclass)}
-
-#     #Return dictionary format for the config instance, which recursively class on member config instances.
-#     def to_dict(self):
-
-#         config_dict = {}
-#         for key in self.key_dataclass.allKeys():
-#             val = getattr(self, key)
-#             if isinstance(type(val), BaseConfig):
-#                 val = val.to_dict()
-#             config_dict[key] = val
-#         return config_dict
-
-    
+        super().__setattr__(name, value)

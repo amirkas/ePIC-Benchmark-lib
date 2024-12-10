@@ -2,18 +2,19 @@ from epic_benchmarks.configurations._simulation.types import MomentumUnits, Mome
 import re
 import numbers
 
-ELECTRON_VOLTS_PATTERN = '^([mkMGTP]?)(eV)'
-MOMENTUM_PATTERN = f'^(\d+)(*?)({MomentumUnits.regexPattern()})?$'
-THETA_PATTERN = f'^(\d+)(*?)(degree)?$'
+ELECTRON_VOLTS_PATTERN = r'^([mkMGTP]?)(eV)'
+MOMENTUM_PATTERN = MomentumUnits.regexPattern()
+THETA_PATTERN = rf'^(\d+)(\*?)(degree)?$'
+
 
 #Validate configuration values
 def validateMomentum(momentum) -> bool:
     if not isinstance(momentum, numbers.Number) and not isinstance(momentum, str):
         raise Exception("Momentum must be a string or a number")
-    
+
     allowed_units = [unit.value for unit in MomentumUnits]
     if isinstance(momentum, str):
-        match = re.match(momentum, MOMENTUM_PATTERN)
+        match = re.match(MOMENTUM_PATTERN, momentum)
         if not match:
             raise AttributeError("Momentum does not have a valid format.")
         if match and not MomentumRange.inRange(match.group(1)):
@@ -28,7 +29,7 @@ def validateMomentum(momentum) -> bool:
 def formatMomentum(momentum):
 
     if isinstance(momentum, str):
-        match = re.match(momentum, MOMENTUM_PATTERN)
+        match = re.match(MOMENTUM_PATTERN, momentum)
         assert match
         momentum_value = match.group(1)
         units = match.group(3)

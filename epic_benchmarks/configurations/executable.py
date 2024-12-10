@@ -1,40 +1,41 @@
 import numbers
-from dataclasses import dataclass, fields
-from typing import Type, Dict
+from epic_benchmarks.configurations.ranges import Range
+from dataclasses import dataclass, fields, field, is_dataclass
+from typing import Type, Dict, Union, Any, Optional
 import os
 
 
 VALID_FLAG_VALUE_TYPES = [int, float, str, None]
 
 #Base class for representing a Bash Executable Flag
-@dataclass 
+@dataclass(frozen=True)
 class BashExecFlag:
 
     flag : str
-    value_types : Type | list[Type] | None
+    value_types : Union[Type, list[Type], None] = field(hash=False)
 
     value_is_numeric : bool = False
     value_is_alphabetic : bool = False
     value_is_file : bool = False
     file_exists : bool = False
 
-    value_range : SimulationRange = None # type: ignore
-    value_prefix : str = ""
-    value_suffix : str = ""
+    value_range : Optional[Range] = field(default=None, hash=False)
+    value_prefix : Optional[str] = field(default=None, hash=True)
+    value_suffix : Optional[str] = field(default=None, hash=True)
 
     def __post_init__(self):
         
         #Validate that value types are either int, float, str, or None
         self._validate_flag()
             
-    def bashFormat(self, value=None):
+    def bash_format(self, value=None) -> str:
         #Validate the value
         try:
             self._validate_value(value)
         except Exception as e:
             raise e
         #Edge case 1: If value is none just return the flag
-        if value == None:
+        if value is None:
             return self.flag
         
         bash_str = ""
@@ -57,7 +58,7 @@ class BashExecFlag:
     
 
     def _validate_flag(self):
-        #Convert single value type to list to reduce code repitition
+        #Convert single value type to list to reduce code repetition
         flag_types = self.value_types
         if not isinstance(self.value_types, list):
             flag_types = [self.value_types]
@@ -138,32 +139,46 @@ class BashExecFlag:
 @dataclass
 class BashExecutable:
 
-    executable : str = ""
-    flag_value_dict : Dict[BashExecFlag, numbers.Number | str | None] = {}
+    executable : str = field(default="", init=True)
+    _flag_container: Optional[Any] = field(default=None, init=False)
+    flag_value_dict : Dict[BashExecFlag, Union[numbers.Number, str, None]] = field(default_factory=dict, init=False)
     last_flag : BashExecFlag = None # type: ignore
 
     def flags(self):
-        return [field.default for field in fields(self) if field.name is not "executable" or field.name is not "flag_value_dict"]
+        _flags = []
+        for _field in fields(self._flag_container):
+            attr = getattr(self._flag_container, _field.name)
+            if isinstance(attr, BashExecFlag):
+                _flags.append(attr)
+        return _flags
 
-    def setFlagValue(self, flag : BashExecFlag, value : numbers.Number | str | None):
+    def setFlagValue(self, flag : BashExecFlag, value : Union[numbers.Number, str, None]):
         executable_flags = self.flags()
         if flag not in executable_flags:
             raise AttributeError(f"Flag '{flag}' is not a flag for this executable. The following flags are available:") #TODO: Add string representation
         self.flag_value_dict[flag] = value
 
-    def setAllFlagsValue(self, flag_value_dictionary):
+    def setAllFlagsValue(self, flag_value_dictionary : Dict[BashExecFlag, Union[numbers.Number, str, None]]):
         self.flag_value_dict = flag_value_dictionary
 
-    def generateCommand(self, flag_value_dict):
+    def generateCommand(self):
         executable_string = f'{self.executable} '
         for flag, value in self.flag_value_dict.items():
             #Do not add specified last flag until the end
             if flag is not self.last_flag:
                 try:
-                    executable_string += f'{flag.bashFormat(value)} '
+                    executable_string += f'{flag.bash_format(value)} '
                 except Exception as e:
                     raise e
         if self.last_flag:
             last_val = self.flag_value_dict.items()
-            executable_string += f'{self.last_flag.bashFormat(last_val)}'
+            executable_string += f'{self.last_flag.bash_format(last_val)}'
         return executable_string
+
+    def __post_init__(self):
+
+        if self._flag_container is not None and not is_dataclass(self._flag_container):
+            raise Exception("Provided flag container must be a dataclass.")
+        # for _field in fields(self._flag_container):
+        #     if isinstance(_field.default, BashExecFlag):
+        #         setattr(self, _field.name, _field.default)

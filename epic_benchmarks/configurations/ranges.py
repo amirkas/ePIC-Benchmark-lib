@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
+
 @dataclass
-class Range():
+class Range:
     Max = 0
     Min = 0
     ValueName = "Value"
@@ -15,7 +16,7 @@ class Range():
     @classmethod
     def inRange(cls, val):
         try:
-            cls.validate(val)
+            cls.validate(float(val))
         except:
             return False
         return True

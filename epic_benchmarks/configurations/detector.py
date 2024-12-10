@@ -1,38 +1,39 @@
-from epic_benchmarks.configurations._config import BaseConfig, ConfigMetaClass
-from epic_benchmarks.configurations._detector.keys import DetectorKeyContainer
+from typing import Any, Dict
+
+from epic_benchmarks.configurations._config import BaseConfig, ConfigKey
 from epic_benchmarks.configurations._detector.types import DetectorConfigType
+from dataclasses import dataclass, fields, field
 
-
+@dataclass
 class DetectorConfig(BaseConfig):
 
-    _config_key_container = DetectorKeyContainer()
+    file: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="file",
+        types=str,
+    ))
+    edit_type: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="edit_type",
+        types=[str, DetectorConfigType],
+        default=DetectorConfigType.SET
+    ))
+    detector_attributes: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="detector_attributes",
+        types=Dict[str, str]
+    ))
+    module_attributes: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="module_attributes",
+        types=Dict[str, str]
+    ))
+    module_component_attributes: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="module_component_attributes",
+        types=Dict[str, str]
+    ))
+    update_attribute: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="update_attribute",
+        types=str,
+    ))
+    update_value: ConfigKey = field(init=False, default_factory=lambda: ConfigKey(
+        key_name="update_value",
+        types=Any,
+    ))
 
-    def foo(self):
-        # print(f"\n\n{self.__class__.__dict__}")
-        # print(f"\n\\n{self.update_value}")]
-        # print(self.__class__.__dict__)
-        pass
-
-config = DetectorConfig(
-    {
-    'file' : "tracking/silicon_disks.xml",
-    'detector_attributes' : {"name" : "InnerTrackerEndcapP"},
-    'module_attributes' : {"name" : "Module1"},
-    'module_component_attributes' : {"material" : "Silicon"},
-    'update_attribute' : "sensitive",
-    'update_value' : False
-    },
-    load_filepath=None
-)
-
-
-
-# print(DetectorKeyContainer().keys())
-
-# print(getattr(DetectorConfig, '_config_key_container', None))
-# print(DetectorConfig.__annotations__)
-
-
-
-
-        

@@ -5,12 +5,17 @@ from epic_benchmarks.configurations._detector.types import DetectorConfigType
 from epic_benchmarks.configurations._detector.xpath import DetectorConfigXpath
 
 @dataclass
-class DetectorKeyContainer(ConfigKeyContainer):
+class DetectorKeyContainer:
 
     file : ConfigKey = field(default_factory=lambda: ConfigKey(
         key_name="file",
         types=str,
         default="Test"
+    ))
+    config_type : ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="edit_type",
+        types=[str, DetectorConfigType],
+        default=DetectorConfigType.SET
     ))
     detector_attributes : ConfigKey = field(default_factory=lambda: ConfigKey(
         key_name="detector_attributes",

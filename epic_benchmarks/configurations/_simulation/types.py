@@ -1,5 +1,4 @@
 from enum import Enum
-import re
 from epic_benchmarks.configurations.ranges import Range
 
 #Simulation Enums
@@ -29,12 +28,15 @@ class MomentumUnits(Enum):
 
     @classmethod
     def regexPattern(cls):
-        pattern = re.compile("|".join([str(unit for unit in cls)]))
+        prefix = fr'^(\d+)(\*?)('
+        suffix = fr')?$'
+        units_pattern = "|".join([str(unit.value) for unit in cls if unit is not MomentumUnits.NoUnits])
+        pattern = prefix + units_pattern + suffix
+        return pattern
 
     @classmethod
     def __repr__(cls):
         return f"[{", ".join([str(unit for unit in cls)])}]"
-
 
 class ThetaRange(Range):
     Max = 180.0
