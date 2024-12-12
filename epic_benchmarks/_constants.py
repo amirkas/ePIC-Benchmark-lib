@@ -1,3 +1,74 @@
+from enum import Enum
+import re
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+#Simulation Objects
+
+class Particle(Enum):
+    PionNeutral = "pi"
+    PionPlus = "pi+"
+    PionNeg = "pi-"
+    #TODO: Add all particles
+
+class MomentumUnits(Enum):
+
+    NoUnits = ""
+    meV = "meV"
+    eV = "eV"
+    keV = "keV"
+    MeV = "MeV"
+    GeV = "GeV"
+    TeV = "TeV"
+    PeV = "PeV"
+
+    @classmethod
+    def _regexPattern(cls):
+        prefix = fr'^(\d+)(\*?)('
+        suffix = fr')?$'
+        units_pattern = "|".join([str(unit.value) for unit in cls if unit is not MomentumUnits.NoUnits])
+        pattern = prefix + units_pattern + suffix
+        return pattern
+
+    @classmethod
+    def __repr__(cls):
+        return f"[{", ".join([str(unit for unit in cls)])}]"
+
+@dataclass
+class Momentum:
+
+    magnitude : float = field(init=True)
+    units : Optional[MomentumUnits] = field(default=MomentumUnits.GeV, init=True)
+
+    def __repr__(self):
+        return f"{self.magnitude}{self.units.value}"
+
+class GunDistribution(Enum):
+    Uniform = "uniform"
+    Eta = "eta"
+    #TODO: Add other distributions and assess their input requirements
+
+
+#Detector Objects
+
+class DetectorConfigType(Enum):
+
+    SET = "set"
+    ADD = "add"
+    DELETE = "delete"
+
+#Benchmark Objects
+
+class EpicBranches(Enum):
+
+    MAIN = "main"
+    SVT_CURVED = "svt_curved"
+    #TODO: Add branches of epic repository to access
+
+
+
+
 
 DETECTOR_SET_CMD = "set"
 DETECTOR_ADD_CMD = "add"

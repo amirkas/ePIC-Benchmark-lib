@@ -14,7 +14,7 @@ class Range:
             raise Exception(f"Value for {cls.ValueName}, '{val}{cls.ValueUnits}', must be in the range: [{cls.Min}, {cls.Max}]")
         
     @classmethod
-    def inRange(cls, val):
+    def in_range(cls, val):
         try:
             cls.validate(float(val))
         except:

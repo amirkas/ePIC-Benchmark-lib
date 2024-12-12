@@ -1,3 +1,8 @@
+from .configurations import *
+
+
+
+
 
 # from .configurations.benchmark_suite_config import BenchmarkSuiteConfig
 # from .configurations.benchmark_config import BenchmarkConfig

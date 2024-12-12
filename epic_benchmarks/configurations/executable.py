@@ -34,14 +34,10 @@ class BashExecFlag:
             self._validate_value(value)
         except Exception as e:
             raise e
+
         #Edge case 1: If value is none just return the flag
         if value is None:
             return self.flag
-        
-        bash_str = ""
-        value_type = type(value)
-        #Format value with provided prefix and suffix
-        complete_val = f'{self.value_prefix}{value}{self.value_suffix}'
 
         #Edge case 2: If flag is empty, do not append '='.
         if len(self.flag) == 0:
@@ -49,9 +45,13 @@ class BashExecFlag:
         else:
             flag_str = f'{self.flag}='
 
-        if value_type == int or value_type == float:
+        # Format value with provided prefix and suffix
+        complete_val = f'{self.value_prefix}{value}{self.value_suffix}'
+
+        bash_str = ""
+        if type(value) == int or type(value) == float:
             bash_str = f'{flag_str}{complete_val}'
-        elif value_type == str: 
+        elif type(value) == str:
             bash_str = f'{flag_str}"{complete_val}"'
 
         return bash_str
@@ -63,12 +63,12 @@ class BashExecFlag:
         if not isinstance(self.value_types, list):
             flag_types = [self.value_types]
         
-        for flag_type in flag_types: # type: ignore
+        for flag_type in flag_types:
             if flag_type not in VALID_FLAG_VALUE_TYPES:
                 raise AttributeError(f"Flag Value Type must be one of '[{", ".join(VALID_FLAG_VALUE_TYPES)}]'. Got {flag_type}")
             
         #Additional check if user specified at least a (flag of length > 0) and / or (a value that is not None)
-        if len(self.flag) == 0 and None in flag_types: # type: ignore
+        if len(self.flag) == 0 and None in flag_types:
             raise AttributeError(f"Cannot have a Zero length flag with a None type value")
         
         #Additional check to ensure user Flag is enforced to be (numeric or alphabetic) or (numeric or file), not both.
@@ -152,24 +152,21 @@ class BashExecutable:
                 _flags.append(attr)
         return _flags
 
-    def setFlagValue(self, flag : BashExecFlag, value : Union[numbers.Number, str, None]):
+    def set_flag_val(self, flag : BashExecFlag, value : Union[numbers.Number, str, None]):
         executable_flags = self.flags()
         if flag not in executable_flags:
             raise AttributeError(f"Flag '{flag}' is not a flag for this executable. The following flags are available:") #TODO: Add string representation
         self.flag_value_dict[flag] = value
 
-    def setAllFlagsValue(self, flag_value_dictionary : Dict[BashExecFlag, Union[numbers.Number, str, None]]):
+    def set_all_flags_vals(self, flag_value_dictionary : Dict[BashExecFlag, Union[numbers.Number, str, None]]):
         self.flag_value_dict = flag_value_dictionary
 
-    def generateCommand(self):
+    def generate_cmd(self):
         executable_string = f'{self.executable} '
         for flag, value in self.flag_value_dict.items():
             #Do not add specified last flag until the end
             if flag is not self.last_flag:
-                try:
-                    executable_string += f'{flag.bash_format(value)} '
-                except Exception as e:
-                    raise e
+                executable_string += f'{flag.bash_format(value)} '
         if self.last_flag:
             last_val = self.flag_value_dict.items()
             executable_string += f'{self.last_flag.bash_format(last_val)}'
@@ -179,6 +176,4 @@ class BashExecutable:
 
         if self._flag_container is not None and not is_dataclass(self._flag_container):
             raise Exception("Provided flag container must be a dataclass.")
-        # for _field in fields(self._flag_container):
-        #     if isinstance(_field.default, BashExecFlag):
-        #         setattr(self, _field.name, _field.default)
+

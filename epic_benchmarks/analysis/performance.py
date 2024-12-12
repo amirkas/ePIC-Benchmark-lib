@@ -187,7 +187,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
     result = model.fit(n, params, x=xx)
     
     # -----2nd fit--------
-    std = result.params['sigma'].value
+    std = result.params['sigma'].get_value
     # print(mean,std)
     c1 = xx<=(mean+2*std)
     c2 = xx>=(mean-2*std)
@@ -210,7 +210,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
     #     print (result.best_values)
     # plt.plot(xx, result.best_fit, 'r-', label='best fit')
     if len(result.best_fit)>0:
-        ax.plot(xx[cond], result.best_fit, 'r-', label='sigma=%g,err=%g' %(result.params['sigma'].value,result.params['sigma'].stderr))
+        ax.plot(xx[cond], result.best_fit, 'r-', label='sigma=%g,err=%g' %(result.params['sigma'].get_value, result.params['sigma'].stderr))
     ax.legend(title=header, frameon=False,loc='upper left')
 
     ymax  = np.max(n)
@@ -219,7 +219,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
         ax.set_ylim(1,ymax*10)
     else:
         ax.set_ylim(0,ymax*1.3)
-    return float(result.params['sigma'].value),float(result.params['sigma'].stderr)
+    return float(result.params['sigma'].get_value),float(result.params['sigma'].stderr)
 
 
 def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):

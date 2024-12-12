@@ -1,14 +1,12 @@
 from __future__ import annotations
+from collections.abc import Iterable
 import copy
 from dataclasses import dataclass, fields, field, is_dataclass
 import os
 import yaml
 from typing import Type, Callable, List, Any, Optional, ClassVar, Self, Dict
 
-XML_EXT = ".xml"
-YML_EXT = ".yml"
-
-@dataclass 
+@dataclass(kw_only=True)
 class ConfigKey:
 
     # Name of the key that will be used as the tag in a configuration file
@@ -18,31 +16,33 @@ class ConfigKey:
     types : Type | List[Type]
 
     # Default value for configuration
-    default : Any = None
+    default : Optional[Any] = field(default=None, init=True)
 
     # Boolean indicating that a value must be provided for
     # this configuration parameter
-    optional : bool = True
+    optional : Optional[bool] = field(default=True, init=True)
 
     # A callable that takes in the configuration value and returns a correctly formatted one
-    factory : Optional[Callable[[Any], Any]] = None
+    formatter : Optional[Callable[[Any], Any]] = field(default=None, init=True)
 
     # A callable that takes in a configuration value and does extra validation beyond type and optional checking
-    validator : Optional[Callable[[Any], bool]] = None
+    validator : Optional[Callable[[Any], bool]] = field(default=None, init=True)
 
     # A dictionary to store metadata associated with a config key
     # Example: BashExecFlags
-    metadata : Optional[Dict[Any, Any]] = field(default_factory=dict)
+    metadata : Optional[Dict[Any, Any]] = field(default_factory=dict, init=True)
 
     # Indicates that this configuration key is associated with a configuration instance value.
     # Nested configs allow 1 configuration class to have multiple sub-configuration classes
-    nested_config : Optional[BaseConfig] | None = None
+    nested_config : Optional[BaseConfig] | None = field(default=None, init=True)
 
-    # Internal field that stores the current value assoicated with the key.
-    _current_value : Optional[Any] = None
+    # Internal field that stores the current value associated with the key.
+    _current_value : Optional[Any] = field(default=False, init=False)
 
-    # Internal field indicating whether the key has been externaly set.
+    # Internal field indicating whether the key has been externally set.
     _value_set : bool = field(default=False, init=False)
+
+
     def __post_init__(self):
 
         #If no types are provided in types list raise Exception.
@@ -66,7 +66,7 @@ class ConfigKey:
         #Set current_value to the default value
         self.current_value = self.default
 
-    def set_key_value(self, value):
+    def update_value(self, value):
         try:
             self.validate(value)
         except Exception as e:
@@ -74,20 +74,21 @@ class ConfigKey:
         self._value_set = True
         self._current_value = self.format(value)
 
-    def value(self):
+    def get_value(self):
         return self._current_value
 
     def is_optional(self) -> bool:
         return self.optional
 
-    def is_value_set(self) -> bool:
+    def value_updated(self) -> bool:
         return self._value_set
 
     def format(self, value):
-        if self.factory:
-            return self.factory(value)
+        if self.formatter:
+            return self.formatter(value)
         return value
-    
+
+    #TODO: Refactor function into components
     def validate(self, value, ignore_optional=False):
         type_list = self.types
         #Early check if value is optional and is none
@@ -96,7 +97,7 @@ class ConfigKey:
         if not isinstance(self.types, list):
             type_list = [self.types]
         valid_type_found = False
-        for t in type_list: # type: ignore
+        for t in type_list:
             #Break early
             if t is Any:
                 valid_type_found = True
@@ -106,10 +107,9 @@ class ConfigKey:
                 valid_type_found = True
                 break
             #Handle non-primitive types
-            elif hasattr(t, "__origin__"):
-                if isinstance(value, t.__origin__):
-                    valid_type_found = True
-                    break
+            elif hasattr(t, "__origin__") and isinstance(value, t.__origin__):
+                valid_type_found = True
+                break
         if not valid_type_found:
             if not self.optional and not self._value_set and not ignore_optional:
                 err = f"'{self.key_name}' is a non-Optional configuration which must be provided a value."
@@ -117,7 +117,10 @@ class ConfigKey:
             elif not self.optional and not self._value_set and ignore_optional:
                 pass
             else:
-                err = f"Config key '{self.key_name}' has value '{value}' which must have one of the following type(s): [{" ".join(map(str, type_list))}]. Got '{str(type(value))}'"
+                err = (f"Config key '{self.key_name}' has value '{value}' which must"
+                       f" have one of the following type(s):"
+                       f" [{" ".join(map(str, type_list))}]. Got '{str(type(value))}'"
+                )
                 raise TypeError(err)
         if self.validator:
             try:
@@ -129,45 +132,72 @@ class ConfigKey:
                 raise ValueError(err)
            
 
-@dataclass
+@dataclass(kw_only=True)
 class BaseConfig:
 
     load_dict : Optional[Dict[str, Any]] = field(init=True, default=None)
     load_filepath : Optional[str] = field(init=True, default=None)
-    kwargs : Optional[Dict[str, Any]] = field(init=True, default=None)
     _key_attribute_names : List[str] = field(default_factory=list, init=False)
+
+    #Supported Files for loading and saving
+    YML_EXT = ".yml"
+    YAML_EXT = ".yaml"
+    XML_EXT = ".xml"
 
     def keys(self):
         return copy.deepcopy(self._key_attribute_names)
     
-    def is_key(self, key):
+    def property_exists(self, key):
         return key in self.keys()
 
-    def key_val(self, key):
-        config_key = object.__getattribute__(self, key)
-        if isinstance(config_key, ConfigKey):
-            return config_key.value()
-        err = f"Key '{key}' is not a valid key."
-        raise ValueError(err)
+    def property_value(self, key):
+        config_key = self._config_key(key)
+        return config_key.get_value()
 
-    def key_metadata(self, key):
+    def property_default(self, key):
+        config_key = self._config_key(key)
+        return config_key.default
 
-        config_key = object.__getattribute__(self, key)
-        if isinstance(config_key, ConfigKey):
-            return config_key.metadata
-        err = f"Key '{key}' is not a valid key."
-        raise ValueError(err)
+    def property_metadata(self, key):
+        config_key = self._config_key(key)
+        return config_key.metadata
+
+    def property_updated(self, key):
+        config_key = self._config_key(key)
+        return config_key.value_updated()
 
     def to_dict(self):
         config_dict = {}
         for key in self.keys():
             val = getattr(self, key)
-            if isinstance(type(val), BaseConfig):
+            if isinstance(val, BaseConfig):
                 val = val.to_dict()
+            elif isinstance(val, list):
+                val = self._to_dict_iter_helper(val)
             config_dict[key] = val
         return config_dict
 
-    #Private methods
+
+
+
+
+
+    # Private methods
+    def _to_dict_iter_helper(self, lst : list):
+
+        assert isinstance(lst, list)
+        parsed = []
+        for item in lst:
+            if isinstance(item, BaseConfig):
+                parsed.append(item.to_dict())
+            elif isinstance(item, list):
+                nested_list = self._to_dict_iter_helper(item)
+                parsed.append(nested_list)
+            else:
+                parsed.append(item)
+        return parsed
+
+
     # Gets the configuration key associated with 'key'
     def _config_key(self, key):
         key_names = self.keys()
@@ -181,7 +211,7 @@ class BaseConfig:
     # Retrieves the nested config class associated with a key.from.from
     # Return class type if key found and class exists, otherwise none.from
     # Throws exception if config key doesn't exist.
-    def _nested_config(self, key):
+    def _nested_config(self, key) -> ConfigKey:
         try:
             config_key = self._config_key(key)
         except ValueError:
@@ -191,20 +221,38 @@ class BaseConfig:
         return None
 
     def _load_params(self, **kwargs):
-        for key, val in kwargs.items():
-            if key in self.keys():
-                nested_config = self._nested_config(key)
-                #Recursively initializes nested configurations if key is associated with a config
-                if nested_config and isinstance(val, dict):
-                    new_config = nested_config(load_dict=val)
-                    setattr(self, key, new_config)
-                #If not a config, just set the value in the dictionary
-                else:
-                    setattr(self, key, val)
+
+        for key in self.keys():
+            val = kwargs[key]
+            nested_config = self._nested_config(key)
+            #Recursively initializes nested configurations if key is associated with a config
+            if nested_config and isinstance(val, dict):
+                new_config = nested_config(load_dict=val)
+                setattr(self, key, new_config)
+            elif nested_config and isinstance(val, list):
+                nested_lst = self._load_params_iter_helper(nested_config, val)
+                setattr(self, key, nested_lst)
+            #If not a config, just set the value in the dictionary
+            else:
+                setattr(self, key, val)
+
+    def _load_params_iter_helper(self, nested_config, lst : list):
+
+        assert isinstance(lst, list)
+        parsed = []
+        for item in lst:
+            if nested_config and isinstance(item, dict):
+                new_config = nested_config(load_dict=item)
+                parsed.append(new_config)
+            elif isinstance(item, list):
+                nested_list = self._load_params_iter_helper(nested_config, item)
+                parsed.append(nested_list)
+            else:
+                parsed.append(item)
+        return parsed
 
     def _load_dict(self, load_dict : dict) -> None:
         self._load_params(**load_dict)
-
 
     # Loads a configuration from any supported file type
     # Currently supported file extensions:
@@ -248,9 +296,10 @@ class BaseConfig:
                 config_key = object.__getattribute__(self, _field.name)
                 #Non-optional validation
                 try:
-                    config_key.validate(config_key.value(), ignore_optional=False)
+                    config_key.validate(config_key.get_value(), ignore_optional=False)
                 except Exception as e:
                     raise e
+
 
     # Custom getter that retrieves the value held by a name's associated config key
     # If the associated attribute is not a config key, use default getter.
@@ -258,7 +307,7 @@ class BaseConfig:
 
         attr = object.__getattribute__(self, name)
         if isinstance(attr, ConfigKey):
-            return attr.value()
+            return attr.get_value()
 
         return super().__getattribute__(name)
 
@@ -270,14 +319,14 @@ class BaseConfig:
         if hasattr(self, name):
             attr = object.__getattribute__(self, name)
             if isinstance(attr, ConfigKey):
-                attr.set_key_value(value)
+                attr.update_value(value)
                 return
         if not hasattr(self, name) and name in self.__dataclass_fields__ and type(value) != ConfigKey:
             _field = self.__dataclass_fields__[name]
             if _field.type == ConfigKey:
                 config_key = _field.default_factory()
                 assert isinstance(config_key, ConfigKey)
-                config_key.set_key_value(value)
+                config_key.update_value(value)
                 super().__setattr__(name, config_key)
                 return
 

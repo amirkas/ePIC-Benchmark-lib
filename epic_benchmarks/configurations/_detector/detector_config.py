@@ -102,7 +102,7 @@ class DetectorConfig(BaseConfig):
         if not args_valid:
             raise ArgumentError(err)
         
-        if load_config_dict != None:
+        if load_config_dict is not None:
             for key, value in load_config_dict.items():
                 if DetectorConfigKeys.hasKey(key):
                     setattr(self, key, value)
@@ -158,35 +158,10 @@ class DetectorConfig(BaseConfig):
             editor.save()
         except:
             raise Exception("Could not apply changes for:\n", str(self))
-        
-    def __repr__(self):
-
-        type_str = f"Configuration Type: {getattr(self, DetectorConfigKeys.CONFIG_TYPE)}"
-        filename_str = f"File name : {getattr(self, DetectorConfigKeys.FILE)}"
-
-        detector_attributes = getattr(self, DetectorConfigKeys.DETECTOR_ATTRIBUTES)
-        module_attributes = getattr(self, DetectorConfigKeys.MODULE_ATTRIBUTES)
-        module_component_attributes = getattr(self, DetectorConfigKeys.MODULE_COMPONENT_ATTRIBUTES)
-
-        detector_attributes_tuples = list(detector_attributes.items())
-        module_attributes_tuples = list(module_attributes.items())
-        module_component_attributes_tuples = list(module_component_attributes.items())
-
-        attr_str_func = lambda item: f"(attribute: {item[0]}, value: {item[1]})"
-        detector_attr_str = f"Detector Attributes: [{" ".join(map(attr_str_func, detector_attributes_tuples))}]"
-        module_attr_str = f"Module Attributes: [{" ".join(map(attr_str_func, module_attributes_tuples))}]"
-        component_attr_str = f"Module Component Attributes: [{" ".join(map(attr_str_func, module_component_attributes_tuples))}]"
-
-        update_attribute_str = getattr(self, DetectorConfigKeys.UPDATE_ATTRIBUTE)
-        update_value_str = getattr(self, DetectorConfigKeys.UPDATE_VALUE)
-
-        combined_str = f"{type_str}\n{filename_str}\n{detector_attr_str}\n{module_attr_str}\n{component_attr_str}\n{update_attribute_str}\n{update_value_str}"
-        return combined_str
-
 
     def _validate_args(self, load_config_dict, config_type, detector_file_name,
-            detector_attributes, module_attributes, module_component_attributes,
-            update_attribute, update_value):
+                       detector_attributes, module_attributes, module_component_attributes,
+                       update_attribute, update_value):
 
         err_msg = ''
         is_valid = True
@@ -212,10 +187,36 @@ class DetectorConfig(BaseConfig):
             is_valid, err_msg = False, "'update_value' must be an argument for 'set' or 'add' config types"
 
         return is_valid, err_msg
-    
+
     def _validate_load_dict(self, load_dict):
-        #TODO: Implement load dictionary validation
+        # TODO: Implement load dictionary validation
         pass
+
+    def __repr__(self):
+
+        type_str = f"Configuration Type: {getattr(self, DetectorConfigKeys.CONFIG_TYPE)}"
+        filename_str = f"File name : {getattr(self, DetectorConfigKeys.FILE)}"
+
+        detector_attributes = getattr(self, DetectorConfigKeys.DETECTOR_ATTRIBUTES)
+        module_attributes = getattr(self, DetectorConfigKeys.MODULE_ATTRIBUTES)
+        module_component_attributes = getattr(self, DetectorConfigKeys.MODULE_COMPONENT_ATTRIBUTES)
+
+        detector_attributes_tuples = list(detector_attributes.items())
+        module_attributes_tuples = list(module_attributes.items())
+        module_component_attributes_tuples = list(module_component_attributes.items())
+
+        attr_str_func = lambda item: f"(attribute: {item[0]}, value: {item[1]})"
+        detector_attr_str = f"Detector Attributes: [{" ".join(map(attr_str_func, detector_attributes_tuples))}]"
+        module_attr_str = f"Module Attributes: [{" ".join(map(attr_str_func, module_attributes_tuples))}]"
+        component_attr_str = f"Module Component Attributes: [{" ".join(map(attr_str_func, module_component_attributes_tuples))}]"
+
+        update_attribute_str = getattr(self, DetectorConfigKeys.UPDATE_ATTRIBUTE)
+        update_value_str = getattr(self, DetectorConfigKeys.UPDATE_VALUE)
+
+        combined_str = f"{type_str}\n{filename_str}\n{detector_attr_str}\n{module_attr_str}\n{component_attr_str}\n{update_attribute_str}\n{update_value_str}"
+        return combined_str
+
+
         
 
 

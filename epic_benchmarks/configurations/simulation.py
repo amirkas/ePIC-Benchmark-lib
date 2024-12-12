@@ -1,7 +1,7 @@
 from dataclasses import dataclass, fields, field, is_dataclass
 from typing import Dict, Union
 
-from epic_benchmarks.configurations._simulation._validation import validateMomentum, formatMomentum
+from epic_benchmarks.configurations._simulation._validation import validate_momentum, format_momentum
 from epic_benchmarks.configurations._simulation.executable import NpsimFlag, EicreconFlag, NpsimExecutable, EicreconExecutable
 from epic_benchmarks.configurations._simulation.types import Particle, GunDistribution
 from epic_benchmarks.configurations._config import BaseConfig, ConfigKey
@@ -63,8 +63,8 @@ class SimulationConfig(BaseConfig):
         types=[int, float, str],
         default="10*GeV",
         optional=False,
-        factory=formatMomentum,
-        validator=validateMomentum,
+        formatter=format_momentum,
+        validator=validate_momentum,
         metadata={NPSIM_METADATA_KEY: NpsimFlag.GunMomentumMax}
     ))
     momentum_min: ConfigKey = field(default_factory=lambda: ConfigKey(
@@ -72,8 +72,8 @@ class SimulationConfig(BaseConfig):
         types=[int, float, str],
         default="10*GeV",
         optional=False,
-        factory=formatMomentum,
-        validator=validateMomentum,
+        formatter=format_momentum,
+        validator=validate_momentum,
         metadata={NPSIM_METADATA_KEY: NpsimFlag.GunMomentumMin}
     ))
     theta_max: ConfigKey = field(default_factory=lambda: ConfigKey(
@@ -159,14 +159,14 @@ class SimulationConfig(BaseConfig):
     def _populate_exec(self, exec_key):
         try:
             for key in self.keys():
-                key_metadata = self.key_metadata(key)
+                key_metadata = self.property_metadata(key)
                 if exec_key in key_metadata.keys():
                     key_flag = key_metadata[exec_key]
-                    key_value = self.key_val(key)
+                    key_value = self.property_value(key)
                     if exec_key == NPSIM_METADATA_KEY:
-                        self._npsim_exec.setFlagValue(key_flag, key_value)
+                        self._npsim_exec.set_flag_val(key_flag, key_value)
                     elif exec_key == EICRECON_METADATA_KEY:
-                        self._eicrecon_exec.setFlagValue(key_flag, key_value)
+                        self._eicrecon_exec.set_flag_val(key_flag, key_value)
         except Exception as e:
             raise e
 
@@ -178,6 +178,8 @@ class CommonSimulationConfig(SimulationConfig):
 def npsim_command(common_config : CommonSimulationConfig, instance_config : SimulationConfig):
 
     raise NotImplementedError
+
+
 
 sim_test = SimulationConfig(
     name="Test",
