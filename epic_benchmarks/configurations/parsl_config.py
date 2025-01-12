@@ -1,14 +1,15 @@
+import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Any, List, Dict, Type
+from functools import cached_property
+from typing import Optional, Any, List, Dict, Type, Union, TypeVar
+from epic_benchmarks.configurations._validators import directory_exists, is_directory_path_writeable
 
-from parsl import Config
-from parsl.executors import HighThroughputExecutor
-from parsl.providers import LocalProvider
-from parsl.channels import LocalChannel
+from parsl.config import Config
+from pydantic import Field, field_validator, computed_field, BaseModel, ConfigDict, field_serializer
 
-from epic_benchmarks.configurations._config import BaseConfig, ConfigKey
+from epic_benchmarks.configurations._config import BaseConfig, ConfigKey, ConfigurationModel
 from epic_benchmarks.configurations._parsl.systems import SystemNode
 from epic_benchmarks.configurations._parsl.walltime_utils import format_walltime, to_hours
 
@@ -17,6 +18,7 @@ class CpuAffinity(Enum):
     BLOCK = "block"
     ALTERNATING = "alternating"
     BLOCK_REVERSE = "block_reverse"
+
 
 @dataclass
 class QOSProperties(frozen=True):
@@ -78,25 +80,85 @@ class QOSProperties(frozen=True):
             )
             raise ValueError(err)
 
-@dataclass
-class ProviderConfig:
+
+class ProviderConfig(BaseModel):
 
     label : str = field(default="Parsl Provider", init=True)
-    _parsl_provider_type : Optional[Any] = field(default=None, init=False)
+    parsl_provider_type : Optional[TypeVar] = field(default=None, init=False)
 
-    def to_provider_object(self) -> _parsl_provider_type:
+    def to_provider_object(self) -> TypeVar:
         #Must be defined by inherited class
         raise NotImplementedError()
 
-    def validate(self, **kwargs):
-        #Any validation must be implemented by inherited class
-        pass
+
+
+
+
+class ExecutorConfig(BaseModel):
+
+    executor_type : TypeVar = Field(default=None, init=False)
+    label : Optional[str] = Field(default="Parsl Executor", init=True)
+    provider : ProviderConfig = Field(init=True)
+    cores_per_worker : float = Field(default=1.0, init=True, gt=0)
+    max_workers_per_node : int = Field(default=1, init=True, ge=0)
+    cpu_affinity : Optional[CpuAffinity] = Field(default=None, init=True)
+    qos : Optional[QOSProperties] = Field(default=None, init=True)
+    compute_node : Optional[SystemNode] = Field(default=None, init=True)
+
+
+
+    @field_validator("provider", mode='before')
+    def validate_provider(cls, value : Any) -> ProviderConfig:
+
+        if isinstance(value, dict):
+            return ProviderConfig(**value)
+        elif isinstance(value, ProviderConfig):
+            return value
+        else:
+            raise ValueError("'provider' could not be converted to a ProviderConfig")
+
+    @field_serializer('provider')
+    def serialize_provider(self, provider : ProviderConfig) -> Any:
+        return provider.to_provider_object()
+
+    @computed_field
+    @cached_property
+    def max_cores_per_node(self) -> float:
+        return self.cores_per_worker * self.max_workers_per_node
+
+    def to_executor_object(self):
+
+        executor_params = {}
+        all_fields = self.model_fields
+        for field_name, field_info in all_fields.items():
+
+            if field_name == "executor_type":
+                continue
+
+            field_val = getattr(self, field_name, None)
+            if field_val:
+                executor_params[field_name] = field_val
+
+        return self.executor_type(**executor_params)
+
+
 
 @dataclass
-class ExecutorConfig:
+class TestExecutorConfig(BaseConfig):
 
     _executor_type : Type = field(default=None, init=False)
-    label : str = field(default="Parsl Executor", init=True)
+    label : ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="label",
+        types=str,
+        default="Parsl Executor Config",
+        optional=True,
+    ))
+    provider: ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="provider",
+        types=[Optional[List[Dict[str, Any]]], Optional[ProviderConfig]],
+        default="Parsl Executor Config",
+        optional=True,
+    ))
     provider: Optional[ProviderConfig] = field(default=None, init=True)
     cores_per_worker: float = field(default=1, init=True)
     max_workers_per_node : int = field(default=None, init=True)
@@ -149,14 +211,80 @@ class ExecutorConfig:
         return self.max_workers_per_node * self.cores_per_worker
 
 
+class ParslConfig(ConfigurationModel):
+    strategy : str = Field(default=None, init=True)
+    run_directory : str = Field(default=os.getcwd(), init=True)
+    executors : [List[Union[Dict[str, Any], ExecutorConfig]]] = Field(init=True)
+    parsl_config : Optional[Config] = Field(default=None, init=False)
+
+    @field_validator('strategy', mode='after')
+    def validate_strategy(cls, value : Any) -> Optional[str]:
+        if value:
+            #TODO: Check if strategy is valid parsl config strategy
+            pass
+        return value
+
+    @field_validator('run_directory', mode='after')
+    def run_directory_exists(cls, value : Any) -> Union[str, None]:
+
+        if value:
+            if not directory_exists(value):
+                err = f"Directory '{value}' does not exists"
+                raise ValueError(err)
+            if not is_directory_path_writeable(value):
+                err = f"Directory '{value}' is not writable"
+                raise ValueError(err)
+        return value
+
+    @field_validator('executor_configs', mode='before')
+    def validate_executor_configs(cls, value : Any) -> List[ExecutorConfig]:
+        if len(value) == 0:
+            raise ValueError("At least one executor_config is required")
+        parsed_list = []
+        for exec_config in value:
+            if isinstance(exec_config, dict):
+                as_executor_config = ExecutorConfig(**exec_config)
+                parsed_list.append(as_executor_config)
+            else:
+                parsed_list.append(exec_config)
+        return parsed_list
+
+    @field_serializer('executors')
+    def serialize_executors(self, executors : List[Union[Dict[str, Any], ExecutorConfig]]) -> List[Any]:
+        serialized_executors = []
+        for executor in executors:
+            serialized_executors.append(executor.to_provider_object())
+        return serialized_executors
+
+    def to_parsl_config_object(self) -> Config:
+        model_dict = self.model_dump()
+        return Config(**model_dict)
+
+
+
 @dataclass
-class ParslConfig(BaseConfig):
+class TestParslConfig(BaseConfig):
 
     _parsl_config : Optional[Config] = field(default=None, init=False)
-    strategy : Optional[str] = field(default=None, init=True)
-    run_dir : Optional[str] = field(default=None, init=True)
-    executor_configs: Optional[List[ExecutorConfig]] = field(default=None, init=True)
-
+    strategy : ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="strategy",
+        types=str,
+        default=None,
+        optional=True,
+    ))
+    run_dir: ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="run_dir",
+        types=str,
+        default=None,
+        optional=True,
+    ))
+    executor_configs: ConfigKey = field(default_factory=lambda: ConfigKey(
+        key_name="run_dir",
+        types=Optional[List[Dict[str, Any] | ExecutorConfig]],
+        default=None,
+        optional=True,
+        nested_config=ExecutorConfig
+    ))
 
     def to_parsl_config(self) -> Config:
 

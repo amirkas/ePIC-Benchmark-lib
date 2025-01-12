@@ -18,7 +18,7 @@ class YamlEditor:
         curr_node = self.content
         #Traverse tree until node that contains elem is reached.
         for key in path:
-            if (key not in curr_node.keys()):
+            if key not in curr_node.keys():
                 raise Exception(curr_path + " not found")
             else:
                 curr_node = curr_node[key]
@@ -36,7 +36,7 @@ class YamlEditor:
         for key in path[:-1]:
             print(key)
             curr_path += ("." + key)
-            if (key not in curr_node.keys()):
+            if key not in curr_node.keys():
                 raise Exception(curr_path + " not found")
             else:
                 curr_node = curr_node[key]

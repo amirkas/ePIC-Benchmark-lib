@@ -1,5 +1,12 @@
+from typing import Optional
+
 from parsl import python_app, bash_app, AUTO_LOGNAME
+
+from epic_benchmarks.workflow.containers import ContainerCli
 from epic_benchmarks.workflow.manager import ParslWorkflowManager
+
+
+
 
 @bash_app
 def pull_image(manager : ParslWorkflowManager, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME):
@@ -38,6 +45,11 @@ def compile_epic(benchmark_name : str, manager : ParslWorkflowManager, future, n
     else:
         wrapped_cmd = manager.concatenate_commands(cmd_list)
     return wrapped_cmd
+
+
+
+
+
 
 
 

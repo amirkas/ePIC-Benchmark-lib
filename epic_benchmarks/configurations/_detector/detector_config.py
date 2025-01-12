@@ -107,7 +107,6 @@ class DetectorConfig(BaseConfig):
                 if DetectorConfigKeys.hasKey(key):
                     setattr(self, key, value)
         else:
-
             setattr(self, DetectorConfigKeys.CONFIG_TYPE, config_type)
             setattr(self, DetectorConfigKeys.FILE, detector_file_name)
             setattr(self, DetectorConfigKeys.DETECTOR_ATTRIBUTES, detector_attributes)

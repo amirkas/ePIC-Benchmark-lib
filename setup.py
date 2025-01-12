@@ -7,6 +7,10 @@ setup(
     package_dir={'': '.'},
     install_requires=[
         'pyyaml',
+        'pydantic',
+        'pydantic-yaml',
+        'pydantic-cli',
+        'pydantic-settings',
         'lxml',
         'jupyter',
         'numpy',

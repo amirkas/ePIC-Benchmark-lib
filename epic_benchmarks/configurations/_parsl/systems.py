@@ -34,7 +34,6 @@ class SystemNode:
             raise ValueError(err)
 
 
-
 @dataclass(frozen=True, kw_only=True)
 class ClusterManager:
      name : str

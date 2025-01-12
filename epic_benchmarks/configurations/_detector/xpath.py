@@ -39,12 +39,10 @@ class DetectorConfigXpath:
             }
         )
 
-    
     @classmethod
     def detector_tag_query(cls, attributes):
         return cls.create_tag_query(cls.DETECTOR_TAG, attributes)
-    
-    
+
     @classmethod
     def module_tag_query(cls, attributes):
         return cls.create_tag_query(cls.MODULE_TAG, attributes)
