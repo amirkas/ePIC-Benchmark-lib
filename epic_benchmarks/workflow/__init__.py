@@ -1,13 +1,15 @@
-# from .executor import WorkflowExecutor
-# from .manager import ParslWorkflowManager
-# from .parsl_configs import SlurmProviderConfig, HeadlessConfig
-from epic_benchmarks.workflow.containers import Shifter, Docker
+from typing import Optional
+from epic_benchmarks.workflow.config import WorkflowConfig
 
-EPIC_REPO_URL = "https://github.com/eic/epic.git"
+from epic_benchmarks.workflow._run import (
+    WORKFLOW_CONFIG,
+    load_from_config, load_from_file_path,
+    run, run_from_config, run_from_file_path
+)
 
-CONTAINER_MAP = {
-    "shifter" : Shifter(),
-    "docker" : Docker()
-}
+__all__ = [
+    'WorkflowConfig',
+    'load_from_config', 'load_from_file_path',
+    'run', 'run_from_config', 'run_from_file_path'
+]
 
-SUPPORTED_CONTAINERS = CONTAINER_MAP.keys()

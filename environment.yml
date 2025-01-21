@@ -2,12 +2,9 @@ name: epic_benchmarks
 channels:
   - conda-forge
 dependencies:
-  - python <= 3.8
+  - python <= 3.12
   - pyyaml
   - pydantic
-  - pydantic-yaml
-  - pydantic-cli
-  - pydantic-settings
   - lxml
   - jupyter 
   - numpy
