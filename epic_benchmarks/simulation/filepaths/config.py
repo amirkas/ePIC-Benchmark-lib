@@ -1,9 +1,8 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import Union, Optional
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, Field
 
-from epic_benchmarks.simulation.filepaths._fields import SimulationFileFields
 from epic_benchmarks.simulation.flags import NPSIM_METADATA_KEY, EICRECON_METADATA_KEY, NpsimFlag, EicreconFlag
 from epic_benchmarks._file.types import PathType
 
@@ -34,13 +33,13 @@ EICRECON_OUTPUT_FLAG_MAP = {
 
 class SimulationFilePaths(BaseModel):
 
-    epic_directory : Optional[Path] = SimulationFileFields.EPIC_DIRECTORY_FIELD.value
-    simulation_out_directory : Optional[Path] = SimulationFileFields.SIMULATION_OUT_DIRECTORY_FIELD.value
-    reconstructions_out_directory : Optional[Path] = SimulationFileFields.RECONSTRUCTION_OUT_DIRECTORY_FIELD.value
+    epic_directory : Optional[Path] = Field(default=None, description="Path to the Epic repository")
+    simulation_out_directory : Optional[Path] = Field(default=None, description="Path to output directory for npsim generated root files")
+    reconstructions_out_directory : Optional[Path] = Field(default=None, description="Path to the output directory for eicrecon generated root files")
 
-    compact_file_relative_path : Optional[Path] = SimulationFileFields.COMPACT_RELATIVE_PATH_FIELD.value
-    simulation_out_file_name : Optional[str] = SimulationFileFields.SIMULATION_OUT_FILENAME_FIELD.value
-    reconstruction_out_file_name: Optional[str] = SimulationFileFields.RECONSTRUCTION_OUT_FILENAME_FIELD.value
+    compact_file_relative_path : Optional[Path] = Field(default=None, description="Path of detector compact file relative to epic repository root")
+    simulation_out_file_name : Optional[str] = Field(default=None, description="Name for npsim generated root file")
+    reconstruction_out_file_name: Optional[str] = Field(default=None, description="Name for eicrecon generated root file")
 
     @computed_field(json_schema_extra=DETECTOR_PATH_FLAG_MAP)
     @property

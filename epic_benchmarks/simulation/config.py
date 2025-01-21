@@ -1,16 +1,22 @@
 
 from pathlib import Path
 
-from pydantic import BaseModel, field_serializer, field_validator, model_serializer, ConfigDict
+from pydantic import (
+    BaseModel, field_serializer, field_validator,
+    model_serializer, ConfigDict, Field, AliasPath,
+    AliasChoices
+)
 from typing import Dict, Union, Optional, Any
 
 from pydantic_core.core_schema import ValidationInfo
 
-from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
+
 from epic_benchmarks._bash.flags import BashExecFlag
 from epic_benchmarks._file.types import PathType
 import epic_benchmarks.simulation._validators as simulation_validator
 
+from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
+from epic_benchmarks.simulation.flags import NpsimFlag, EicreconFlag, NPSIM_METADATA_KEY, EICRECON_METADATA_KEY
 from epic_benchmarks.simulation._fields import SimulationSettingsFields
 from epic_benchmarks.simulation.distribution.config import DistributionSettings
 from epic_benchmarks.simulation.filepaths.config import SimulationFilePaths
@@ -44,19 +50,53 @@ def _generate_flags_string(settings_model : BaseModel, flag_metadata_key : str):
                 flag_str += " " + formatted_flag
     return flag_str
 
+
 class SimulationBase(BaseModel):
 
-    num_events : int = SimulationSettingsFields.NUM_EVENTS_FIELD.value
-    momentum_min : Momentum = SimulationSettingsFields.MOMENTUM_MIN_FIELD.value
-    momentum_max : Momentum = SimulationSettingsFields.MOMENTUM_MAX_FIELD.value
-    name : Optional[str] = SimulationSettingsFields.NAME_FIELD.value
-    enable_gun : bool = SimulationSettingsFields.ENABLE_GUN_FIELD.value
-    particle : Union[str, Particle] = SimulationSettingsFields.PARTICLE_FIELD.value
-    multiplicity : float = SimulationSettingsFields.MULTIPLICITY_FIELD.value
-    detector_relative_path : Path = SimulationSettingsFields.DETECTOR_FILE_RELATIVE_PATH_FIELD.value
-    file_paths : Optional[SimulationFilePaths] = SimulationSettingsFields.FILE_PATHS_FIELD.value
-
-
+    num_events : int = Field(
+        json_schema_extra={
+            NPSIM_METADATA_KEY : NpsimFlag.NumEvents.value,
+            EICRECON_METADATA_KEY : EicreconFlag.NumEvents.value,
+        },
+        description="Number of events to simulate",
+    )
+    momentum_min : Momentum = Field(
+            validation_alias=AliasChoices(
+                'momentum_min',
+                'min_momentum',
+                'momentum',
+                AliasPath('momentum_range', 0),
+                AliasPath('momenta', 0)
+            ),
+            json_schema_extra={ NPSIM_METADATA_KEY : NpsimFlag.GunMomentumMin.value },
+            description="Minimum momentum value (or static momentum value)",
+    )
+    momentum_max : Momentum = Field(
+        validation_alias=AliasChoices(
+            'momentum_max',
+            'max_momentum',
+            'momentum',
+            AliasPath('momentum_range', 0),
+            AliasPath('momenta', 0)
+        ),
+        json_schema_extra={NPSIM_METADATA_KEY: NpsimFlag.GunMomentumMax.value},
+        description="Maximum momentum value (or static momentum value)",
+    )
+    name : Optional[str] = Field(default=None, description="Name of the simulation")
+    enable_gun : bool = Field(
+        default=True,
+        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.EnableGun.value}
+    )
+    particle : Union[str, Particle] = Field(
+        default=Particle.PionNeutral,
+        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunParticle.value}
+    )
+    multiplicity : float = Field(
+        default=1.0,
+        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunMultiplicity.value}
+    )
+    detector_relative_path : Path = Field(exclude=True)
+    file_paths : Optional[SimulationFilePaths] = Field(default=None, exclude=True, init=False)
 
 class SimulationConfig(SimulationBase, DistributionSettings):
 

@@ -1,23 +1,73 @@
-
-from functools import cached_property
 from typing import Optional, Any, Self, Dict, Union
-from pydantic import BaseModel, ConfigDict, ValidationInfo, computed_field, field_serializer, field_validator, model_serializer, model_validator
-from pyparsing import Opt
-
+from pydantic import (
+    BaseModel, ValidationInfo, Field,
+    field_serializer, field_validator, model_serializer,
+    model_validator, AliasChoices, AliasPath
+)
 from epic_benchmarks.simulation.types import Angle, Eta
-from epic_benchmarks.simulation.distribution._fields import DistributionSettingsFields
 from epic_benchmarks.simulation.types import GunDistribution, DistributionLimitType
+from epic_benchmarks.simulation.flags import NpsimFlag, NPSIM_METADATA_KEY
 import epic_benchmarks.simulation.distribution._validators as distribution_validators
 
 class DistributionSettings(BaseModel):
 
-    distribution_type : GunDistribution = DistributionSettingsFields.DISTRIBUTION_TYPE_FIELD.value
-    theta_min : Optional[Angle] = DistributionSettingsFields.THETA_MIN_FIELD.value
-    theta_max : Optional[Angle] = DistributionSettingsFields.THETA_MAX_FIELD.value
-    eta_min : Optional[Eta] = DistributionSettingsFields.ETA_MIN_FIELD.value
-    eta_max : Optional[Eta] = DistributionSettingsFields.ETA_MAX_FIELD.value
-    distribution_min : Optional[DistributionLimitType] = DistributionSettingsFields.DISTRIBUTION_MIN_FIELD.value
-    distribution_max : Optional[DistributionLimitType] = DistributionSettingsFields.DISTRIBUTION_MAX_FIELD.value
+    distribution_type : GunDistribution = Field(
+        default=GunDistribution.Uniform,
+        validate_default=True,
+        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunDistribution.value}
+    )
+    theta_min : Optional[Angle] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            'theta_min',
+            'min_theta',
+            AliasPath('theta_range', 0),
+        ),
+        json_schema_extra={
+            NPSIM_METADATA_KEY : NpsimFlag.GunThetaMin.value
+        },
+    )
+    theta_max : Optional[Angle] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            'theta_max',
+            'max_theta',
+            AliasPath('theta_range', 1),
+        ),
+        json_schema_extra={
+            NPSIM_METADATA_KEY: NpsimFlag.GunThetaMax.value
+        },
+    )
+    eta_min : Optional[Eta] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            'eta_min',
+            'min_eta',
+            AliasPath('eta_range', 0),
+        ),
+        json_schema_extra={
+            NPSIM_METADATA_KEY: NpsimFlag.GunEtaMin.value
+        },
+    )
+    eta_max : Optional[Eta] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            'eta_max',
+            'max_eta',
+            AliasPath('eta_range', 1),
+        ),
+        json_schema_extra={
+            NPSIM_METADATA_KEY: NpsimFlag.GunEtaMax.value
+        },
+    )
+    distribution_min : Optional[DistributionLimitType] = Field(
+        default=None,
+        init=False
+    )
+    distribution_max : Optional[DistributionLimitType] = Field(
+        default=None,
+        init=False
+    )
     
 
 
