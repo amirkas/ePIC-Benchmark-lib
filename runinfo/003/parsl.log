@@ -1,0 +1,85 @@
+1737331724.432900 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:95 __init__ INFO: Starting DataFlowKernel with config
+Config(
+    app_cache=True, 
+    checkpoint_files=None, 
+    checkpoint_mode=None, 
+    checkpoint_period=None, 
+    dependency_resolver=None, 
+    executors=(HighThroughputExecutor(
+        address=None, 
+        address_probe_timeout=None, 
+        available_accelerators=[], 
+        block_error_handler=<function simple_error_handler at 0x7fe906f9cfe0>, 
+        cores_per_worker=2.0, 
+        cpu_affinity='block', 
+        drain_period=None, 
+        encrypted=False, 
+        heartbeat_period=30, 
+        heartbeat_threshold=120, 
+        interchange_launch_cmd=['interchange.py'], 
+        interchange_port_range=(55000, 56000), 
+        label='HighThroughputExecutor', 
+        launch_cmd='process_worker_pool.py {debug} {max_workers_per_node} -a {addresses} -p {prefetch_capacity} -c {cores_per_worker} -m {mem_per_worker} --poll {poll_period} --task_port={task_port} --result_port={result_port} --cert_dir {cert_dir} --logdir={logdir} --block_id={{block_id}} --hb_period={heartbeat_period} {address_probe_timeout_string} --hb_threshold={heartbeat_threshold} --drain_period={drain_period} --cpu-affinity {cpu_affinity} {enable_mpi_mode} --mpi-launcher={mpi_launcher} --available-accelerators {accelerators}', 
+        loopback_address='127.0.0.1', 
+        manager_selector=<parsl.executors.high_throughput.manager_selector.RandomManagerSelector object at 0x7fe906f89220>, 
+        max_workers_per_node=16, 
+        mem_per_worker=None, 
+        poll_period=10, 
+        prefetch_capacity=0, 
+        provider=SlurmProvider(
+            account='m3763', 
+            clusters=None, 
+            cmd_timeout=120, 
+            constraint='cpu', 
+            cores_per_node=32, 
+            exclusive=False, 
+            init_blocks=1, 
+            launcher=SrunLauncher(debug=True, overrides=''), 
+            max_blocks=1, 
+            mem_per_node=None, 
+            min_blocks=0, 
+            nodes_per_block=1, 
+            parallelism=1, 
+            partition=None, 
+            qos='shared', 
+            regex_job_id='Submitted batch job (?P<id>\\S*)', 
+            scheduler_options='\n#SBATCH --account=m3763\n#SBATCH --qos=shared\n#SBATCH --constraint=cpu\n', 
+            walltime='00:20:00', 
+            worker_init='\n'
+        ), 
+        storage_access=None, 
+        worker_debug=False, 
+        worker_logdir_root=None, 
+        worker_port_range=(54000, 55000), 
+        worker_ports=None, 
+        working_dir=None
+    ),), 
+    exit_mode='cleanup', 
+    garbage_collect=True, 
+    initialize_logging=True, 
+    internal_tasks_max_threads=10, 
+    max_idletime=120.0, 
+    monitoring=None, 
+    project_name=None, 
+    retries=0, 
+    retry_handler=None, 
+    run_dir='runinfo', 
+    std_autopath=None, 
+    strategy='simple', 
+    strategy_period=5, 
+    usage_tracking=0
+)
+1737331724.433212 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:97 __init__ INFO: Parsl version: 2025.01.13
+1737331724.433345 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.usage_tracking.usage:119 __init__ DEBUG: Tracking level: 0
+1737331724.433449 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:119 __init__ INFO: Run id is: 0d7a03ca-cc3e-441e-aa0f-9e87e998d340
+1737331724.664754 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:126 __init__ DEBUG: Considering candidate for workflow name: /global/homes/a/amirkas/.conda/envs/epic_benchmarks/lib/python3.12/site-packages/parsl/dataflow/dflow.py
+1737331724.664829 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:126 __init__ DEBUG: Considering candidate for workflow name: /global/homes/a/amirkas/.conda/envs/epic_benchmarks/lib/python3.12/site-packages/parsl/dataflow/dflow.py
+1737331724.666178 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:126 __init__ DEBUG: Considering candidate for workflow name: /global/homes/a/amirkas/.conda/envs/epic_benchmarks/lib/python3.12/site-packages/epic_benchmarks/workflow/workflow.py
+1737331724.666228 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.dflow:132 __init__ DEBUG: Using workflow.py as workflow name
+1737331724.666414 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.dataflow.memoization:163 __init__ INFO: App caching initialized
+1737331724.666489 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.jobs.strategy:145 __init__ DEBUG: Scaling strategy: simple
+1737331724.678465 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.executors.high_throughput.executor:577 _start_result_queue_thread DEBUG: Starting result queue thread
+1737331724.678876 2025-01-19 16:08:44 MainProcess-377113 HTEX-Result-Queue-Thread-140638494385920 parsl.executors.high_throughput.executor:459 _result_queue_worker DEBUG: Result queue worker starting
+1737331724.679057 2025-01-19 16:08:44 MainProcess-377113 MainThread-140638855420800 parsl.executors.high_throughput.executor:581 _start_result_queue_thread DEBUG: Started result queue thread
+1737331724.679150 2025-01-19 16:08:44 MainProcess-377113 HTEX-Result-Queue-Thread-140638494385920 parsl.executors.high_throughput.zmq_pipes:216 get DEBUG: Waiting for ResultsIncoming message
+1737331724.692951 2025-01-19 16:08:44 MainProcess-377113 HTEX-Result-Queue-Thread-140638494385920 parsl.executors.high_throughput.zmq_pipes:216 get DEBUG: Waiting for ResultsIncoming message

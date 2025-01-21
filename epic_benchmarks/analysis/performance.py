@@ -40,17 +40,17 @@ plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['xaxis.labellocation'] = 'right'
 plt.rcParams['yaxis.labellocation'] = 'top'
-EXTRA_SMALL_SIZE = 8
-SMALL_SIZE = 10
-MEDIUM_SIZE = 12
-BIGGER_SIZE = 16
-plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title]
+XS_FONT = 8
+S_FONT = 9
+M_FONT = 12
+L_FONT = 16
+plt.rc('font', size=S_FONT)          # controls default text sizes
+plt.rc('axes', titlesize=M_FONT)     # fontsize of the axes title
+plt.rc('axes', labelsize=M_FONT)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=XS_FONT)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=M_FONT)    # fontsize of the tick labels
+plt.rc('legend', fontsize=S_FONT)    # legend fontsize
+plt.rc('figure', titlesize=L_FONT)  # fontsize of the figure title]
 
 #Set numpy to ignore divide by 0 errors that commonly occur in simulation context
 np.seterr(divide='ignore', invalid='ignore')
@@ -187,7 +187,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
     result = model.fit(n, params, x=xx)
     
     # -----2nd fit--------
-    std = result.params['sigma'].value
+    std = result.params['sigma'].get_value
     # print(mean,std)
     c1 = xx<=(mean+2*std)
     c2 = xx>=(mean-2*std)
@@ -210,7 +210,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
     #     print (result.best_values)
     # plt.plot(xx, result.best_fit, 'r-', label='best fit')
     if len(result.best_fit)>0:
-        ax.plot(xx[cond], result.best_fit, 'r-', label='sigma=%g,err=%g' %(result.params['sigma'].value,result.params['sigma'].stderr))
+        ax.plot(xx[cond], result.best_fit, 'r-', label='sigma=%g,err=%g' %(result.params['sigma'].get_value, result.params['sigma'].stderr))
     ax.legend(title=header, frameon=False,loc='upper left')
 
     ymax  = np.max(n)
@@ -219,7 +219,7 @@ def hist_gaus(dataset,ax, bins=100,klog=0,header=None):
         ax.set_ylim(1,ymax*10)
     else:
         ax.set_ylim(0,ymax*1.3)
-    return float(result.params['sigma'].value),float(result.params['sigma'].stderr)
+    return float(result.params['sigma'].get_value),float(result.params['sigma'].stderr)
 
 
 def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):

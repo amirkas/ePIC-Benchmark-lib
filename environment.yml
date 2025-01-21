@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python <= 3.12
   - pyyaml
+  - pydantic
   - lxml
   - jupyter 
   - numpy
