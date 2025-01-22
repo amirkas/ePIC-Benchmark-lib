@@ -8,6 +8,7 @@ from epic_benchmarks.simulation._quantity import Quantity
 class Momentum(Quantity):
 
     standard_unit = "eV"
+    delimeter = "*"
 
 @dataclass
 class Angle(Quantity):

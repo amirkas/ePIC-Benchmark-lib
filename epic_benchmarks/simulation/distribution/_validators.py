@@ -59,10 +59,6 @@ def validate_only_one_limit_type(
 def validate_limit_matches_type(
         input_value : DistributionLimitType, distribution_type : GunDistribution) -> None:
 
-    # if distribution_type not in GunDistribution:
-    #     err = f"Distribution Type '{distribution_type}' is not supported yet"
-    #     raise NotImplementedError(err)
-
     if not isinstance(input_value, distribution_type.limit_type):
         err = f"Input value '{input_value}' with type '{type(input_value)}' does not match the distribution limit type '{distribution_type.limit_type}'"
         raise ValueError(err)

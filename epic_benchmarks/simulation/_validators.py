@@ -29,13 +29,6 @@ def format_simulation_name(
 def validate_momentum_limit(momentum_value : Any) -> Momentum:
 
     return Momentum.to_quantity(momentum_value)
-    # if isinstance(momentum_value, Momentum):
-    #     return momentum_value
-    # elif isinstance(momentum_value, numbers.Number) or isinstance(momentum_value, str):
-    #     return Momentum.to_quantity(momentum_value)
-    # else:
-    #     err = f"Input value for momentum limit '{momentum_value}' could not be parsed"
-    #     raise ValueError(err)
     
 def validate_name(
         name_value : str,

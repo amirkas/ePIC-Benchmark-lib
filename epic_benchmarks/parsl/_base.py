@@ -26,15 +26,7 @@ class BaseParslModel(BaseModel):
             return self.model_dump(exclude=exclude_lst, exclude_unset=True, context={'option' : 'config'})
         else:
             return self.model_dump(exclude_unset=True, context={'option' : 'config'})
-        
-    # @field_validator('config_type')
-    # def name_to_type(cls, type : Any, info : ValidationInfo) -> Type:
-
-    #     config_type_name = info.data['config_type_name']
-    #     if config_type_name not in NAME_TO_TYPE_DICT.keys():
-    #         raise ValidationError("Not valid config type name")
-    #     return NAME_TO_TYPE_DICT[config_type_name]
-        
+                
 
     @model_serializer(mode='wrap')
     def with_option_serializer(self, handler, info : SerializationInfo) -> Union[Dict[str, Any], ParslConfigType]:
