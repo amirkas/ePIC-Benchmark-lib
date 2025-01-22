@@ -2,7 +2,6 @@
 from enum import Enum
 from typing import Any, Type
 
-from pydantic import ValidationError
 
 def validate_enum(value : Any, enum_type : Type):
 
@@ -23,3 +22,6 @@ def validate_enum(value : Any, enum_type : Type):
         err = f"Value must be an enum or string. Got type '{type(value)}'"
         raise ValueError(err)
 
+def _generate_file_name(simulation_name : str, prefix : str, suffix : str):
+
+    return f"{prefix}{simulation_name}{suffix}"

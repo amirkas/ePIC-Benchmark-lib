@@ -1,66 +1,31 @@
 
 from pathlib import Path
-
 from pydantic import (
     BaseModel, field_serializer, field_validator,
     model_serializer, ConfigDict, Field, AliasPath,
     AliasChoices
 )
-from typing import Dict, Union, Optional, Any
-
 from pydantic_core.core_schema import ValidationInfo
-
-
-from epic_benchmarks._bash.flags import BashExecFlag
+from typing import Dict, Union, Optional, Any
 from epic_benchmarks._file.types import PathType
+from epic_benchmarks._file.utils import absolute_path
 import epic_benchmarks.simulation._validators as simulation_validator
 
 from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
-from epic_benchmarks.simulation.flags import NpsimFlag, EicreconFlag, NPSIM_METADATA_KEY, EICRECON_METADATA_KEY
+from epic_benchmarks.simulation._bash import NpsimModel, EicreconModel
 from epic_benchmarks.simulation.distribution.config import DistributionSettings
-from epic_benchmarks.simulation.filepaths.config import SimulationFilePaths
-from epic_benchmarks.simulation._utils import validate_enum
+from epic_benchmarks.simulation._utils import validate_enum, _generate_file_name
 import epic_benchmarks.simulation._validators as simulation_validator
-
-NPSIM_METADATA_KEY = "npsim"
-EICRECON_METADATA_KEY = "eicrecon"
 
 DistributionTypes = Union[Angle, Eta]
 
-def _generate_command(settings_model : BaseModel, flag_metadata_key : str, program_cmd : str):
-
-    all_flags_str = _generate_flags_string(settings_model, flag_metadata_key)
-    return f"{program_cmd}{all_flags_str}"
-
-def _generate_flags_string(settings_model : BaseModel, flag_metadata_key : str):
-
-    flag_str = ""
-    for field_name, field_info in settings_model.model_fields.items():
-
-        field_val = getattr(settings_model, field_name, None)
-        if isinstance(field_val, BaseModel):
-            nested_flag_str = _generate_flags_string(field_val, flag_metadata_key)
-            flag_str += " " + nested_flag_str
-        if not field_info or not field_info.json_schema_extra:
-            continue
-        if flag_metadata_key in field_info.json_schema_extra.keys():
-            field_flag = field_info.json_schema_extra[flag_metadata_key]
-            assert isinstance(field_flag, BashExecFlag)
-            if field_val:
-                formatted_flag = field_flag.bash_format(field_val)
-                flag_str += " " + formatted_flag
-    return flag_str
-
+ROOT_FILE_SUFFIX = ".root"
+NPSIM_OUTPUT_FILE_PREFIX = "npsim_"
+EICRECON_OUTPUT_FILE_PREFIX = "eicrecon_"
 
 class SimulationBase(BaseModel):
 
-    num_events : int = Field(
-        json_schema_extra={
-            NPSIM_METADATA_KEY : NpsimFlag.NumEvents.value,
-            EICRECON_METADATA_KEY : EicreconFlag.NumEvents.value,
-        },
-        description="Number of events to simulate",
-    )
+    num_events : int = Field(description="Number of events to simulate")
     momentum_min : Momentum = Field(
             validation_alias=AliasChoices(
                 'momentum_min',
@@ -69,7 +34,6 @@ class SimulationBase(BaseModel):
                 AliasPath('momentum_range', 0),
                 AliasPath('momenta', 0)
             ),
-            json_schema_extra={ NPSIM_METADATA_KEY : NpsimFlag.GunMomentumMin.value },
             description="Minimum momentum value (or static momentum value)",
     )
     momentum_max : Momentum = Field(
@@ -80,53 +44,59 @@ class SimulationBase(BaseModel):
             AliasPath('momentum_range', 0),
             AliasPath('momenta', 0)
         ),
-        json_schema_extra={NPSIM_METADATA_KEY: NpsimFlag.GunMomentumMax.value},
         description="Maximum momentum value (or static momentum value)",
     )
     name : Optional[str] = Field(default=None, description="Name of the simulation")
-    enable_gun : bool = Field(
-        default=True,
-        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.EnableGun.value}
-    )
-    particle : Union[str, Particle] = Field(
-        default=Particle.PionNeutral,
-        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunParticle.value}
-    )
-    multiplicity : float = Field(
-        default=1.0,
-        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunMultiplicity.value}
-    )
+    enable_gun : bool = Field(default=True)
+    particle : Union[str, Particle] = Field(default=Particle.PionNeutral)
+    multiplicity : float = Field(default=1.0)
     detector_relative_path : Path = Field(exclude=True)
-    file_paths : Optional[SimulationFilePaths] = Field(default=None, exclude=True, init=False)
+    material_map_path : Optional[PathType] = Field(default=None)
 
 class SimulationConfig(SimulationBase, DistributionSettings):
 
     model_config = ConfigDict(validate_assignment=True, validate_default=True, populate_by_name=True)
 
-    def npsim_cmd(self, epic_repo_path : Optional[PathType]=None, output_dir_path : Optional[PathType]=None):
+    def npsim_cmd(self, output_dir_path : PathType, epic_repo_path : Optional[PathType]=None,):
         
-        file_paths_model = SimulationFilePaths.construct_file_paths_model(
-            simulation_name=self.name,
-            detector_build_relative_path=self.detector_relative_path,
-            epic_repository_path=epic_repo_path,
-            simulation_output_dir_path=output_dir_path
-        )
-        
-        self.file_paths = file_paths_model
-        return _generate_command(self, NPSIM_METADATA_KEY, "npsim")
+        dumped_self = self.model_dump(exclude_none=True)
+        dumped_self["detector_path"] = self._abs_detector_path(epic_repo_path)
+        dumped_self["output_path"] = self._abs_npsim_output_path(output_dir_path)
+        npsim_model = NpsimModel(**dumped_self)
+        return npsim_model.generate_command()
 
-    def eicrecon_cmd(self, epic_repo_path : Optional[PathType]=None, input_dir_path : Optional[PathType]=None, output_dir_path : Optional[PathType]=None):
+    def eicrecon_cmd(self, output_dir_path : PathType, input_dir_path : PathType, epic_repo_path : Optional[PathType]=None):
 
-        file_paths_model = SimulationFilePaths.construct_file_paths_model(
-            simulation_name=self.name,
-            detector_build_relative_path=self.detector_relative_path,
-            epic_repository_path=epic_repo_path,
-            simulation_output_dir_path=input_dir_path,
-            reconstruction_output_dir_path=output_dir_path
-        )
-        
-        self.file_paths = file_paths_model
-        return _generate_command(self, EICRECON_METADATA_KEY, "eicrecon")
+        dumped_self = self.model_dump(exclude_none=True)
+        dumped_self["detector_path"] = self._abs_detector_path(epic_repo_path)
+        dumped_self["output_path"] = self._abs_eicrecon_output_path(output_dir_path)
+        dumped_self["input_path"] = self._abs_eicrecon_input_path(input_dir_path)
+        eicrecon_model = EicreconModel(**dumped_self)
+        return eicrecon_model.generate_command()    
+
+    def _abs_detector_path(self, epic_repo_path : Optional[PathType]):
+
+        return absolute_path(self.detector_relative_path, epic_repo_path)
+    
+    def _abs_npsim_output_path(self, output_dir : PathType):
+
+        return absolute_path(self.npsim_filename, output_dir)
+    
+    def _abs_eicrecon_output_path(self, output_dir : PathType):
+
+        return absolute_path(self.eicrecon_filename, output_dir)
+    
+    def _abs_eicrecon_input_path(self, input_dir : PathType):
+
+        return self._abs_npsim_output_path(input_dir)
+
+    @property
+    def npsim_filename(self):
+        return _generate_file_name(self.name, NPSIM_OUTPUT_FILE_PREFIX, ROOT_FILE_SUFFIX)
+    
+    @property
+    def eicrecon_filename(self):
+        return _generate_file_name(self.name, EICRECON_OUTPUT_FILE_PREFIX, ROOT_FILE_SUFFIX)
 
     #Validates whether raw momentum input is valid, and parses it into a Momentum instance
     @field_validator('momentum_min', 'momentum_max', mode='before')
@@ -136,7 +106,6 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         except Exception as e:
             raise e
         
-    
     #Validates a given name, or generates a name from momentum and distribution fields
     @field_validator('name', mode='after')
     def validate_name(cls, name : Any, validation_info : ValidationInfo) -> str:
@@ -217,6 +186,9 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         serialized_dict["particle"] = str(self.particle.value)
         serialized_dict["multiplicity"] = self.multiplicity
         serialized_dict["detector_relative_path"] = str(self.detector_relative_path)
+        if self.material_map_path is not None:
+            serialized_dict["material_map_path"] = str(self.material_map_path)
+
         return serialized_dict
 
 

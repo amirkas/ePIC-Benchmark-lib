@@ -1,23 +1,17 @@
-from typing import Optional, Any, Self, Dict, Union
-from xml.dom import ValidationErr
+from typing import Optional, Any, Self, Union
 from pydantic import (
-    BaseModel, ValidationError, ValidationInfo, Field,
-    field_serializer, field_validator, model_serializer,
+    BaseModel, ValidationInfo, Field,
+    field_serializer, field_validator,
     model_validator, AliasChoices, AliasPath
 )
 from epic_benchmarks.simulation.types import Angle, Eta
 from epic_benchmarks.simulation.types import GunDistribution, DistributionLimitType
-from epic_benchmarks.simulation.flags import NpsimFlag, NPSIM_METADATA_KEY
 from epic_benchmarks.simulation._utils import validate_enum
 import epic_benchmarks.simulation.distribution._validators as distribution_validators
 
 class DistributionSettings(BaseModel):
 
-    distribution_type : GunDistribution = Field(
-        default=GunDistribution.Uniform,
-        validate_default=True,
-        json_schema_extra={NPSIM_METADATA_KEY : NpsimFlag.GunDistribution.value}
-    )
+    distribution_type : GunDistribution = Field(default=GunDistribution.Uniform, validate_default=True)
     theta_min : Optional[Angle] = Field(
         default=None,
         validation_alias=AliasChoices(
@@ -25,9 +19,6 @@ class DistributionSettings(BaseModel):
             'min_theta',
             AliasPath('theta_range', 0),
         ),
-        json_schema_extra={
-            NPSIM_METADATA_KEY : NpsimFlag.GunThetaMin.value
-        },
     )
     theta_max : Optional[Angle] = Field(
         default=None,
@@ -36,9 +27,6 @@ class DistributionSettings(BaseModel):
             'max_theta',
             AliasPath('theta_range', 1),
         ),
-        json_schema_extra={
-            NPSIM_METADATA_KEY: NpsimFlag.GunThetaMax.value
-        },
     )
     eta_min : Optional[Eta] = Field(
         default=None,
@@ -47,9 +35,6 @@ class DistributionSettings(BaseModel):
             'min_eta',
             AliasPath('eta_range', 0),
         ),
-        json_schema_extra={
-            NPSIM_METADATA_KEY: NpsimFlag.GunEtaMin.value
-        },
     )
     eta_max : Optional[Eta] = Field(
         default=None,
@@ -58,18 +43,9 @@ class DistributionSettings(BaseModel):
             'max_eta',
             AliasPath('eta_range', 1),
         ),
-        json_schema_extra={
-            NPSIM_METADATA_KEY: NpsimFlag.GunEtaMax.value
-        },
     )
-    distribution_min : Optional[DistributionLimitType] = Field(
-        default=None,
-        init=False
-    )
-    distribution_max : Optional[DistributionLimitType] = Field(
-        default=None,
-        init=False
-    )
+    distribution_min : Optional[DistributionLimitType] = Field(default=None, init=False)
+    distribution_max : Optional[DistributionLimitType] = Field(default=None, init=False)
     
     @field_validator('distribution_type', mode='after')
     def validate_distribution_enum(cls, value : Any) -> GunDistribution:        
@@ -198,21 +174,6 @@ class DistributionSettings(BaseModel):
             return dist_type.value
         else:
             return dist_type
-
-
-    #Custom model serializer to ensure only provided ranges are serialized
-    @model_serializer(mode='wrap')
-    def serialize_distribution_settings(self, handler) -> Dict[str, Any]:
-        serialized_dict = {'distribution_type' : self.distribution_type.value}
-        if self.theta_min is not None and self.theta_max is not None:
-            serialized_dict["theta_min"] = str(self.theta_min)
-            serialized_dict["theta_max"] = str(self.theta_max)
-        elif self.eta_min is not None and self.eta_max is not None:
-            serialized_dict["eta_min"] = str(self.eta_min)
-            serialized_dict["eta_max"] = str(self.eta_max)
-        #TODO: Add serialization for supported distributions in the future.
-        return serialized_dict
-
 
 
     

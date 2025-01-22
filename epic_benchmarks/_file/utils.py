@@ -7,6 +7,15 @@ from pydantic import BaseModel
 from epic_benchmarks._file.supported import SUPPORTED_FILE_EXTENSIONS, FILE_EXTENSION_DUMP_MAP, FILE_EXTENSION_LOAD_MAP
 from epic_benchmarks._file.types import PathType
 
+def absolute_path(relative : PathType, parent : Optional[PathType]=None) -> Path:
+
+    if parent is None:
+        return Path(relative).resolve()
+    else:
+        return Path(parent).joinpath(relative).resolve()
+
+    
+
 def final_filepath(file_path : PathType, file_extension : Optional[str]) -> Path:
 
     if isinstance(file_extension, str):

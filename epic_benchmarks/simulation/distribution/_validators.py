@@ -1,5 +1,4 @@
 from typing import Any, Type, Optional, List, TypeVar
-from pydantic import ValidationError
 
 from epic_benchmarks.simulation.types import GunDistribution
 from epic_benchmarks.simulation._quantity import Quantity

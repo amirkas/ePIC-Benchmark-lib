@@ -1,6 +1,6 @@
 
 from epic_benchmarks.parsl import SimpleLauncherConfig
-from pydantic import Field, InstanceOf, ValidationInfo, field_validator
+from pydantic import Field, InstanceOf, SerializeAsAny, ValidationInfo, field_validator
 from typing import ClassVar, Dict, Optional, Type, Union, TypeVar, Sequence, Tuple, List, Callable, Literal
 from collections.abc import Mapping
 
@@ -81,7 +81,7 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     mem_per_worker: Optional[float] = None
     max_workers_per_node: Optional[Union[int, float]] = None
     cpu_affinity: str = 'none'
-    available_accelerators: Union[int, Sequence[str]] = ()
+    available_accelerators: SerializeAsAny[Union[int, Sequence[str]]] = []
 
     interchange_launch_cmd: Optional[Sequence[str]] = None
     address: Optional[str] = None

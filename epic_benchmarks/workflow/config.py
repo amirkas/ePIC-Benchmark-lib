@@ -24,12 +24,12 @@ class WorkflowConfig(BaseModel):
     model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True)
 
     name : Optional[str] = Field(default="Workflow")
+    debug : bool = Field(default=False)
     working_directory : str = Field(default_factory=os.getcwd, init=False)
     workflow_dir_name : Optional[str] = Field(default="Benchmarks")
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)
     parsl_config : Optional[ParslConfig] = Field(default=None)
     script_path : Optional[PathType] = Field(default=None)
-    debug : bool = Field(default=False)
     redo_all_benchmarks : bool = Field(default=False)
     redo_all_benchmarks : bool = Field(default=False)
     keep_epic_repos : bool = Field(default=False)
@@ -113,14 +113,16 @@ class WorkflowConfig(BaseModel):
             raise ValueError("Could not parse parsl configuration")
         
     @field_validator('parsl_config', mode='after')
-    def update_parsl_directories(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
+    def update_parsl_config(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
         working_dir = Path(info.data["working_directory"]).resolve()
         workflow_dir_name = info.data["workflow_dir_name"]
         run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME).resolve()
         parsl_config.run_dir = str(run_dir)
-        # for executor in parsl_config.executors:
-        #     executor.working_dir = str(run_dir)
+        for executor in parsl_config.executors:
+            executor.working_dir = str(working_dir.joinpath(workflow_dir_name))
+        debug_enabled = info.data["debug"]
+        parsl_config.initialize_logging = debug_enabled
         return parsl_config
     
     @field_validator('script_path', mode='after')

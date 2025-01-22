@@ -1,50 +1,65 @@
-from pydantic import BaseModel, field_validator, Field, ConfigDict
-from typing import Union, Any, Optional, Callable, Tuple, Hashable, Iterable
+from dataclasses import dataclass, field
+from enum import Enum
+from pydantic import BaseModel, Field, ConfigDict
+from typing import ClassVar, Literal, Sequence, Any, Optional, TypeVar, Generic
 
-class BashExecFlag(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    flag : str
-    value_formatter: Optional[Callable[[Any], Hashable]] = Field(default=None)
-    value_validator : Optional[Callable[[Any], bool]] = Field(default=None)
-    value_range : Optional[Tuple[float, float]] = Field(default=None)
-    enforce_value_as_string : bool = Field(default=True)
+T = TypeVar('T')
+
+@dataclass
+class BashFlag(Generic[T]):
+
+    value : Optional[T] = field(default=None)
+    flag : ClassVar[Literal['']] = ''
+    coerce_to_str : ClassVar[bool] = False
+    exclude_bool_arg : ClassVar[bool] = True
+    use_enum_val : ClassVar[bool] = False
+
+    def __repr__(self) -> str:
+        return self.__class__.flag_string(self.value)
+        
+    @classmethod
+    def flag_string(cls, value):
+
+        val = value
+        if val is None:
+            return ""
+        if isinstance(val, bool) and cls.exclude_bool_arg:
+            return cls.flag if val else ""
+        
+        if isinstance(val, Enum):
+            if cls.use_enum_val:
+                val = val.value
+            else:
+                val = val.name
+        if not isinstance(val, str) and not cls.coerce_to_str:
+            if len(cls.flag) == 0:
+                return str(val)
+            return f"{cls.flag}={val}"
+        else:
+            if len(cls.flag) == 0:
+                return f"'{val}'"
+            return f"{cls.flag}='{val}'"
 
 
-    # @field_validator('value_validators', mode='before')
-    # def check_validators(cls, value : Any):
+class BashCommand(BaseModel):
 
-    #     if callable(value):
-    #         return value
-    #     else:
-    #         raise ValueError("value_validators must be a callable")
+    model_config = ConfigDict(
+        extra='ignore', validate_default=True,
+        validate_assignment=True, arbitrary_types_allowed=True
+    )
 
-    def validate_value(self, value : Any) -> None:
+    executable_command : ClassVar[str]
+    extra : Optional[Sequence[BashFlag[Any]]] = Field(default=None)
 
-        if self.value_validator:
-            try:
-                is_valid = self.value_validator(value)
-                if not is_valid:
-                    err = f"Value '{value}' is not valid for flag '{self.flag}'"
-                    raise ValueError(err)
-            except Exception as e:
-                raise e
-        if self.value_range:
-            try:
-                in_range = self.value_range[0] <= value <= self.value_range[1]
-                if not in_range:
-                    err = f"Value '{value}' is not in range for flag '{self.flag}'"
-                    raise ValueError(err)
-            except ValueError as e:
-                raise e
+    def generate_command(self) -> str:
 
-    def bash_format(self, value):
+        command = f"{self.executable_command}"
+        if self.extra is not None:
+            for flag in self.extra:
+                command += " " + str(flag)
+        dumped_fields = self.model_dump()
+        for field_name in self.model_fields_set:
+            field_val = dumped_fields[field_name]
+            command += " " + str(field_val)
+        return command
 
-        self.validate_value(value)
-        formatted_value = value
-        if self.value_formatter:
-            formatted_value = self.value_formatter(value)
-        if isinstance(formatted_value, str) and len(formatted_value) == 0:
-            return self.flag
-        if self.enforce_value_as_string:
-            return f"{self.flag}='{formatted_value}'"
-        return f"{self.flag}={formatted_value}"

@@ -4,7 +4,7 @@ from parsl.config import Config
 from parsl.dataflow.dependency_resolvers import DependencyResolver
 from parsl.dataflow.taskrecord import TaskRecord
 from parsl.monitoring import MonitoringHub
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import ConfigDict, Field, RootModel, SerializeAsAny
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.executors import (
@@ -24,7 +24,7 @@ Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_ty
 class ExecutorList(RootModel):
 
     model_config = ConfigDict(strict=True)
-    root : Sequence[Discriminated_Executor]
+    root : SerializeAsAny[Sequence[Discriminated_Executor]]
 
     def __iter__(self):
         return iter(self.root)
