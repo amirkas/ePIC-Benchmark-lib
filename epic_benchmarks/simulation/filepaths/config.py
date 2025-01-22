@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional
 from pydantic import BaseModel, computed_field, Field
 
 from epic_benchmarks.simulation.flags import NPSIM_METADATA_KEY, EICRECON_METADATA_KEY, NpsimFlag, EicreconFlag

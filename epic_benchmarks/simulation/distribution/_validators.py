@@ -1,7 +1,7 @@
 from typing import Any, Type, Optional, List, TypeVar
-from pydantic import ValidationError, ValidationInfo
+from pydantic import ValidationError
 
-from epic_benchmarks._constants import GunDistribution
+from epic_benchmarks.simulation.types import GunDistribution
 from epic_benchmarks.simulation._quantity import Quantity
 from epic_benchmarks.simulation.types import Angle, Eta, DistributionLimitType
 
@@ -50,11 +50,11 @@ def validate_only_one_limit_type(
 
     if min_err and max_err:
         err = f"{min_err}\n{max_err}"
-        raise ValidationError(err)
+        raise ValueError(err)
     elif min_err:
-        raise ValidationError(min_err)
+        raise ValueError(min_err)
     elif max_err:
-        raise ValidationError(max_err)
+        raise ValueError(max_err)
 
 def validate_limit_matches_type(
         input_value : DistributionLimitType, distribution_type : GunDistribution) -> None:
@@ -65,7 +65,7 @@ def validate_limit_matches_type(
 
     if not isinstance(input_value, distribution_type.limit_type):
         err = f"Input value '{input_value}' with type '{type(input_value)}' does not match the distribution limit type '{distribution_type.limit_type}'"
-        raise ValidationError(err)
+        raise ValueError(err)
 
 def validate_both_limits_provided(min_limit : DistributionLimitType, max_limit : DistributionLimitType) -> None:
     
@@ -73,7 +73,7 @@ def validate_both_limits_provided(min_limit : DistributionLimitType, max_limit :
     both_present = min_limit is not None and max_limit is not None
     if not both_none and not both_present:
         err = f"If either the minimum or maximum limit for a distribution type is provided, the other one must also be provided"
-        raise ValidationError(err)
+        raise ValueError(err)
 
 def validate_limits_same_type(min_limit : DistributionLimitType, max_limit : DistributionLimitType) -> None:
 
@@ -82,7 +82,7 @@ def validate_limits_same_type(min_limit : DistributionLimitType, max_limit : Dis
 
     if min_limit_type != max_limit_type:
         err = f"Type for the minimum distribution limit '{min_limit_type}' does not match the type for the maximum distribution limit '{max_limit_type}'"
-        raise ValidationError(err)
+        raise ValueError(err)
     
 def validate_only_one_limit_type(
         minimum_limits : List[Optional[DistributionLimitType]],
@@ -106,11 +106,11 @@ def validate_only_one_limit_type(
 
     if min_err and max_err:
         err = f"{min_err}\n{max_err}"
-        raise ValidationError(err)
+        raise ValueError(err)
     elif min_err:
-        raise ValidationError(min_err)
+        raise ValueError(min_err)
     elif max_err:
-        raise ValidationError(max_err)
+        raise ValueError(max_err)
     
 def validate_limit_range(min_limit : DistributionLimitType, max_limit : DistributionLimitType, same_value_allowed=False) -> None:
 
@@ -128,4 +128,4 @@ def validate_limit_range(min_limit : DistributionLimitType, max_limit : Distribu
         err = f"Value for minimum limit '{min_limit}' must be less than or equal to the maximum limit '{max_limit}'"
     else:
         err = f"Value for minimum limit '{min_limit}' must be strictly less than the maximum limit '{max_limit}'"
-    raise ValidationError(err)
+    raise ValueError(err)

@@ -1,10 +1,10 @@
-from typing import Optional, Sequence, Type, Union, Literal, Callable
+from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar
 
 from parsl.config import Config
 from parsl.dataflow.dependency_resolvers import DependencyResolver
 from parsl.dataflow.taskrecord import TaskRecord
 from parsl.monitoring import MonitoringHub
-from pydantic import ConfigDict, InstanceOf, RootModel
+from pydantic import ConfigDict, Field, RootModel
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.executors import (
@@ -14,15 +14,17 @@ from epic_benchmarks.parsl.executors import (
 )
 from epic_benchmarks.container.config import ContainerConfig
 
-ExecutorInstanceTypes = Union[
-    InstanceOf[ThreadPoolExecutorConfig], InstanceOf[HighThroughputExecutorConfig],
-    InstanceOf[MPIExecutorConfig], InstanceOf[FluxExecutorConfig]
+ExecutorUnion = Union[
+    ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
+    MPIExecutorConfig, FluxExecutorConfig
 ]
+
+Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_type_name')]
 
 class ExecutorList(RootModel):
 
     model_config = ConfigDict(strict=True)
-    root : Sequence[ExecutorInstanceTypes]
+    root : Sequence[Discriminated_Executor]
 
     def __iter__(self):
         return iter(self.root)
@@ -33,9 +35,10 @@ class ExecutorList(RootModel):
 
 class ParslConfig(BaseParslModel):
 
-    config_type : Type = Config
+    config_type_name : Literal['Config'] = "Config" 
+    config_type : ClassVar[Type] = Config
 
-    executors: Optional[ExecutorList] = None
+    executors: Optional[ExecutorList] = Field(default=None)
     app_cache: bool = True
     checkpoint_files: Optional[Sequence[str]] = None
     checkpoint_mode: Union[
@@ -87,8 +90,5 @@ class ParslConfig(BaseParslModel):
                     container_lst.append(executor_container)
         return container_lst
     
-    # def to_parsl_config(self):
-
-    #     return self.model_dump(exclude_unset=True, context={'option' : 'config'})
 
 

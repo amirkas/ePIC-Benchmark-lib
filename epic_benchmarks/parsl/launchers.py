@@ -1,13 +1,11 @@
 from pydantic import Field
-from typing import Type, TypeVar
+from typing import Literal, Type, TypeVar, ClassVar
 
 from parsl.launchers.base import Launcher
 from parsl.launchers import *
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.container.config import ContainerConfig
-
-ParslLauncherType = TypeVar('Launcher', bound=Launcher)
 
 class ParslLauncherConfig(BaseParslModel):
 
@@ -19,16 +17,18 @@ class ParslLauncherConfig(BaseParslModel):
 
 class SimpleLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = SimpleLauncher
+    config_type_name : Literal['SimpleLauncher'] = "SimpleLauncher"
+    config_type : ClassVar[Type] = SimpleLauncher
 
     def containerize(self, container) -> None:
         pass
 
 class SingleNodeLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = SingleNodeLauncher
+    config_type_name : Literal['SingleNodeLauncher'] = "SingleNodeLauncher"
+    config_type : ClassVar[Type] = SingleNodeLauncher
 
-    prepend : str = ''
+    fail_on_any : bool = True
     def containerize(self, container):
         #TODO: Implement
         # self.prepend = container.containerize_command()
@@ -36,16 +36,18 @@ class SingleNodeLauncherConfig(ParslLauncherConfig):
 
 class SrunLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = SrunLauncher
+    config_type_name : Literal['SrunLauncher'] = "SrunLauncher"
+    config_type : ClassVar[Type] = SrunLauncher
 
-    fail_on_any : bool = False
+    overrides : str = ''
     def containerize(self, container):
         pass
     
 
 class AprunLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = AprunLauncher
+    config_type_name : Literal['AprunLauncher'] = "AprunLauncher"
+    config_type : ClassVar[Type] = AprunLauncher
 
     overrides : str = ''
     def containerize(self, container):
@@ -54,7 +56,8 @@ class AprunLauncherConfig(ParslLauncherConfig):
 
 class SrunMPILauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = SrunMPILauncher
+    config_type_name : Literal['SrunMPILauncher'] = "SrunMPILauncher"
+    config_type : ClassVar[Type] = SrunMPILauncher
 
     overrides : str
     def containerize(self, container):
@@ -63,14 +66,16 @@ class SrunMPILauncherConfig(ParslLauncherConfig):
 
 class GnuParallelLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = GnuParallelLauncher
+    config_type_name : Literal[ 'GnuParallelLauncher'] = "GnuParallelLauncher"
+    config_type : ClassVar[Type] = GnuParallelLauncher
 
     def containerize(self, container):
         pass
 
 class MpiExecLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = MpiExecLauncher
+    config_type_name : Literal['MpiExecLauncher'] = "MpiExecLauncher"
+    config_type : ClassVar[Type] = MpiExecLauncher
 
     bind_cmd : str = ''
     overrides : str = ''
@@ -79,7 +84,8 @@ class MpiExecLauncherConfig(ParslLauncherConfig):
 
 class MpiRunLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = MpiRunLauncher
+    config_type_name : Literal['MpiRunLauncher'] = "MpiRunLauncher"
+    config_type : ClassVar[Type] = MpiRunLauncher
     
     bash_location : str = '/bin/bash'
     overrides : str = ''
@@ -88,7 +94,8 @@ class MpiRunLauncherConfig(ParslLauncherConfig):
 
 class JsrunLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = JsrunLauncher
+    config_type_name : Literal['JsrunLauncher'] = "JsrunLauncher"
+    config_type : ClassVar[Type] = JsrunLauncher
 
     overrides : str = ''
     def containerize(self, container):
@@ -96,7 +103,8 @@ class JsrunLauncherConfig(ParslLauncherConfig):
 
 class WrappedLauncherConfig(ParslLauncherConfig):
 
-    config_type : Type = WrappedLauncher
+    config_type_name : Literal['WrappedLauncher'] = "WrappedLauncher"
+    config_type : ClassVar[Type] = WrappedLauncher
 
     prepend : str = ''
     def containerize(self, container):

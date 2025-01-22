@@ -76,19 +76,19 @@ def validate_momentum_range(momentum_min : Optional[Momentum], momentum_max : Op
             err = f"Minimum momentum '{momentum_min}' must be less than or equal to the maximum momentum '{momentum_max}'"
 
     if err is not None:
-        raise ValidationError(err)
+        raise ValueError(err)
     
 def validate_num_events(num_events : int) -> None:
 
     if num_events <= 0:
         err = f"Number of events to simulate cannot be 0 or negative. Got '{num_events}'"
-        raise ValidationError(err)
+        raise ValueError(err)
     
 def validate_multiplicity(multiplicity : float) -> None:
 
     if multiplicity <= 0.0:
         err = f"Multiplicity cannot be 0 or negative. Got '{multiplicity}'"
-        raise ValidationError(err)
+        raise ValueError(err)
     
 #TODO: Add validation for gunEnabled = False
 

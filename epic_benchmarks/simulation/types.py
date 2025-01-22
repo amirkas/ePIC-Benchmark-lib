@@ -22,11 +22,13 @@ class Eta(Quantity):
 
 DistributionLimitType = Union[Angle, Eta]
 
+
 class Particle(Enum):
     PionNeutral = "pi"
     PionPlus = "pi+"
     PionNeg = "pi-"
     #TODO: Add all particles
+
 
 class GunDistribution(Enum):
     

@@ -1,20 +1,23 @@
 from __future__ import annotations
+from doctest import script_from_examples
 from functools import cached_property
 import os
 from pathlib import Path
 from typing import Optional, List, Any, Self
 
 from parsl import Config
-from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict, FilePath
 from pydantic_core.core_schema import ValidationInfo
 
 from epic_benchmarks.parsl.config import ParslConfig
 from epic_benchmarks.benchmark.config import BenchmarkConfig
 from epic_benchmarks.simulation.config import SimulationConfig
 from epic_benchmarks.detector.config import DetectorConfig
-from epic_benchmarks._file.utils import save_raw_config, load_from_file, PathType
+from epic_benchmarks._file.types import PathType
+from epic_benchmarks._file.utils import save_raw_config, load_from_file
 from epic_benchmarks.utils.equality import any_identical_objects
 
+RUN_INFO_DIR_NAME = "runinfo"
 
 class WorkflowConfig(BaseModel):
 
@@ -114,11 +117,28 @@ class WorkflowConfig(BaseModel):
 
         working_dir = Path(info.data["working_directory"]).resolve()
         workflow_dir_name = info.data["workflow_dir_name"]
-        run_dir = working_dir.joinpath(workflow_dir_name).resolve()
+        run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME).resolve()
         parsl_config.run_dir = str(run_dir)
-        for executor in parsl_config.executors:
-            executor.working_dir = str(run_dir)
+        # for executor in parsl_config.executors:
+        #     executor.working_dir = str(run_dir)
         return parsl_config
+    
+    @field_validator('script_path', mode='after')
+    def check_script_exists(cls, script_path : PathType, info : ValidationInfo) -> str:
+
+        if script_path is None:
+            return script_path
+        elif isinstance(script_path, str):
+           script_path = Path(script_path)
+        #If given path doesn't exist. Attempt to join it with the CWD to produce an absolute path 
+        if not script_path.exists():
+            cwd = Path(info.data['working_directory']).resolve()
+            script_path = cwd.joinpath(script_path)
+            #If joined path still doesn't exist, raise validation error.
+            if not script_path.exists():
+                err = f"Path to workflow script '{script_path}' does not exist."
+                raise ValidationError(err)
+        return str(script_path)
     
     @model_validator(mode='after')
     def validate_unique_benchmarks(self) -> Self:

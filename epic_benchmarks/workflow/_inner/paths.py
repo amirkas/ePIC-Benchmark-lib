@@ -1,7 +1,7 @@
 from functools import cached_property
 from pathlib import Path
-from epic_benchmarks.settings.benchmark.config import BenchmarkConfig
-from epic_benchmarks.settings.simulation.config import SimulationConfig
+from epic_benchmarks.benchmark.config import BenchmarkConfig
+from epic_benchmarks.simulation.config import SimulationConfig
 from epic_benchmarks.workflow.config import WorkflowConfig
 
 class WorkflowPaths:

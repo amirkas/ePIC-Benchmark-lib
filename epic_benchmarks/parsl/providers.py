@@ -1,22 +1,20 @@
 
 
-from pydantic import Field
-from typing import List, Optional, Tuple, Type, TypeVar, Dict, Union
+from pydantic import Field, InstanceOf
+from typing import ClassVar, List, Literal, Optional, Tuple, Type, TypeVar, Dict, Union
 
 from parsl.providers.base import ExecutionProvider
 from parsl.providers import *
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.launchers import (
-    ParslLauncherConfig,
     SimpleLauncherConfig, SingleNodeLauncherConfig,
     SrunLauncherConfig, AprunLauncherConfig, SrunMPILauncherConfig,
     GnuParallelLauncherConfig, MpiExecLauncherConfig, MpiRunLauncherConfig,
     JsrunLauncherConfig, WrappedLauncherConfig 
 )
 
-ParslProviderType = TypeVar('ExecutionProvider', bound=ExecutionProvider)
-LauncherTypes= Union[
+LauncherUnion= Union[
     SimpleLauncherConfig, SingleNodeLauncherConfig, SrunLauncherConfig,
     AprunLauncherConfig, SrunMPILauncherConfig, GnuParallelLauncherConfig,
     MpiExecLauncherConfig, MpiRunLauncherConfig, JsrunLauncherConfig,
@@ -25,7 +23,7 @@ LauncherTypes= Union[
 
 class ParslProviderConfig(BaseParslModel):
 
-    launcher : Optional[LauncherTypes] = Field(default=None)
+    launcher : Optional[LauncherUnion] = Field(default=None, discriminator='config_type_name')
 
 class ProviderWithWorkerInit(ParslProviderConfig):
 
@@ -37,7 +35,8 @@ class ProviderWithoutWorkerInit(ParslProviderConfig):
 
 class AWSProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = AWSProvider
+    config_type_name : Literal['AWSProvider'] = "AWSProvider"
+    config_type : ClassVar[Type] = AWSProvider
 
     image_id : str
     key_name : str
@@ -61,7 +60,8 @@ class AWSProviderConfig(ProviderWithWorkerInit):
 
 class CondorProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = CondorProvider
+    config_type_name : Literal['CondorProvider'] = "CondorProvider"
+    config_type : ClassVar[Type] = CondorProvider
 
     nodes_per_block: int = 1
     cores_per_slot: Optional[int] = None
@@ -82,7 +82,8 @@ class CondorProviderConfig(ProviderWithWorkerInit):
 
 class GoogleCloudProviderConfig(ProviderWithoutWorkerInit):
 
-    config_type : Type = GoogleCloudProvider
+    config_type_name : Literal['GoogleCloudProvider'] = "GoogleCloudProvider"
+    config_type : ClassVar[Type] = GoogleCloudProvider
 
     project_id : str
     key_file : str
@@ -99,7 +100,8 @@ class GoogleCloudProviderConfig(ProviderWithoutWorkerInit):
 
 class GridEngineProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = GridEngineProvider
+    config_type_name : Literal['GridEngineProvider'] = "GridEngineProvider"
+    config_type : ClassVar[Type] = GridEngineProvider
 
     nodes_per_block : int = 1
     init_blocks : int = 1
@@ -113,7 +115,8 @@ class GridEngineProviderConfig(ProviderWithWorkerInit):
 
 class LocalProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = LocalProvider
+    config_type_name : Literal['LocalProvider'] = "LocalProvider"
+    config_type : ClassVar[Type] = LocalProvider
 
     nodes_per_block : int = 1
     init_blocks : int = 1
@@ -124,7 +127,8 @@ class LocalProviderConfig(ProviderWithWorkerInit):
 
 class LSFProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = LSFProvider
+    config_type_name : Literal['LSFProvider'] = "LSFProvider"
+    config_type : ClassVar[Type] = LSFProvider
 
     nodes_per_block : int = 1
     cores_per_block : Optional[int] = None
@@ -143,7 +147,8 @@ class LSFProviderConfig(ProviderWithWorkerInit):
 
 class SlurmProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = SlurmProvider
+    config_type_name : Literal['SlurmProvider'] = "SlurmProvider"
+    config_type : ClassVar[Type] = SlurmProvider
 
     partition: Optional[str] = None
     account: Optional[str] = None
@@ -165,7 +170,8 @@ class SlurmProviderConfig(ProviderWithWorkerInit):
 
 class TorqueProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = TorqueProvider
+    config_type_name : Literal['TorqueProvider'] = "TorqueProvider"
+    config_type : ClassVar[Type] = TorqueProvider
 
     account : Optional[str] = None
     queue : Optional[str] = None
@@ -180,7 +186,8 @@ class TorqueProviderConfig(ProviderWithWorkerInit):
 
 class KubernetesProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = KubernetesProvider
+    config_type_name : Literal['KubernetesProvider'] = "KubernetesProvider"
+    config_type : ClassVar[Type] = KubernetesProvider
 
     image: str
     namespace: str = 'default'
@@ -204,7 +211,8 @@ class KubernetesProviderConfig(ProviderWithWorkerInit):
 
 class PBSProProviderConfig(ProviderWithWorkerInit):
 
-    config_type : Type = PBSProProvider
+    config_type_name : Literal['PBSProProvider'] = "PBSProProvider"
+    config_type : ClassVar[Type] = PBSProProvider
 
     account : Optional[str] = None
     queue : Optional[str] = None

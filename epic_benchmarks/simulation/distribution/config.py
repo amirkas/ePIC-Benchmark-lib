@@ -1,12 +1,14 @@
 from typing import Optional, Any, Self, Dict, Union
+from xml.dom import ValidationErr
 from pydantic import (
-    BaseModel, ValidationInfo, Field,
+    BaseModel, ValidationError, ValidationInfo, Field,
     field_serializer, field_validator, model_serializer,
     model_validator, AliasChoices, AliasPath
 )
 from epic_benchmarks.simulation.types import Angle, Eta
 from epic_benchmarks.simulation.types import GunDistribution, DistributionLimitType
 from epic_benchmarks.simulation.flags import NpsimFlag, NPSIM_METADATA_KEY
+from epic_benchmarks.simulation._utils import validate_enum
 import epic_benchmarks.simulation.distribution._validators as distribution_validators
 
 class DistributionSettings(BaseModel):
@@ -69,6 +71,12 @@ class DistributionSettings(BaseModel):
         init=False
     )
     
+    @field_validator('distribution_type', mode='after')
+    def validate_distribution_enum(cls, value : Any) -> GunDistribution:        
+        try:
+            return validate_enum(value, GunDistribution)
+        except Exception as e:
+            raise e
 
 
     #Returns correctly formatted Theta limits or raises an error if format could not be complete
@@ -93,16 +101,16 @@ class DistributionSettings(BaseModel):
         cls, limit_value : Any,
         validation_info : ValidationInfo) -> Optional[DistributionLimitType]:
 
-        try:
-            if limit_value is not None:
+        if limit_value is not None:
+            try:
                 distribution_type = validation_info.data["distribution_type"]
                 #Validator raises error if non-null limit value doesn't match the provided distribution type
                 distribution_validators.validate_limit_matches_type(
                     input_value=limit_value,
                     distribution_type=distribution_type
                 )
-        except Exception as e:
-            raise e
+            except Exception as e:
+                raise e
         return limit_value
 
     @field_validator('distribution_min', mode='after')

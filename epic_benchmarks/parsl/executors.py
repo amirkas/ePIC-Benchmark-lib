@@ -1,9 +1,9 @@
 
+from epic_benchmarks.parsl import SimpleLauncherConfig
 from pydantic import Field, InstanceOf, ValidationInfo, field_validator
-from typing import Dict, Optional, Type, Union, TypeVar, Sequence, Tuple, List, Callable
+from typing import ClassVar, Dict, Optional, Type, Union, TypeVar, Sequence, Tuple, List, Callable, Literal
 from collections.abc import Mapping
 
-from parsl.executors.base import ParslExecutor
 from parsl.executors import *
 from parsl.data_provider.staging import Staging
 from parsl.executors.high_throughput.manager_selector import (
@@ -23,14 +23,11 @@ from epic_benchmarks.parsl.providers import (
     PBSProProviderConfig
 )
 
-ParslExecutorType = TypeVar('ParslExecutor', bound=ParslExecutor)
-
-ProviderInstanceTypes = Union[
-    InstanceOf[ParslProviderConfig],
-    InstanceOf[AWSProviderConfig], InstanceOf[CondorProviderConfig], InstanceOf[GoogleCloudProviderConfig],
-    InstanceOf[GridEngineProviderConfig], InstanceOf[LocalProviderConfig], InstanceOf[LSFProviderConfig],
-    InstanceOf[SlurmProviderConfig], InstanceOf[TorqueProviderConfig], InstanceOf[KubernetesProviderConfig],
-    InstanceOf[PBSProProviderConfig]
+ProviderUnion = Union[
+    AWSProviderConfig, CondorProviderConfig, GoogleCloudProviderConfig,
+    GridEngineProviderConfig, LocalProviderConfig, LSFProviderConfig,
+    SlurmProviderConfig, TorqueProviderConfig, KubernetesProviderConfig,
+    PBSProProviderConfig
 ]
 
 class ParslExecutorConfig(BaseParslModel):
@@ -45,7 +42,7 @@ class ParslExecutorConfigWithoutContainer(ParslExecutorConfig):
 class ParslExecutorConfigWithContainer(ParslExecutorConfig):
 
     container_config : Optional[ContainerConfig] = Field(default=None)
-    provider: ProviderInstanceTypes = Field(default_factory=ParslProviderConfig)
+    provider: ProviderUnion = Field(default_factory=SimpleLauncherConfig, discriminator='config_type_name')
     launch_cmd: Optional[str] = None
 
     def to_parsl_config(self, exclude = None, *excludes):
@@ -65,7 +62,8 @@ class ParslExecutorConfigWithContainer(ParslExecutorConfig):
 
 class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutContainer):
     
-    config_type : Type = ThreadPoolExecutor
+    config_type_name : Literal['ThreadPoolExecutor'] = "ThreadPoolExecutor"
+    config_type : ClassVar[Type] = ThreadPoolExecutor
 
     label : str = 'threads'
     max_threads : Optional[int] = 2
@@ -75,7 +73,8 @@ class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutContainer):
 
 class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
 
-    config_type : Type = HighThroughputExecutor
+    config_type_name : Literal['HighThroughputExecutor'] = "HighThroughputExecutor"
+    config_type : ClassVar[Type] = HighThroughputExecutor
 
     label: str = 'HighThroughputExecutor'
     cores_per_worker: float = 1.0,
@@ -106,7 +105,8 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     
 class MPIExecutorConfig(ParslExecutorConfigWithContainer):
     
-    config_type : Type = MPIExecutor
+    config_type_name : Literal['MPIExecutor'] = "MPIExecutor"
+    config_type : ClassVar[Type] = MPIExecutor
 
     label: str = 'MPIExecutor'
     interchange_launch_cmd: Optional[str] = None
@@ -131,7 +131,8 @@ class MPIExecutorConfig(ParslExecutorConfigWithContainer):
 
 class FluxExecutorConfig(ParslExecutorConfigWithContainer):
 
-    config_type : Type = FluxExecutor
+    config_type_name : Literal['FluxExecutor'] = "FluxExecutor"
+    config_type : ClassVar[Type] = FluxExecutor
 
     label: str = "FluxExecutor"
     flux_executor_kwargs: Mapping = {}

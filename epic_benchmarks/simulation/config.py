@@ -17,9 +17,10 @@ import epic_benchmarks.simulation._validators as simulation_validator
 
 from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
 from epic_benchmarks.simulation.flags import NpsimFlag, EicreconFlag, NPSIM_METADATA_KEY, EICRECON_METADATA_KEY
-from epic_benchmarks.simulation._fields import SimulationSettingsFields
 from epic_benchmarks.simulation.distribution.config import DistributionSettings
 from epic_benchmarks.simulation.filepaths.config import SimulationFilePaths
+from epic_benchmarks.simulation._utils import validate_enum
+import epic_benchmarks.simulation._validators as simulation_validator
 
 NPSIM_METADATA_KEY = "npsim"
 EICRECON_METADATA_KEY = "eicrecon"
@@ -100,7 +101,7 @@ class SimulationBase(BaseModel):
 
 class SimulationConfig(SimulationBase, DistributionSettings):
 
-    model_config = ConfigDict(validate_assignment=True, validate_default=True)
+    model_config = ConfigDict(validate_assignment=True, validate_default=True, populate_by_name=True)
 
     def npsim_cmd(self, epic_repo_path : Optional[PathType]=None, output_dir_path : Optional[PathType]=None):
         
@@ -156,8 +157,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
                 distribution_max=distribution_max
             )
         except Exception as e:
-            err = f"Keys : {validation_info.data}"
-            raise ValueError(err)
+            raise e
     
     #Checks if num events is greater than 0
     @field_validator('num_events', mode='after')
@@ -167,6 +167,13 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         except Exception as e:
             raise e
         return number_of_events
+
+    @field_validator('particle', mode='before')
+    def validate_particle(cls, particle : Union[str, Particle]) -> str:
+        try:
+            return validate_enum(particle, Particle)
+        except Exception as e:
+            raise e
 
     #Checks if multiplicity is greater than 0
     @field_validator('multiplicity', mode='after')
@@ -196,6 +203,16 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         else:
             serialized_dict["momentum_min"] = str(self.momentum_min)
             serialized_dict["momentum_max"] = str(self.momentum_max)
+
+        serialized_dict['distribution_type'] = str(self.distribution_type.value)
+        if self.theta_min is not None and self.theta_max is not None:
+            serialized_dict["theta_min"] = str(self.theta_min)
+            serialized_dict["theta_max"] = str(self.theta_max)
+        elif self.eta_min is not None and self.eta_max is not None:
+            serialized_dict["eta_min"] = str(self.eta_min)
+            serialized_dict["eta_max"] = str(self.eta_max)
+        #TODO: Add serialization for supported distributions in the future.
+
         serialized_dict["enable_gun"] = self.enable_gun
         serialized_dict["particle"] = str(self.particle.value)
         serialized_dict["multiplicity"] = self.multiplicity

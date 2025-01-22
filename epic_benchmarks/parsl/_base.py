@@ -1,14 +1,17 @@
-from pydantic import BaseModel, ConfigDict, Field, model_serializer, SerializationInfo
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, ValidationInfo, field_validator, model_serializer, SerializationInfo
 from pydantic.main import IncEx
-from typing import TYPE_CHECKING, Dict, Any, Optional, Type, Union, TypeVar, Literal, Sequence
+from typing import TYPE_CHECKING, Dict, Any, Optional, Type, Union, TypeVar, Literal, ClassVar
+
+from epic_benchmarks.parsl._map import NAME_TO_TYPE_DICT
 
 SERIALIZATION_OPTIONS = {'dict', 'config'}
 ParslConfigType = TypeVar("ConfigType")
 
 class BaseParslModel(BaseModel):
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, strict=True)
-    config_type : Type = Field(init=False, exclude=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, strict=False)
+    config_type_name : str = Field(init=False)
+    config_type : ClassVar[Type] = Field(init=False, exclude=True)
 
     def to_parsl_config(self, exclude : Optional[str] = None, *excludes):
 
@@ -23,6 +26,15 @@ class BaseParslModel(BaseModel):
             return self.model_dump(exclude=exclude_lst, exclude_unset=True, context={'option' : 'config'})
         else:
             return self.model_dump(exclude_unset=True, context={'option' : 'config'})
+        
+    # @field_validator('config_type')
+    # def name_to_type(cls, type : Any, info : ValidationInfo) -> Type:
+
+    #     config_type_name = info.data['config_type_name']
+    #     if config_type_name not in NAME_TO_TYPE_DICT.keys():
+    #         raise ValidationError("Not valid config type name")
+    #     return NAME_TO_TYPE_DICT[config_type_name]
+        
 
     @model_serializer(mode='wrap')
     def with_option_serializer(self, handler, info : SerializationInfo) -> Union[Dict[str, Any], ParslConfigType]:
@@ -32,12 +44,15 @@ class BaseParslModel(BaseModel):
         if context:
             option= context.get('option', 'dict')
         result = handler(self)
+        assert(isinstance(result, dict))
         if option == 'dict':
 
-            return {key : value for key, value in result.items() if key in self.model_fields_set}        
-
-            return self._serialize_to_dict(handler)
+            return {key : value for key, value in result.items() if key in self.model_fields_set or key == 'config_type_name'}    
+        
         elif option == 'config':
+
+            #Remove config_type_name from result
+            result.pop('config_type_name', None)
 
             return self.config_type(**result)
         else:
