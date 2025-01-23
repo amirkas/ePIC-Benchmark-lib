@@ -1,7 +1,7 @@
 
 from epic_benchmarks.parsl import SimpleLauncherConfig
-from pydantic import Field, InstanceOf, SerializeAsAny, ValidationInfo, field_validator
-from typing import ClassVar, Dict, Optional, Type, Union, TypeVar, Sequence, Tuple, List, Callable, Literal
+from pydantic import Field, SerializeAsAny, ValidationInfo, field_validator
+from typing import ClassVar, Dict, Optional, Type, Union, Sequence, Tuple, List, Callable, Literal
 from collections.abc import Mapping
 
 from parsl.executors import *
@@ -80,9 +80,9 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     cores_per_worker: float = 1.0,
     mem_per_worker: Optional[float] = None
     max_workers_per_node: Optional[Union[int, float]] = None
-    cpu_affinity: str = 'none'
-    available_accelerators: SerializeAsAny[Union[int, Sequence[str]]] = []
+    cpu_affinity : Literal['none', 'block', 'alternating', 'block-reverse'] = 'none'
 
+    available_accelerators: SerializeAsAny[Union[int, Sequence[str]]] = []
     interchange_launch_cmd: Optional[Sequence[str]] = None
     address: Optional[str] = None
     loopback_address: str = "127.0.0.1"

@@ -43,7 +43,6 @@ class SrunLauncherConfig(ParslLauncherConfig):
     def containerize(self, container):
         pass
     
-
 class AprunLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['AprunLauncher'] = "AprunLauncher"
