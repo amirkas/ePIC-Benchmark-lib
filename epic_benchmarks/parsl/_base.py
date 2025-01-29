@@ -2,10 +2,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, ValidationIn
 from pydantic.main import IncEx
 from typing import TYPE_CHECKING, Dict, Any, Optional, Type, Union, TypeVar, Literal, ClassVar
 
-from epic_benchmarks.parsl._map import NAME_TO_TYPE_DICT
-
 SERIALIZATION_OPTIONS = {'dict', 'config'}
-ParslConfigType = TypeVar("ConfigType")
+ParslConfigType = TypeVar("ParslConfigType")
 
 class BaseParslModel(BaseModel):
 
@@ -20,10 +18,9 @@ class BaseParslModel(BaseModel):
             exclude_lst.append(exclude)
         if excludes is not None:
             for exclude_str in excludes:
-                assert(isinstance(exclude_str, str), "Exclude fields must be inputted as a string")
                 exclude_lst.append(exclude_str)
         if len(exclude_lst) > 0:
-            return self.model_dump(exclude=exclude_lst, exclude_unset=True, context={'option' : 'config'})
+            return self.model_dump(exclude=set(exclude_lst), exclude_unset=True, context={'option' : 'config'})
         else:
             return self.model_dump(exclude_unset=True, context={'option' : 'config'})
                 
@@ -39,7 +36,7 @@ class BaseParslModel(BaseModel):
         assert(isinstance(result, dict))
         if option == 'dict':
 
-            return {key : value for key, value in result.items() if key in self.model_fields_set or key == 'config_type_name'}    
+            return {key : value for key, value in result.items() if (key in self.model_fields_set or key == 'config_type_name')}
         
         elif option == 'config':
 

@@ -9,7 +9,6 @@ from pydantic_core.core_schema import ValidationInfo
 from typing import Dict, Union, Optional, Any
 from epic_benchmarks._file.types import PathType
 from epic_benchmarks._file.utils import absolute_path
-import epic_benchmarks.simulation._validators as simulation_validator
 
 from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
 from epic_benchmarks.simulation._bash import NpsimModel, EicreconModel
@@ -25,12 +24,14 @@ EICRECON_OUTPUT_FILE_PREFIX = "eicrecon_"
 
 class SimulationBase(BaseModel):
 
+    model_config = ConfigDict(validate_assignment=True, validate_default=True, populate_by_name=True)
+
     num_events : int = Field(description="Number of events to simulate")
     momentum_min : Momentum = Field(
             validation_alias=AliasChoices(
+                'momentum',
                 'momentum_min',
                 'min_momentum',
-                'momentum',
                 AliasPath('momentum_range', 0),
                 AliasPath('momenta', 0)
             ),
@@ -38,9 +39,9 @@ class SimulationBase(BaseModel):
     )
     momentum_max : Momentum = Field(
         validation_alias=AliasChoices(
+            'momentum',
             'momentum_max',
             'max_momentum',
-            'momentum',
             AliasPath('momentum_range', 0),
             AliasPath('momenta', 0)
         ),
@@ -50,7 +51,7 @@ class SimulationBase(BaseModel):
     enable_gun : bool = Field(default=True)
     particle : Union[str, Particle] = Field(default=Particle.PionNeutral)
     multiplicity : float = Field(default=1.0)
-    detector_relative_path : Path = Field(exclude=True)
+    detector_relative_path : Path = Field(exclude=False)
     material_map_path : Optional[PathType] = Field(default=None)
 
 class SimulationConfig(SimulationBase, DistributionSettings):
@@ -164,9 +165,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
     @model_serializer(mode='wrap')
     def simulation_model_serializer(self, handler) -> Dict[str, Any]:
 
-        serialized_dict = {}
-        serialized_dict["name"] = self.name
-        serialized_dict["num_events"] = self.num_events
+        serialized_dict : Dict[str, Any] = {"name": self.name, "num_events": self.num_events}
         if self.momentum_min == self.momentum_max:
             serialized_dict["momentum"] = str(self.momentum_min)
         else:

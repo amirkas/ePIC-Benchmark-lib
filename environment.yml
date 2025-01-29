@@ -5,6 +5,7 @@ dependencies:
   - python <= 3.12
   - pyyaml
   - pydantic
+  - mypy
   - lxml
   - jupyter 
   - numpy

@@ -14,37 +14,55 @@
 ### Download library from git with HTTP:
 
 **Using HTTP:**
-   ```
-   git clone https://github.com/amirkas/ePIC-Benchmark-lib.git
-   ```
+```
+git clone https://github.com/amirkas/ePIC-Benchmark-lib.git
+```
 ### Access the library directory:
-  ```
-  cd ePIC-Benchmark-Lib
-  ```
+```
+cd ePIC-Benchmark-lib
+```
 ### Create the conda environment from the library's environment.yml configuration
-  ```
-  conda env create -f environment.yml
-  ```
+```
+conda env create -f environment.yml
+```
 
 # Using the library:
 
 ### Activating the conda environment
 
-  ```
-	conda activate epic_benchmarks
-  ```
-  
+```
+conda activate epic_benchmarks
+```
+
+### Defining a workflow
+	
+```
+A Workflow configuration contains 1 or more benchmarks to run, and a parsl config to execute all the benchmarks.
+A Benchmark configuration contains at 1 or more simulation configurations that can be run with npsim and/or eicrecon
+A Benchmark configuration contains 0 or more detector configs that can dynamically update ePIC detector xml files
+A Parsl configuration defines how parsl should distribute tasks. This depends on your workflow needs, and your system's available providers and hardware constraints.
+
+Examples listed in the examples folder show how a workflow can be defined, saved as a yaml/json file, and executed.
+```
+	
+
 
 ## For developers
 
 ### To update the conda environment after editing the source code.
 
 ```
-cd /path/to/ePIC_Benchmark-Lib
+cd /path/to/ePIC-Benchmark-lib
 ```
 
 ```
 conda env update --file environment.yml --prune
+```
+
+### Updating your IDE's intellisense
+
+```
+Set the mypy config file location in your IDE settings to /path/to/ePIC-Benchmark-lib/epic_benchmarks/mypy.ini
 ```
 	
 	

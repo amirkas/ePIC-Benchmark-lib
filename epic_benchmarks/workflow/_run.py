@@ -14,15 +14,13 @@ def load_from_file_path(config_path : PathType):
     
 def load_from_config(config : WorkflowConfig):
     global WORKFLOW_CONFIG
-    assert(isinstance(config, WorkflowConfig), "Must provide an instance of WorkflowConfig")
     WORKFLOW_CONFIG = config
 
 def run(script_path : Optional[str] = None):
     global WORKFLOW_CONFIG
     if WORKFLOW_CONFIG is None:
-        raise RuntimeError("A workflow configuration must be loaded befure running")
-    
-    assert(isinstance(WORKFLOW_CONFIG, WorkflowConfig), "WORKFLOW_CONFIG must be an instance of WorkflowConfig")
+        raise RuntimeError("A workflow configuration must be loaded before running")
+
     WORKFLOW_CONFIG.executor.run_benchmarks(script_path)
 
 def run_from_file_path(config_path : PathType, script_path : Optional[str] = None):

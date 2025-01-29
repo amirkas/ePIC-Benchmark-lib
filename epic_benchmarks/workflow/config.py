@@ -25,7 +25,7 @@ class WorkflowConfig(BaseModel):
 
     name : Optional[str] = Field(default="Workflow")
     debug : bool = Field(default=False)
-    working_directory : str = Field(default_factory=os.getcwd, init=False)
+    working_directory : str = Field(default_factory=os.getcwd, init=False, exclude=True)
     workflow_dir_name : Optional[str] = Field(default="Benchmarks")
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)
     parsl_config : Optional[ParslConfig] = Field(default=None)

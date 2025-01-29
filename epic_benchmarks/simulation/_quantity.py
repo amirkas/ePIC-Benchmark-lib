@@ -3,7 +3,7 @@ import numbers
 import re
 from dataclasses import field, dataclass
 from enum import Enum
-from typing import Any, ClassVar, Union, Optional, Callable
+from typing import Any, ClassVar, Union, Optional, Callable, Self
 
 @dataclass(frozen=True)
 class MagnitudePrefix:
@@ -52,18 +52,18 @@ class UnitPrefix(Enum):
 class Quantity:
 
     standard_unit: ClassVar[str] = field(init=False)
-    delimeter : ClassVar[str] = field(init=False, default='')
-    magnitude: float = field(init=True)
+    delimiter : ClassVar[str] = field(init=False, default='')
+    magnitude: Union[float, int] = field(init=True)
     order: Optional[MagnitudePrefix] = field(init=True, default=UnitPrefix.Unity.value)
 
     #Internally used for comparisons of 2 quantities
-    absolute_magnitude : float = field(init=False, default=None)
+    absolute_magnitude : float = field(init=False, default=0.0)
 
     #Internally used to ensure value is valid for given quantity
     validator : Optional[Callable[[float], bool]] = field(init=False, default=None)
 
     @classmethod
-    def to_quantity(cls, value : Union[float, str, Quantity]) -> Quantity:
+    def to_quantity(cls, value : Union[float, str, Self]) -> Self:
 
         if isinstance(value, type(cls)):
             return value
@@ -80,7 +80,7 @@ class Quantity:
         non_decimal_subpattern = "-?[0-9]+"
         decimal_subpattern = ".[0-9]+"
         escaped_unit = re.escape(cls.standard_unit)
-        escaped_delimeter = re.escape(cls.delimeter)
+        escaped_delimeter = re.escape(cls.delimiter)
         order_subpattern = rf"{UnitPrefix.prefix_subpattern()}?"
 
         return rf"^({non_decimal_subpattern})({decimal_subpattern})?({escaped_delimeter})?({order_subpattern})({escaped_unit})?$"
@@ -90,6 +90,7 @@ class Quantity:
         match = re.match(cls.pattern(), quantity_str)
         if not match:
             raise ValueError(f"Could not parse {quantity_str}")
+        parsed_magnitude : Union[int, float] = 0
         if match.group(2) is None or len(match.group(2)) == 0:
             parsed_magnitude = int(match.group(1))
         else:
@@ -100,7 +101,7 @@ class Quantity:
         return cls(parsed_magnitude, parsed_order)
 
     def __str__(self):
-        return f"{self.magnitude}{self.delimeter}{self.order}{self.standard_unit}"
+        return f"{self.magnitude}{self.delimiter}{self.order}{self.standard_unit}"
 
     def __lt__(self, other : Quantity):
         if isinstance(other, numbers.Number):
