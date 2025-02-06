@@ -119,9 +119,10 @@ class WorkflowConfig(BaseModel):
         workflow_dir_name = info.data["workflow_dir_name"]
         run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME).resolve()
         parsl_config.run_dir = str(run_dir)
+        debug_enabled = info.data["debug"]
         for executor in parsl_config.executors:
             executor.working_dir = str(working_dir.joinpath(workflow_dir_name))
-        debug_enabled = info.data["debug"]
+            executor.worker_debug = debug_enabled
         parsl_config.initialize_logging = debug_enabled
         return parsl_config
     

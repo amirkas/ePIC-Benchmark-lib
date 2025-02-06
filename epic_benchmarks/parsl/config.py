@@ -47,7 +47,7 @@ class ParslConfig(BaseParslModel):
         Literal['periodic'],
         Literal['dfk_exit'],
         Literal['manual']
-    ] = None
+    ] = 'task_exit'
     checkpoint_period: Optional[str] = None
     dependency_resolver: Optional[DependencyResolver] = None
     exit_mode: Literal['cleanup', 'skip', 'wait'] = 'cleanup'
