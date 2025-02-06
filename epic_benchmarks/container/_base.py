@@ -6,8 +6,7 @@ class BaseContainerConfig(BaseModel, ABC):
 
     container_type : str = Field(init=False)
 
-    image : str
-    entry_command : str
+    entry_command : str = ''
 
     @abstractmethod
     def pull_command(self) -> str:

@@ -43,6 +43,9 @@ class BaseParslModel(BaseModel):
             #Remove config_type_name from result
             result.pop('config_type_name', None)
 
+            #For executor configs, remove container config from result
+            result.pop('container_config', None)
+
             return self.config_type(**result)
         else:
             err = f"Option '{option}' is not valid. Valid options are {", ".join(SERIALIZATION_OPTIONS)}"

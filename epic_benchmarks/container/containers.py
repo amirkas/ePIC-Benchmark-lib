@@ -1,12 +1,15 @@
-from typing import Literal
+from typing import Literal, Optional
 from epic_benchmarks.container._base import BaseContainerConfig
 
 class DockerConfig(BaseContainerConfig):
 
     container_type : Literal["Docker"] = "Docker"
+    image : Optional[str] = None
 
     def pull_command(self) -> str:
 
+        if self.image is None:
+            return ""
         return f"docker image pull {self.image}"
 
     def init_command(self) -> str:
@@ -17,6 +20,7 @@ class DockerConfig(BaseContainerConfig):
 class ShifterConfig(BaseContainerConfig):
 
     container_type : Literal["Shifter"] = "Shifter"
+    image : str
     entry_point : str = ""
 
     def pull_command(self) -> str:
