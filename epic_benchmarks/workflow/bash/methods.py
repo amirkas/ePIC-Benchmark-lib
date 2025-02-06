@@ -10,7 +10,7 @@ EPIC_REPO_URL = "https://github.com/eic/epic.git"
 def pull_containers(*containers : BaseContainerConfig, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stdin=AUTO_LOGNAME) -> str:
 
     pull_commands_lst = list(container.pull_command() for container in containers)
-    concatenated_pull_commands = concatenate_commands(pull_commands_lst)
+    concatenated_pull_commands = concatenate_commands(*pull_commands_lst)
     return concatenated_pull_commands
 
 def clone_epic(workflow_config : WorkflowConfig, benchmark_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stdin=AUTO_LOGNAME) -> str:
