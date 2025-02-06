@@ -205,7 +205,7 @@ class KubernetesProviderConfig(ProviderWithWorkerInit):
     group_id: Optional[str] = None
     run_as_non_root: bool = False
     secret: Optional[str] = None
-    persistent_volumes: List[Tuple[str, str]] = []
+    persistent_volumes: List[Tuple[str, str]] = Field(default_factory=list)
     service_account_name: Optional[str] = None
     annotations: Optional[Dict[str, str]] = None
 

@@ -2,6 +2,7 @@ import os
 from epic_benchmarks.configs import SimulationConfig, BenchmarkConfig, WorkflowConfig
 from epic_benchmarks.parsl import ParslConfig, HighThroughputExecutorConfig, SlurmProviderConfig, SrunLauncherConfig
 from epic_benchmarks.workflow import run_from_file_path
+from epic_benchmarks.container.containers import ShifterConfig
 
 simulation_configuration = SimulationConfig(
     num_events=1000,
@@ -17,9 +18,12 @@ benchmark_configuration = BenchmarkConfig(
     simulation_configs=[simulation_configuration],
 )
 
+shifter_config = ShifterConfig(entry_command="/opt/local/bin/eic-shell", image="eicweb/jug_xl:24.10.1-stable")
+
 parsl_configuration = ParslConfig(
     executors=[
         HighThroughputExecutorConfig(
+            container_config=shifter_config,
             provider=SlurmProviderConfig(
                 launcher=SrunLauncherConfig(overrides="-c 8"),
                 account="test_account",
@@ -40,5 +44,5 @@ workflow_configuration.save("slurm_workflow_config.yaml")
 
 file_path = os.path.join(os.getcwd(), "slurm_workflow_config.yaml")
 script_path = os.path.join(os.getcwd(), "workflow.py")
-run_from_file_path(file_path, script_path)
+# run_from_file_path(file_path, script_path)
 

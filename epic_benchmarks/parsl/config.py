@@ -12,7 +12,7 @@ from epic_benchmarks.parsl.executors import (
     ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
     MPIExecutorConfig, FluxExecutorConfig
 )
-from epic_benchmarks.container.config import ContainerConfig
+from epic_benchmarks.container._base import BaseContainerConfig
 
 ExecutorUnion = Union[
     ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
@@ -80,7 +80,7 @@ class ParslConfig(BaseParslModel):
         err = f"Could not find executor with label '{label}'."
         raise ValueError(err)
     
-    def all_containers(self) -> Sequence[ContainerConfig]:
+    def all_containers(self) -> Sequence[BaseContainerConfig]:
 
         container_lst = []
         for executor in self.executors:

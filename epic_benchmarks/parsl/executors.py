@@ -14,7 +14,8 @@ from parsl.executors.status_handling import BlockProviderExecutor
 from parsl.jobs.states import JobStatus
 
 from epic_benchmarks.parsl._base import BaseParslModel
-from epic_benchmarks.container.config import ContainerConfig
+from epic_benchmarks.container import *
+from epic_benchmarks.container._base import BaseContainerConfig
 from epic_benchmarks.parsl.providers import (
     ParslProviderConfig, ProviderWithWorkerInit,
     AWSProviderConfig, CondorProviderConfig, GoogleCloudProviderConfig,
@@ -30,6 +31,10 @@ ProviderUnion = Union[
     PBSProProviderConfig
 ]
 
+ContainerUnion = Union[
+    DockerConfig, ShifterConfig
+]
+
 class ParslExecutorConfig(BaseParslModel):
 
     label: str
@@ -41,8 +46,8 @@ class ParslExecutorConfigWithoutContainer(ParslExecutorConfig):
 
 class ParslExecutorConfigWithContainer(ParslExecutorConfig):
 
-    container_config : Optional[ContainerConfig] = Field(default=None)
-    provider: ProviderUnion = Field(default_factory=SimpleLauncherConfig, discriminator='config_type_name')
+    container_config : Optional[ContainerUnion] = Field(discriminator='container_type', default=None)
+    provider: ProviderUnion = Field(discriminator='config_type_name')
     launch_cmd: Optional[str] = None
 
     def to_parsl_config(self, exclude = None, *excludes):
@@ -54,10 +59,9 @@ class ParslExecutorConfigWithContainer(ParslExecutorConfig):
 
         container = info.data['container_config']
         if container is not None and isinstance(provider, ProviderWithWorkerInit):
-            assert(isinstance(container, ContainerConfig))
-            container_init = container.init_command
-            new_worker_init = f"{container_init}; {provider.worker_init}"
-            provider.worker_init = new_worker_init
+            assert(isinstance(container, BaseContainerConfig))
+            container_init = container.init_with_extra_command(provider.worker_init)
+            provider.worker_init = container_init
         return provider
 
 class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutContainer):
@@ -77,7 +81,7 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     config_type : ClassVar[Type] = HighThroughputExecutor
 
     label: str = 'HighThroughputExecutor'
-    cores_per_worker: float = 1.0,
+    cores_per_worker: float = 1.0
     mem_per_worker: Optional[float] = None
     max_workers_per_node: Optional[Union[int, float]] = None
     cpu_affinity : Literal['none', 'block', 'alternating', 'block-reverse'] = 'none'
@@ -94,7 +98,7 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     prefetch_capacity: int = 0
     heartbeat_threshold: int = 120
     heartbeat_period: int = 30
-    drain_period: Optional[int] = None,
+    drain_period: Optional[int] = None
     poll_period: int = 10
     address_probe_timeout: Optional[int] = None
     worker_logdir_root: Optional[str] = None
@@ -135,7 +139,7 @@ class FluxExecutorConfig(ParslExecutorConfigWithContainer):
     config_type : ClassVar[Type] = FluxExecutor
 
     label: str = "FluxExecutor"
-    flux_executor_kwargs: Mapping = {}
+    flux_executor_kwargs: Mapping = Field(default_factory=dict)
     flux_path: Optional[str] = None
     launch_cmd: Optional[str] = None
 

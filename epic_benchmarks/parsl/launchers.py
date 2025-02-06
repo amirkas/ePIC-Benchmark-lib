@@ -5,13 +5,13 @@ from parsl.launchers.base import Launcher
 from parsl.launchers import *
 
 from epic_benchmarks.parsl._base import BaseParslModel
-from epic_benchmarks.container.config import ContainerConfig
+from epic_benchmarks.container._base import BaseContainerConfig
 
 class ParslLauncherConfig(BaseParslModel):
 
     debug : bool = Field(default=False)
 
-    def containerize(self, container : ContainerConfig) -> None:
+    def containerize(self, container : BaseContainerConfig) -> None:
 
         pass
 

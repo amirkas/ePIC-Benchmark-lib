@@ -1,16 +1,15 @@
 from pathlib import Path
 from typing import Optional, Sequence
 from parsl import AUTO_LOGNAME
-from parsl.app.futures import DataFuture
 from epic_benchmarks.workflow.config import WorkflowConfig
-from epic_benchmarks.container.config import ContainerConfig
+from epic_benchmarks.container._base import BaseContainerConfig
 from epic_benchmarks.workflow.bash.utils import concatenate_commands
 
 EPIC_REPO_URL = "https://github.com/eic/epic.git"
 
-def pull_containers(*containers : Sequence[ContainerConfig], stdout=AUTO_LOGNAME, stdin=AUTO_LOGNAME) -> str:
+def pull_containers(*containers : BaseContainerConfig, stdout=AUTO_LOGNAME, stdin=AUTO_LOGNAME) -> str:
 
-    pull_commands_lst = [container.pull_command() for container in containers]
+    pull_commands_lst = list(container.pull_command() for container in containers)
     concatenated_pull_commands = concatenate_commands(pull_commands_lst)
     return concatenated_pull_commands
 
