@@ -51,7 +51,7 @@ class SimulationBase(BaseModel):
     enable_gun : bool = Field(default=True)
     particle : Union[str, Particle] = Field(default=Particle.PionNeutral)
     multiplicity : float = Field(default=1.0)
-    detector_relative_path : Path = Field(exclude=False)
+    detector_xml : Path = Field(exclude=False)
     material_map_path : Optional[PathType] = Field(default=None)
 
 class SimulationConfig(SimulationBase, DistributionSettings):
@@ -77,7 +77,9 @@ class SimulationConfig(SimulationBase, DistributionSettings):
 
     def _abs_detector_path(self, epic_repo_path : Optional[PathType]):
 
-        return absolute_path(self.detector_relative_path, epic_repo_path)
+        relative_detective_build_path = Path('install', 'share', 'epic')
+        relative_detector_path = relative_detective_build_path.joinpath(self.detector_xml)
+        return absolute_path(relative_detector_path, epic_repo_path)
     
     def _abs_npsim_output_path(self, output_dir : PathType):
 
@@ -184,7 +186,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         serialized_dict["enable_gun"] = self.enable_gun
         serialized_dict["particle"] = str(self.particle.value)
         serialized_dict["multiplicity"] = self.multiplicity
-        serialized_dict["detector_relative_path"] = str(self.detector_relative_path)
+        serialized_dict["detector_xml"] = str(self.detector_xml)
         if self.material_map_path is not None:
             serialized_dict["material_map_path"] = str(self.material_map_path)
 

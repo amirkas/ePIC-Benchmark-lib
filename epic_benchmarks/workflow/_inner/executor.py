@@ -13,6 +13,7 @@ from parsl.app.futures import DataFuture
 
 from epic_benchmarks._file.types import PathType
 from epic_benchmarks.workflow.config import WorkflowConfig
+from epic_benchmarks.container.containers import ContainerUnion
 
 
 def run_workflow_script(script_path : PathType, workflow_config : WorkflowConfig, all_futures : Sequence[Union[AppFuture, DataFuture]]):
@@ -91,19 +92,27 @@ class WorkflowExecutor:
 
         benchmark_config = self.parent.benchmark_config(benchmark_name)
         return benchmark_config.epic_branch
+    
+    def get_all_containers(self) -> Sequence[ContainerUnion]:
+
+        return self.parent.parsl_config.all_containers()
+    
+    def get_container(self, executor_label) -> Optional[ContainerUnion]:
+        
+        return self.parent.parsl_config.executor_container(executor_label)
 
     def apply_detector_configs(self, benchmark_name : str):
 
         benchmark_config = self.parent.benchmark_config(benchmark_name)
-        benchmark_config.apply_detector_configs(self.parent.paths.benchmark_dir_path(benchmark_name))
+        benchmark_config.apply_detector_configs(self.parent.paths.workflow_dir_path)
 
     def npsim_command_string(self, benchmark_name : str, simulation_name : str) -> str:
         benchmark_config = self.parent.benchmark_config(benchmark_name)
-        return benchmark_config.npsim_cmd(simulation_name, self.parent.paths.benchmark_dir_path(benchmark_name))
+        return benchmark_config.npsim_cmd(simulation_name, self.parent.paths.workflow_dir_path)
 
     def eicrecon_command_string(self, benchmark_name : str, simulation_name : str) -> str:
         benchmark_config = self.parent.benchmark_config(benchmark_name)
-        return benchmark_config.eicrecon_cmd(simulation_name, self.parent.paths.benchmark_dir_path(benchmark_name))
+        return benchmark_config.eicrecon_cmd(simulation_name, self.parent.paths.workflow_dir_path)
 
     def init_directories(self):
 
@@ -132,6 +141,14 @@ class WorkflowExecutor:
 
             recon_temp_dir_path = self.parent.paths.reconstruction_temp_dir_path(benchmark_name)
             recon_temp_dir_path.mkdir(parents=True, exist_ok=True)
+
+            #Initialize temporary directory for each npsim and eicrecon execution  
+            for simulation_name in self.parent.simulation_names(benchmark_name):
+                simulation_instance_temp_path = self.parent.paths.simulation_instance_temp_dir_path(benchmark_name, simulation_name)
+                simulation_instance_temp_path.mkdir(parents=True, exist_ok=True)
+
+                reconstruction_instance_temp_path = self.parent.paths.reconstruction_instance_temp_dir_path(benchmark_name, simulation_name)
+                reconstruction_instance_temp_path.mkdir(parents=True, exist_ok=True)
 
     def cleanup_directories(self):
 

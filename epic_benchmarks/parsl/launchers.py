@@ -1,112 +1,89 @@
 from pydantic import Field
-from typing import Literal, Type, TypeVar, ClassVar
+from typing import Literal, Type, TypeVar, ClassVar, Union
 
 from parsl.launchers.base import Launcher
-from parsl.launchers import *
+from epic_benchmarks.parsl._wrapped_launchers import *
+from epic_benchmarks.container import *
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.container._base import BaseContainerConfig
 
+ContainerUnion = Union[
+    DockerConfig, ShifterConfig
+]
 class ParslLauncherConfig(BaseParslModel):
 
+    container_config : Optional[Union[DockerConfig, ShifterConfig]] = Field(discriminator='container_type', default=None)
+    containerize_launcher : bool = False
     debug : bool = Field(default=False)
-
-    def containerize(self, container : BaseContainerConfig) -> None:
-
-        pass
 
 class SimpleLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['SimpleLauncher'] = "SimpleLauncher"
-    config_type : ClassVar[Type] = SimpleLauncher
-
-    def containerize(self, container) -> None:
-        pass
+    config_type : ClassVar[Type] = WrappedSimpleLauncher
 
 class SingleNodeLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['SingleNodeLauncher'] = "SingleNodeLauncher"
-    config_type : ClassVar[Type] = SingleNodeLauncher
+    config_type : ClassVar[Type] = WrappedSingleNodeLauncher
 
     fail_on_any : bool = True
-    def containerize(self, container):
-        #TODO: Implement
-        # self.prepend = container.containerize_command()
-        pass
 
 class SrunLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['SrunLauncher'] = "SrunLauncher"
-    config_type : ClassVar[Type] = SrunLauncher
+    config_type : ClassVar[Type] = WrappedSrunLauncher
 
     overrides : str = ''
-    def containerize(self, container):
-        pass
     
 class AprunLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['AprunLauncher'] = "AprunLauncher"
-    config_type : ClassVar[Type] = AprunLauncher
+    config_type : ClassVar[Type] = WrappedAprunLauncher
 
     overrides : str = ''
-    def containerize(self, container):
-        pass
     
 
 class SrunMPILauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['SrunMPILauncher'] = "SrunMPILauncher"
-    config_type : ClassVar[Type] = SrunMPILauncher
+    config_type : ClassVar[Type] = WrappedSrunLauncher
 
     overrides : str
-    def containerize(self, container):
-        pass
     
 
 class GnuParallelLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal[ 'GnuParallelLauncher'] = "GnuParallelLauncher"
-    config_type : ClassVar[Type] = GnuParallelLauncher
+    config_type : ClassVar[Type] = WrappedGnuParallelLauncher
 
-    def containerize(self, container):
-        pass
 
 class MpiExecLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['MpiExecLauncher'] = "MpiExecLauncher"
-    config_type : ClassVar[Type] = MpiExecLauncher
+    config_type : ClassVar[Type] = WrappedMpiExecLauncher
 
     bind_cmd : str = ''
     overrides : str = ''
-    def containerize(self, container):
-        pass
 
 class MpiRunLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['MpiRunLauncher'] = "MpiRunLauncher"
-    config_type : ClassVar[Type] = MpiRunLauncher
+    config_type : ClassVar[Type] = WrappedMpiRunLauncher
     
     bash_location : str = '/bin/bash'
     overrides : str = ''
-    def containerize(self, container):
-        pass
 
 class JsrunLauncherConfig(ParslLauncherConfig):
 
     config_type_name : Literal['JsrunLauncher'] = "JsrunLauncher"
-    config_type : ClassVar[Type] = JsrunLauncher
+    config_type : ClassVar[Type] = WrappedJsrunLauncher
 
     overrides : str = ''
-    def containerize(self, container):
-        pass
 
-class WrappedLauncherConfig(ParslLauncherConfig):
+# class WrappedLauncherConfig(ParslLauncherConfig):
 
-    config_type_name : Literal['WrappedLauncher'] = "WrappedLauncher"
-    config_type : ClassVar[Type] = WrappedLauncher
+#     config_type_name : Literal['WrappedLauncher'] = "WrappedLauncher"
+#     config_type : ClassVar[Type] = WrappedLauncher
 
-    prepend : str = ''
-    def containerize(self, container):
-        #TODO: Fix
-        # self.prepend = container.containerize_command()
-        pass
+#     prepend : str = ''

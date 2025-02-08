@@ -1,10 +1,11 @@
-
+from abc import ABC, abstractmethod
 from epic_benchmarks.parsl import SimpleLauncherConfig
 from pydantic import Field, SerializeAsAny, ValidationInfo, field_validator
 from typing import ClassVar, Dict, Optional, Type, Union, Sequence, Tuple, List, Callable, Literal
 from collections.abc import Mapping
 
 from parsl.executors import *
+from parsl.executors.workqueue.executor import *
 from parsl.data_provider.staging import Staging
 from parsl.executors.high_throughput.manager_selector import (
     ManagerSelector,
@@ -14,8 +15,7 @@ from parsl.executors.status_handling import BlockProviderExecutor
 from parsl.jobs.states import JobStatus
 
 from epic_benchmarks.parsl._base import BaseParslModel
-from epic_benchmarks.container import *
-from epic_benchmarks.container._base import BaseContainerConfig
+from epic_benchmarks.container.containers import ContainerUnion
 from epic_benchmarks.parsl.providers import (
     ParslProviderConfig, ProviderWithWorkerInit,
     AWSProviderConfig, CondorProviderConfig, GoogleCloudProviderConfig,
@@ -31,40 +31,52 @@ ProviderUnion = Union[
     PBSProProviderConfig
 ]
 
-ContainerUnion = Union[
-    DockerConfig, ShifterConfig
-]
 
-class ParslExecutorConfig(BaseParslModel):
+class ParslExecutorConfig(BaseParslModel, ABC):
 
     label: str
     working_dir: Optional[str] = None
 
-class ParslExecutorConfigWithoutContainer(ParslExecutorConfig):
+    @abstractmethod
+    def get_container_config(self) -> Optional[ContainerUnion]:
+        pass
 
-    pass
 
-class ParslExecutorConfigWithContainer(ParslExecutorConfig):
 
-    container_config : Optional[ContainerUnion] = Field(discriminator='container_type', default=None)
+class ParslExecutorConfigWithoutProvider(ParslExecutorConfig):
+
+    def get_container_config(self):
+        return None
+
+class ParslExecutorConfigWithProvider(ParslExecutorConfig):
+
+    # container_config : Optional[ContainerUnion] = Field(discriminator='container_type', default=None)
     provider: ProviderUnion = Field(discriminator='config_type_name')
     launch_cmd: Optional[str] = None
+    
+    def get_container_config(self):
+        return self.provider.launcher.container_config
 
-    def to_parsl_config(self, exclude = None, *excludes):
-        return super().to_parsl_config('container_config')
+    # def to_parsl_config(self, exclude = None, *excludes):
+    #     return super().to_parsl_config('container_config')
 
-    #Update provider config worker init to initialize a container if one is provided.
-    @field_validator('provider', mode='after')
-    def add_container_init(cls, provider : ParslProviderConfig, info : ValidationInfo) -> ParslProviderConfig:
+    # #Update provider config worker init to initialize a container if one is provided.
+    # @field_validator('provider', mode='after')
+    # def add_container_init(cls, provider : ParslProviderConfig, info : ValidationInfo) -> ParslProviderConfig:
 
-        container = info.data['container_config']
-        if container is not None and isinstance(provider, ProviderWithWorkerInit):
-            assert(isinstance(container, BaseContainerConfig))
-            container_init = container.init_with_extra_command(provider.worker_init)
-            provider.worker_init = container_init
-        return provider
+    #     container = info.data['container_config']
+    #     if container is not None:
+    #         assert(isinstance(container, BaseContainerConfig))
+    #         nested_launcher = provider.launcher
+    #         prev_wrapper_command = nested_launcher.wrapper_command
+    #         if prev_wrapper_command is not None:
+    #             provider.launcher.wrapper_command = container.init_with_extra_command(prev_wrapper_command)
+    #         else:
+    #             provider.launcher.wrapper_command = container.init_command()
 
-class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutContainer):
+    #     return provider
+
+class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutProvider):
     
     config_type_name : Literal['ThreadPoolExecutor'] = "ThreadPoolExecutor"
     config_type : ClassVar[Type] = ThreadPoolExecutor
@@ -75,7 +87,7 @@ class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutContainer):
     storage_access: Optional[List[Staging]] = None
     
 
-class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
+class HighThroughputExecutorConfig(ParslExecutorConfigWithProvider):
 
     config_type_name : Literal['HighThroughputExecutor'] = "HighThroughputExecutor"
     config_type : ClassVar[Type] = HighThroughputExecutor
@@ -107,7 +119,7 @@ class HighThroughputExecutorConfig(ParslExecutorConfigWithContainer):
     encrypted: bool = False
 
     
-class MPIExecutorConfig(ParslExecutorConfigWithContainer):
+class MPIExecutorConfig(ParslExecutorConfigWithProvider):
     
     config_type_name : Literal['MPIExecutor'] = "MPIExecutor"
     config_type : ClassVar[Type] = MPIExecutor
@@ -133,7 +145,7 @@ class MPIExecutorConfig(ParslExecutorConfigWithContainer):
     block_error_handler: Union[bool, Callable[[BlockProviderExecutor, Dict[str, JobStatus]], None]] = True
     encrypted: bool = False
 
-class FluxExecutorConfig(ParslExecutorConfigWithContainer):
+class FluxExecutorConfig(ParslExecutorConfigWithProvider):
 
     config_type_name : Literal['FluxExecutor'] = "FluxExecutor"
     config_type : ClassVar[Type] = FluxExecutor
@@ -142,5 +154,37 @@ class FluxExecutorConfig(ParslExecutorConfigWithContainer):
     flux_executor_kwargs: Mapping = Field(default_factory=dict)
     flux_path: Optional[str] = None
     launch_cmd: Optional[str] = None
+
+
+
+class WorkQueueExecutorConfig(ParslExecutorConfigWithProvider):
+
+    config_type_name : Literal['WorkQueueExecutor'] = "WorkQueueExecutor"
+    config_type : ClassVar[Type] = WorkQueueExecutor
+
+    label: str = "WorkQueueExecutor"
+    working_dir: str = "."
+    project_name: Optional[str] = None
+    project_password_file: Optional[str] = None
+    address: Optional[str] = None
+    port: int = WORK_QUEUE_DEFAULT_PORT
+    env: Optional[Dict] = None
+    shared_fs: bool = False
+    storage_access: Optional[List[Staging]] = None
+    use_cache: bool = False
+    source: bool = False
+    pack: bool = False
+    extra_pkgs: Optional[List[str]] = None
+    autolabel: bool = False
+    autolabel_window: int = 1
+    autocategory: bool = True
+    max_retries: int = 1
+    init_command: str = ""
+    worker_options: str = ""
+    full_debug: bool = True
+    worker_executable: str = 'work_queue_worker'
+    function_dir: Optional[str] = None
+    coprocess: bool = False
+    scaling_cores_per_worker: int = 1
 
 

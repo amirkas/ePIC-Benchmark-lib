@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from parsl import AUTO_LOGNAME
 from epic_benchmarks.workflow.config import WorkflowConfig
 from epic_benchmarks.container._base import BaseContainerConfig
-from epic_benchmarks.workflow.bash.utils import concatenate_commands
+from epic_benchmarks.workflow.bash.utils import concatenate_commands, source_epic_command, change_directory_command
 
 EPIC_REPO_URL = "https://github.com/eic/epic.git"
 
@@ -30,24 +30,33 @@ def compile_epic(workflow_config : WorkflowConfig, benchmark_name : str, num_thr
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
     change_directory_cmd = f'cd {epic_directory_path}'
-    compile_pt_one_cmd = 'cmake --fresh -B build -S . -DCMAKE_INSTALL_PREFIX=install'
+    compile_pt_one_cmd = 'cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install'
     compile_pt_two_cmd = f'cmake --build build -- install -j {num_threads}'
     all_commands = concatenate_commands(change_directory_cmd, compile_pt_one_cmd, compile_pt_two_cmd)
     return all_commands
 
 def run_npsim(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
 
+
+    source_command = source_epic_command(workflow_config, benchmark_name)
+    temp_dir = workflow_config.paths.simulation_instance_temp_dir_path(benchmark_name, simulation_name)
+    change_temp_dir_cmd = change_directory_command(temp_dir)
     npsim_command = workflow_config.executor.npsim_command_string(
         benchmark_name=benchmark_name,
         simulation_name=simulation_name, 
     )
-    return npsim_command
+    all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
+    return all_commands
 
 def run_eicrecon(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
     
+    source_command = source_epic_command(workflow_config, benchmark_name)
+    temp_dir = workflow_config.paths.reconstruction_instance_temp_dir_path(benchmark_name)
+    change_temp_dir_cmd = change_directory_command(temp_dir)
     eicrecon_command = workflow_config.executor.eicrecon_command_string(
         benchmark_name=benchmark_name,
         simulation_name=simulation_name, 
     )
-    return eicrecon_command
+    all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
+    return all_commands
 

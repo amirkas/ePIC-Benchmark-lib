@@ -15,8 +15,11 @@ class WorkflowPaths:
     @cached_property
     def workflow_dir_path(self):
 
+        #TODO: Rework required to avoid user defined Dir_name/Same_dir_name bug
         working_dir_path = Path(self.parent.working_directory).resolve()
-        return working_dir_path.joinpath(self.parent.workflow_dir_name).resolve()
+        if working_dir_path.parts[-1] == self.parent.workflow_dir_name:
+            return working_dir_path
+        return working_dir_path.joinpath(self.parent.workflow_dir_name)
 
     def benchmark_names(self):
 
@@ -98,6 +101,15 @@ class WorkflowPaths:
 
         benchmark_config = self.parent.benchmark_config(benchmark_name)
         return benchmark_config.reconstruction_temp_dir_path(self.workflow_dir_path)
+    
+    def simulation_instance_temp_dir_path(self, benchmark_name : str, simulation_name : str) -> Path:
+
+        simulation_temp_path = self.simulation_temp_dir_path(benchmark_name)
+        return simulation_temp_path.joinpath(simulation_name)
+
+    def reconstruction_instance_temp_dir_path(self, benchmark_name : str, simulation_name : str) -> Path:
+        reconstruction_temp_path = self.reconstruction_temp_dir_path(benchmark_name)
+        return reconstruction_temp_path.joinpath(simulation_name)
 
     def detector_build_path(self, benchmark_name : str, simulation_name : str) -> Path:
         benchmark_config = self.parent.benchmark_config(benchmark_name)

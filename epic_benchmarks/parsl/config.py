@@ -8,15 +8,17 @@ from pydantic import ConfigDict, Field, RootModel, SerializeAsAny
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.executors import (
-    ParslExecutorConfig, ParslExecutorConfigWithContainer,
+    ParslExecutorConfig, ParslExecutorConfigWithProvider,
     ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
-    MPIExecutorConfig, FluxExecutorConfig
+    MPIExecutorConfig, FluxExecutorConfig, WorkQueueExecutorConfig
 )
+from epic_benchmarks.container.containers import ContainerUnion
+from epic_benchmarks.parsl.launchers import ParslLauncherConfig
 from epic_benchmarks.container._base import BaseContainerConfig
 
 ExecutorUnion = Union[
     ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
-    MPIExecutorConfig, FluxExecutorConfig
+    MPIExecutorConfig, FluxExecutorConfig, WorkQueueExecutorConfig
 ]
 
 Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_type_name')]
@@ -84,11 +86,19 @@ class ParslConfig(BaseParslModel):
 
         container_lst = []
         for executor in self.executors:
-            if isinstance(executor, ParslExecutorConfigWithContainer):
-                executor_container = executor.container_config
-                if executor_container is not None:
-                    container_lst.append(executor_container)
+            if isinstance(executor, ParslExecutorConfigWithProvider):
+                provider = executor.provider
+                launcher = provider.launcher
+                assert(isinstance(launcher, ParslLauncherConfig))
+                if launcher.container_config is not None:
+                    container_lst.append(launcher.container_config)
+
         return container_lst
+    
+    def executor_container(self, executor_label : str) -> Optional[ContainerUnion]:
+
+        executor = self.executor_by_label(executor_label)
+        return executor.get_container_config()
     
 
 

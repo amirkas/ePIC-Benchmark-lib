@@ -8,7 +8,6 @@ from .launchers import (
     MpiExecLauncherConfig,
     MpiRunLauncherConfig,
     JsrunLauncherConfig,
-    WrappedLauncherConfig
 )
 from .providers import (
     AWSProviderConfig,
@@ -26,7 +25,8 @@ from .executors import (
     ThreadPoolExecutorConfig,
     HighThroughputExecutorConfig,
     MPIExecutorConfig,
-    FluxExecutorConfig
+    FluxExecutorConfig,
+    WorkQueueExecutorConfig
 )
 from .config import ParslConfig
 
@@ -40,7 +40,6 @@ __all__ = [
     'MpiExecLauncherConfig',
     'MpiRunLauncherConfig',
     'JsrunLauncherConfig',
-    'WrappedLauncherConfig',
     'AWSProviderConfig',
     'CondorProviderConfig', 
     'GoogleCloudProviderConfig',
@@ -55,5 +54,6 @@ __all__ = [
     'HighThroughputExecutorConfig',
     'MPIExecutorConfig',
     'FluxExecutorConfig',
+    'WorkQueueExecutorConfig',
     'ParslConfig'
 ]

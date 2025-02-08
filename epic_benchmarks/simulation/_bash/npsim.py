@@ -26,7 +26,7 @@ class GunDistributionFlag(NpsimFlag[Union[str, GunDistribution]]):
     use_enum_val : bool = True
 
 class GunParticleFlag(NpsimFlag[Union[str, Particle]]):
-    flag : Literal["--gun.particle"]
+    flag : Literal["--gun.particle"] = "--gun.particle"
     use_enum_val : bool = True
 
 class GunMomentumMaxFlag(NpsimFlag[Union[str, Momentum]]):
@@ -51,7 +51,7 @@ class GunMultiplicityFlag(NpsimFlag[float]):
     flag : Literal["--gun.multiplicity"] = "--gun.multiplicity"
 
 class NpsimOutFileFlag(NpsimFlag[float]):
-    flag : Literal["--OutputFile"] = "--OutputFile"
+    flag : Literal["--outputFile"] = "--outputFile"
 
 class NpsimModel(BashCommand):
 

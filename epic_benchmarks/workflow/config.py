@@ -13,6 +13,7 @@ from epic_benchmarks.parsl.config import ParslConfig
 from epic_benchmarks.benchmark.config import BenchmarkConfig
 from epic_benchmarks.simulation.config import SimulationConfig
 from epic_benchmarks.detector.config import DetectorConfig
+from epic_benchmarks.parsl.executors import HighThroughputExecutor, MPIExecutorConfig, WorkQueueExecutorConfig
 from epic_benchmarks._file.types import PathType
 from epic_benchmarks._file.utils import save_raw_config, load_from_file
 from epic_benchmarks.utils.equality import any_identical_objects
@@ -122,7 +123,10 @@ class WorkflowConfig(BaseModel):
         debug_enabled = info.data["debug"]
         for executor in parsl_config.executors:
             executor.working_dir = str(working_dir.joinpath(workflow_dir_name))
-            executor.worker_debug = debug_enabled
+            if isinstance(executor, (HighThroughputExecutor, MPIExecutorConfig)):
+                executor.worker_debug = debug_enabled
+            elif isinstance(executor, WorkQueueExecutorConfig):
+                executor.full_debug = debug_enabled
         parsl_config.initialize_logging = debug_enabled
         return parsl_config
     

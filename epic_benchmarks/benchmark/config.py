@@ -147,9 +147,9 @@ class BenchmarkConfig(BaseModel):
     def benchmark_dir_path(self, working_dir : PathType) -> Path:
 
         if isinstance(working_dir, str):
-            working_dir = Path(working_dir)
+            working_dir = Path(working_dir).resolve()
         return working_dir.joinpath(self.benchmark_dir_name)
-
+    
     def epic_repo_path(self, working_dir : PathType) -> Path:
 
         _benchmark_dir_path = self.benchmark_dir_path(working_dir)
@@ -171,7 +171,7 @@ class BenchmarkConfig(BaseModel):
     def simulation_out_file_path(self, simulation_name : str, working_dir : PathType) -> Path:
         simulation_config = self.get_simulation_config(simulation_name)
         npsim_filename = simulation_config.npsim_filename
-        simulation_out_dir = self.simulation_out_dir_path(working_dir)
+        simulation_out_dir = self.simulation_out_dir_path(working_dir).resolve()
         return simulation_out_dir.joinpath(npsim_filename)
 
     def reconstruction_out_file_path(self, simulation_name : str, working_dir : PathType) -> Path:

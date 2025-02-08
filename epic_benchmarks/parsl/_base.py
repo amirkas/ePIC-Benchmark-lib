@@ -20,9 +20,9 @@ class BaseParslModel(BaseModel):
             for exclude_str in excludes:
                 exclude_lst.append(exclude_str)
         if len(exclude_lst) > 0:
-            return self.model_dump(exclude=set(exclude_lst), exclude_unset=True, context={'option' : 'config'})
+            return self.model_dump(exclude=set(exclude_lst), exclude_unset=True, exclude_defaults=False, context={'option' : 'config'})
         else:
-            return self.model_dump(exclude_unset=True, context={'option' : 'config'})
+            return self.model_dump(exclude_unset=True, exclude_defaults=False, context={'option' : 'config'})
                 
 
     @model_serializer(mode='wrap')
@@ -42,9 +42,6 @@ class BaseParslModel(BaseModel):
 
             #Remove config_type_name from result
             result.pop('config_type_name', None)
-
-            #For executor configs, remove container config from result
-            result.pop('container_config', None)
 
             return self.config_type(**result)
         else:

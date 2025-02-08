@@ -11,14 +11,13 @@ from epic_benchmarks.parsl.launchers import (
     SimpleLauncherConfig, SingleNodeLauncherConfig,
     SrunLauncherConfig, AprunLauncherConfig, SrunMPILauncherConfig,
     GnuParallelLauncherConfig, MpiExecLauncherConfig, MpiRunLauncherConfig,
-    JsrunLauncherConfig, WrappedLauncherConfig 
+    JsrunLauncherConfig 
 )
 
 LauncherUnion= Union[
     SimpleLauncherConfig, SingleNodeLauncherConfig, SrunLauncherConfig,
     AprunLauncherConfig, SrunMPILauncherConfig, GnuParallelLauncherConfig,
-    MpiExecLauncherConfig, MpiRunLauncherConfig, JsrunLauncherConfig,
-    WrappedLauncherConfig 
+    MpiExecLauncherConfig, MpiRunLauncherConfig, JsrunLauncherConfig, 
 ]
 
 class ParslProviderConfig(BaseParslModel):
