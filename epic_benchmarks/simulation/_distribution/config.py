@@ -4,10 +4,9 @@ from pydantic import (
     field_serializer, field_validator,
     model_validator, AliasChoices, AliasPath
 )
-from epic_benchmarks.simulation.types import Angle, Eta
-from epic_benchmarks.simulation.types import GunDistribution, DistributionLimitType
+from epic_benchmarks.simulation.simulation_types import GunDistribution, Angle, Eta, DistributionLimitType
 from epic_benchmarks.simulation._utils import validate_enum
-import epic_benchmarks.simulation.distribution._validators as distribution_validators
+import epic_benchmarks.simulation._distribution._validators as distribution_validators
 
 class DistributionSettings(BaseModel):
 

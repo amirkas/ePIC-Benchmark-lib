@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from epic_benchmarks.parsl import SimpleLauncherConfig
-from pydantic import Field, SerializeAsAny, ValidationInfo, field_validator
+from pydantic import Field, SerializeAsAny
 from typing import ClassVar, Dict, Optional, Type, Union, Sequence, Tuple, List, Callable, Literal
 from collections.abc import Mapping
 
@@ -17,7 +16,6 @@ from parsl.jobs.states import JobStatus
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.container.containers import ContainerUnion
 from epic_benchmarks.parsl.providers import (
-    ParslProviderConfig, ProviderWithWorkerInit,
     AWSProviderConfig, CondorProviderConfig, GoogleCloudProviderConfig,
     GridEngineProviderConfig, LocalProviderConfig, LSFProviderConfig,
     SlurmProviderConfig, TorqueProviderConfig, KubernetesProviderConfig,

@@ -8,12 +8,12 @@ from pydantic import ConfigDict, Field, RootModel, SerializeAsAny
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.executors import (
-    ParslExecutorConfig, ParslExecutorConfigWithProvider,
     ThreadPoolExecutorConfig, HighThroughputExecutorConfig,
     MPIExecutorConfig, FluxExecutorConfig, WorkQueueExecutorConfig
 )
+from epic_benchmarks.parsl.executors.executors import ParslExecutorConfigWithProvider, ParslExecutorConfig
 from epic_benchmarks.container.containers import ContainerUnion
-from epic_benchmarks.parsl.launchers import ParslLauncherConfig
+from epic_benchmarks.parsl.launchers.launchers import ParslLauncherConfig
 from epic_benchmarks.container._base import BaseContainerConfig
 
 ExecutorUnion = Union[

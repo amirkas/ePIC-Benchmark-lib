@@ -1,7 +1,6 @@
 import yaml
 import json
 
-
 FILE_EXTENSION_DUMP_MAP = {
     '.yml' : lambda content, file : yaml.safe_dump(content, file, sort_keys=False),
     ".yaml" : lambda content, file : yaml.safe_dump(content, file, sort_keys=False),

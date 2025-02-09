@@ -1,4 +1,3 @@
-from typing import Optional
 from epic_benchmarks.workflow.config import WorkflowConfig
 
 from epic_benchmarks.workflow._run import (
@@ -7,9 +6,12 @@ from epic_benchmarks.workflow._run import (
     run, run_from_config, run_from_file_path
 )
 
+from . import bash, python
+
 __all__ = [
     'WorkflowConfig',
     'load_from_config', 'load_from_file_path',
-    'run', 'run_from_config', 'run_from_file_path'
+    'run', 'run_from_config', 'run_from_file_path',
+    'bash', 'python'
 ]
 

@@ -10,9 +10,9 @@ from typing import Dict, Union, Optional, Any
 from epic_benchmarks._file.types import PathType
 from epic_benchmarks._file.utils import absolute_path
 
-from epic_benchmarks.simulation.types import Particle, Momentum, Angle, Eta
+from epic_benchmarks.simulation.simulation_types import Particle, Momentum, Angle, Eta
 from epic_benchmarks.simulation._bash import NpsimModel, EicreconModel
-from epic_benchmarks.simulation.distribution.config import DistributionSettings
+from epic_benchmarks.simulation._distribution.config import DistributionSettings
 from epic_benchmarks.simulation._utils import validate_enum, _generate_file_name
 import epic_benchmarks.simulation._validators as simulation_validator
 

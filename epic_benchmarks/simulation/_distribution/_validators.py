@@ -1,8 +1,8 @@
-from typing import Any, Type, Optional, List, TypeVar
+from typing import Any, Optional, List, TypeVar
 
-from epic_benchmarks.simulation.types import GunDistribution
+from epic_benchmarks.simulation.simulation_types import GunDistribution, Angle, Eta, DistributionLimitType
 from epic_benchmarks.simulation._quantity import Quantity
-from epic_benchmarks.simulation.types import Angle, Eta, DistributionLimitType
+
 
 QuantityType = TypeVar('Quantity', bound=Quantity)
 

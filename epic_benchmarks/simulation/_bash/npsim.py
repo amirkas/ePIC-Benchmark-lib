@@ -2,9 +2,8 @@ from typing import Annotated, Optional, TypeVar, Literal, Generic, Union
 from pydantic import Field, PlainSerializer
 
 from epic_benchmarks._bash.flags import BashFlag, BashCommand
-from epic_benchmarks.utils.typing import Printable
 from epic_benchmarks._file.types import PathType
-from epic_benchmarks.simulation.types import GunDistribution, Particle, Momentum, Angle, Eta
+from epic_benchmarks.simulation.simulation_types import GunDistribution, Particle, Momentum, Angle, Eta
 
 
 T = TypeVar('T')

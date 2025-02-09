@@ -1,7 +1,6 @@
 from pydantic import Field
-from typing import Literal, Type, TypeVar, ClassVar, Union
+from typing import Literal, Type, ClassVar, Union
 
-from parsl.launchers.base import Launcher
 from epic_benchmarks.parsl._wrapped_launchers import *
 from epic_benchmarks.container import *
 
@@ -80,10 +79,3 @@ class JsrunLauncherConfig(ParslLauncherConfig):
     config_type : ClassVar[Type] = WrappedJsrunLauncher
 
     overrides : str = ''
-
-# class WrappedLauncherConfig(ParslLauncherConfig):
-
-#     config_type_name : Literal['WrappedLauncher'] = "WrappedLauncher"
-#     config_type : ClassVar[Type] = WrappedLauncher
-
-#     prepend : str = ''

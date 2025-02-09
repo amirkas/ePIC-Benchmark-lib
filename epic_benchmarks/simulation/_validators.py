@@ -1,9 +1,6 @@
-from multiprocessing import Value
-import numbers
 from typing import Any, Optional
-
-from pydantic import ValidationError
-from epic_benchmarks.simulation.types import Momentum, Particle, GunDistribution, DistributionLimitType
+from epic_benchmarks.simulation.simulation_types import Momentum, GunDistribution
+from epic_benchmarks.simulation.simulation_types.types import DistributionLimitType
 
 def format_simulation_name(
         momentum_min : Optional[Momentum] =None,
