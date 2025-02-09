@@ -1,10 +1,11 @@
+import os
 from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar
 
 from parsl.config import Config
 from parsl.dataflow.dependency_resolvers import DependencyResolver
 from parsl.dataflow.taskrecord import TaskRecord
 from parsl.monitoring import MonitoringHub
-from pydantic import ConfigDict, Field, RootModel, SerializeAsAny
+from pydantic import ConfigDict, Field, RootModel, SerializeAsAny, field_validator, ValidationInfo
 
 from epic_benchmarks.parsl._base import BaseParslModel
 from epic_benchmarks.parsl.executors import (
@@ -22,6 +23,21 @@ ExecutorUnion = Union[
 ]
 
 Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_type_name')]
+
+def std_autopath(run_dir : str, task_record : TaskRecord, kw):
+
+    label = task_record['kwargs'].get('label')
+    task_id = task_record['id']
+    return os.path.join(
+        run_dir,
+        'task_logs',
+        str(int(task_id / 10000)).zfill(4),
+        'task_{}_{}.{}'.format(
+            str(task_id).zfill(4), 
+            label,
+            kw    
+        )
+    )
 
 class ExecutorList(RootModel):
 
@@ -67,6 +83,13 @@ class ParslConfig(BaseParslModel):
     project_name: Optional[str] = None
     initialize_logging: bool = True
 
+    @field_validator('std_autopath', mode='after')
+    def set_log_autopath(cls, autopath, info : ValidationInfo) -> Callable:
+
+        rundir = info.data['run_dir']
+        return lambda x, y : std_autopath(rundir, x, y)
+
+
     def all_executor_labels(self):
 
         executor_labels = []
@@ -99,6 +122,8 @@ class ParslConfig(BaseParslModel):
 
         executor = self.executor_by_label(executor_label)
         return executor.get_container_config()
+    
+    
     
 
 

@@ -7,7 +7,7 @@ ParslConfigType = TypeVar("ParslConfigType")
 
 class BaseParslModel(BaseModel):
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, strict=False)
+    model_config = ConfigDict(arbitrary_types_allowed=True, strict=False, validate_default=True)
     config_type_name : str = Field(init=False)
     config_type : ClassVar[Type] = Field(init=False, exclude=True)
 
@@ -20,9 +20,9 @@ class BaseParslModel(BaseModel):
             for exclude_str in excludes:
                 exclude_lst.append(exclude_str)
         if len(exclude_lst) > 0:
-            return self.model_dump(exclude=set(exclude_lst), exclude_unset=True, exclude_defaults=False, context={'option' : 'config'})
+            return self.model_dump(exclude=set(exclude_lst), exclude_defaults=False, context={'option' : 'config'})
         else:
-            return self.model_dump(exclude_unset=True, exclude_defaults=False, context={'option' : 'config'})
+            return self.model_dump(exclude_defaults=False, context={'option' : 'config'})
                 
 
     @model_serializer(mode='wrap')

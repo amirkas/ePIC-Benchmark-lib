@@ -4,20 +4,20 @@ from epic_benchmarks.workflow.bash.utils import concatenate_commands
 
 EPIC_REPO_URL = "https://github.com/eic/epic.git"
 
-def clone_epic(workflow_config : WorkflowConfig, benchmark_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
+def clone_epic(workflow_config : WorkflowConfig, benchmark_name : str, **kwargs) -> str:
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
     clone_command = f'git clone {EPIC_REPO_URL} "{epic_directory_path}"'
     return clone_command
 
-def checkout_epic_branch(workflow_config : WorkflowConfig, benchmark_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
+def checkout_epic_branch(workflow_config : WorkflowConfig, benchmark_name : str, **kwargs) -> str:
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
     branch = workflow_config.executor.epic_branch(benchmark_name)
     checkout_command = f'git -C "{epic_directory_path}" checkout "{branch}"'
     return checkout_command
 
-def compile_epic(workflow_config : WorkflowConfig, benchmark_name : str, num_threads : int = 1, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
+def compile_epic(workflow_config : WorkflowConfig, benchmark_name : str, num_threads : int = 1, **kwargs) -> str:
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
     change_directory_cmd = f'cd {epic_directory_path}'

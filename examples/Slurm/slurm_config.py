@@ -27,9 +27,8 @@ shifter_config = ShifterConfig(entry_command="/opt/local/bin/eic-shell", image="
 parsl_configuration = ParslConfig(
     executors=[
         HighThroughputExecutorConfig(
-            container_config=shifter_config,
             provider=SlurmProviderConfig(
-                launcher=SrunLauncherConfig(overrides="-c 8"),
+                launcher=SrunLauncherConfig(overrides="-c 8", container_config=shifter_config),
                 account="test_account",
                 walltime="00:10:00",
                 max_blocks=1,

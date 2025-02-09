@@ -1,12 +1,13 @@
 from parsl.app.bash import BashApp
-from parsl import bash_app
 from parsl.dataflow.dflow import DataFlowKernel
 from typing import Callable, Optional, Literal, Union, Sequence, List
+from parsl import AUTO_LOGNAME
 
 from epic_benchmarks.container._base import BaseContainerConfig
 from epic_benchmarks.container.containers import ContainerUnion
 
-def containerized_bash_app(function: Optional[Callable] = None,
+
+def bash_app(function: Optional[Callable] = None,
                             data_flow_kernel: Optional[DataFlowKernel] = None,
                             cache: bool = False,
                             container : Optional[ContainerUnion] = None,
@@ -15,9 +16,9 @@ def containerized_bash_app(function: Optional[Callable] = None,
 
     def app_container_decorator(func : Callable) -> Callable:
 
-        def wrapper(*args, **kwargs) -> str:
+        def wrapper(*args, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME, label=func.__name__, **kwargs) -> str:
 
-            result = func(*args, **kwargs)
+            result = func(*args, stdout=stdout, stderr=stderr, label=label, **kwargs)
             assert(isinstance(result, str))
             if container is not None:
                 return container.init_with_extra_commands(result)

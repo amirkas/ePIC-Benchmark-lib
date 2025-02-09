@@ -2,7 +2,7 @@ from parsl import AUTO_LOGNAME
 from epic_benchmarks.workflow.config import WorkflowConfig
 from epic_benchmarks.workflow.bash.utils import concatenate_commands, source_epic_command, change_directory_command
 
-def run_npsim(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
+def run_npsim(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, **kwargs) -> str:
 
 
     source_command = source_epic_command(workflow_config, benchmark_name)
@@ -15,7 +15,7 @@ def run_npsim(workflow_config : WorkflowConfig, benchmark_name : str, simulation
     all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
     return all_commands
 
-def run_eicrecon(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, inputs=[], outputs=[], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME) -> str:
+def run_eicrecon(workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str, **kwargs) -> str:
     
     source_command = source_epic_command(workflow_config, benchmark_name)
     temp_dir = workflow_config.paths.reconstruction_instance_temp_dir_path(benchmark_name)
