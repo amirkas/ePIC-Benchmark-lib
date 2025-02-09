@@ -54,26 +54,7 @@ class ParslExecutorConfigWithProvider(ParslExecutorConfig):
     
     def get_container_config(self):
         return self.provider.launcher.container_config
-
-    # def to_parsl_config(self, exclude = None, *excludes):
-    #     return super().to_parsl_config('container_config')
-
-    # #Update provider config worker init to initialize a container if one is provided.
-    # @field_validator('provider', mode='after')
-    # def add_container_init(cls, provider : ParslProviderConfig, info : ValidationInfo) -> ParslProviderConfig:
-
-    #     container = info.data['container_config']
-    #     if container is not None:
-    #         assert(isinstance(container, BaseContainerConfig))
-    #         nested_launcher = provider.launcher
-    #         prev_wrapper_command = nested_launcher.wrapper_command
-    #         if prev_wrapper_command is not None:
-    #             provider.launcher.wrapper_command = container.init_with_extra_command(prev_wrapper_command)
-    #         else:
-    #             provider.launcher.wrapper_command = container.init_command()
-
-    #     return provider
-
+    
 class ThreadPoolExecutorConfig(ParslExecutorConfigWithoutProvider):
     
     config_type_name : Literal['ThreadPoolExecutor'] = "ThreadPoolExecutor"
