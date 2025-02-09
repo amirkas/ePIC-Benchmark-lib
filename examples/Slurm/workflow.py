@@ -2,7 +2,7 @@ from typing import List
 from epic_benchmarks.workflow import WorkflowConfig
 from epic_benchmarks.parsl.types import FutureType
 
-from epic_benchmarks.workflow.bash.apps import clone_epic_app
+from epic_benchmarks.workflow.bash.apps.epic import clone_epic_app
 
 def run(workflow_config : WorkflowConfig, all_futures : List[FutureType]):
 

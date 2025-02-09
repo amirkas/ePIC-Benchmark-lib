@@ -1,7 +1,11 @@
 import os
-from epic_benchmarks.configs import SimulationConfig, BenchmarkConfig, WorkflowConfig
-from epic_benchmarks.parsl import ParslConfig, HighThroughputExecutorConfig, SlurmProviderConfig, SrunLauncherConfig
-from epic_benchmarks.workflow import run_from_file_path
+from epic_benchmarks.simulation import SimulationConfig,
+from epic_benchmarks.benchmark import BenchmarkConfig
+from epic_benchmarks.workflow import WorkflowConfig, run_from_file_path
+from epic_benchmarks.parsl.config import ParslConfig
+from epic_benchmarks.parsl.executors import HighThroughputExecutorConfig
+from epic_benchmarks.parsl.providers import SlurmProviderConfig
+from epic_benchmarks.parsl.launchers import SrunLauncherConfig
 from epic_benchmarks.container.containers import ShifterConfig
 
 simulation_configuration = SimulationConfig(
@@ -44,5 +48,5 @@ workflow_configuration.save("slurm_workflow_config.yaml")
 
 file_path = os.path.join(os.getcwd(), "slurm_workflow_config.yaml")
 script_path = os.path.join(os.getcwd(), "workflow.py")
-# run_from_file_path(file_path, script_path)
+run_from_file_path(file_path, script_path)
 
