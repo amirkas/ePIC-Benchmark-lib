@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='epic_benchmarks',
-    version='1.0',
+    version='2.0-alpha',
     packages=find_packages(where='.', include=['epic_benchmarks', 'epic_benchmarks.*']),
     package_dir={'': '.'},
     install_requires=[

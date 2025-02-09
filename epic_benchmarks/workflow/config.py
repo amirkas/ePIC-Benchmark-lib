@@ -1,12 +1,11 @@
 from __future__ import annotations
-from doctest import script_from_examples
 from functools import cached_property
 import os
 from pathlib import Path
 from typing import Optional, List, Any, Self
 
 from parsl import Config
-from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict, FilePath
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict
 from pydantic_core.core_schema import ValidationInfo
 
 from epic_benchmarks.parsl.config import ParslConfig

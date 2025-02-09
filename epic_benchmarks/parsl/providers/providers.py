@@ -1,9 +1,6 @@
+from pydantic import Field
+from typing import ClassVar, List, Literal, Optional, Tuple, Type, Dict, Union
 
-
-from pydantic import Field, InstanceOf
-from typing import ClassVar, List, Literal, Optional, Tuple, Type, TypeVar, Dict, Union
-
-from parsl.providers.base import ExecutionProvider
 from parsl.providers import *
 
 from epic_benchmarks.parsl._base import BaseParslModel

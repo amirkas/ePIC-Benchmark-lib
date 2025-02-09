@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Literal, Dict, Any
-from dataclasses import dataclass
 from pydantic import BaseModel, SerializationInfo, model_serializer
 
 

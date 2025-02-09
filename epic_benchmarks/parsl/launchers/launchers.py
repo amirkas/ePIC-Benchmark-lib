@@ -5,7 +5,6 @@ from epic_benchmarks.parsl._wrapped_launchers import *
 from epic_benchmarks.container import *
 
 from epic_benchmarks.parsl._base import BaseParslModel
-from epic_benchmarks.container._base import BaseContainerConfig
 
 ContainerUnion = Union[
     DockerConfig, ShifterConfig
