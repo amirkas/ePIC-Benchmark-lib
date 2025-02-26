@@ -53,6 +53,8 @@ class ExecutorList(RootModel):
 
 class ParslConfig(BaseParslModel):
 
+    model_config = ConfigDict(validate_assignment=True)
+
     config_type_name : Literal['Config'] = "Config" 
     config_type : ClassVar[Type] = Config
 

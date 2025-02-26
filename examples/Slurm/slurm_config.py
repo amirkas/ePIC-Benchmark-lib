@@ -1,5 +1,5 @@
 import os
-from epic_benchmarks.simulation import SimulationConfig,
+from epic_benchmarks.simulation import SimulationConfig
 from epic_benchmarks.benchmark import BenchmarkConfig
 from epic_benchmarks.workflow import WorkflowConfig, run_from_file_path
 from epic_benchmarks.parsl.config import ParslConfig
@@ -29,7 +29,7 @@ parsl_configuration = ParslConfig(
         HighThroughputExecutorConfig(
             provider=SlurmProviderConfig(
                 launcher=SrunLauncherConfig(overrides="-c 8", container_config=shifter_config),
-                account="test_account",
+                account="m3763",
                 walltime="00:10:00",
                 max_blocks=1,
             ),

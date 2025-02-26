@@ -7,12 +7,16 @@ class DetectorConfigXpath:
     DETECTOR_TAG : str = "detector"
     MODULE_TAG : str = "module"
     COMPONENT_TAG : str = "module_component"
+    CONSTANT_TAG : str = "constant"
+    READOUT_TAG : str = "readout"
+    SEGMENTATION_TAG : str = "segmentation"
 
     @classmethod
     def create_tag_query(cls, tag, attributes) -> str:
-        if not isinstance(attributes, dict):
-            raise ValueError("attributes must be a dictionary: Got type: ", type(attributes))
-        if len(tag) == 0:
+        if not isinstance(attributes, dict) and attributes is not None:
+            err = f"attributes must be a dictionary or None: Got type: {type(attributes)}"
+            raise ValueError(err)
+        if len(tag) == 0 or attributes is None or len(attributes) == 0:
             return ""
         query = f'//{tag}'
         if len(attributes.keys()) > 0:
@@ -26,16 +30,28 @@ class DetectorConfigXpath:
 
         combined_query = ''
         for tag, attributes in query_elems.items():
-            combined_query += cls.create_tag_query(tag, attributes)
+            if tag is not None:
+                combined_query += cls.create_tag_query(tag, attributes)
         return combined_query
     
     @classmethod
-    def create_query(cls, detector_attributes, module_attributes, module_component_attributes):
+    def create_query(
+            cls,
+            detector_attributes, 
+            module_attributes, 
+            module_component_attributes, 
+            constant_attributes,
+            readout_attributes, 
+            segmentation_attributes
+            ):
         return cls.create_generic_query(
             {
             cls.DETECTOR_TAG : detector_attributes,
             cls.MODULE_TAG : module_attributes,
-            cls.COMPONENT_TAG : module_component_attributes
+            cls.COMPONENT_TAG : module_component_attributes,
+            cls.CONSTANT_TAG : constant_attributes,
+            cls.READOUT_TAG : readout_attributes,
+            cls.SEGMENTATION_TAG : segmentation_attributes,
             }
         )
 

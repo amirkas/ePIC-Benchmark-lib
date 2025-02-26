@@ -8,6 +8,7 @@ setup(
     install_requires=[
         'pyyaml',
         'pydantic',
+        'pydantic-xml',
         'mypy',
         'lxml',
         'jupyter',

@@ -7,7 +7,11 @@ ParslConfigType = TypeVar("ParslConfigType")
 
 class BaseParslModel(BaseModel):
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, strict=False, validate_default=True)
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        strict=False,
+        validate_default=True,
+    )
     config_type_name : str = Field(init=False)
     config_type : ClassVar[Type] = Field(init=False, exclude=True)
 
