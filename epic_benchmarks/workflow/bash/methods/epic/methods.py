@@ -40,7 +40,7 @@ def generate_material_map(
     if not material_map_script_path.startswith("/"):
         material_map_script_path = f'./{material_map_script_path}'
     run_mat_map_script_cmd = material_map_script_path
-    all_commands = concatenate_commands(source_epic_command, change_directory_cmd, run_mat_map_script_cmd)
+    all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd)
     return all_commands
     
 
