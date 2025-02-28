@@ -1,4 +1,4 @@
-name: epic_benchmarks
+name: ePIC_benchmarks
 channels:
   - conda-forge
 dependencies:
