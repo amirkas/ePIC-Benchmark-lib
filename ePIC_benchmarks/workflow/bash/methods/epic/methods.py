@@ -33,14 +33,21 @@ def generate_material_map(
         benchmark_name : str,
         n_events=DEFAULT_MAT_MAP_NEVENTS, **kwargs) -> str:
     
+    benchmark_config = workflow_config.benchmark_config(benchmark_name)
+    if not benchmark_config.generate_material_map:
+        echo_cmd =  f"echo 'No simulation for benchmark {benchmark_config.name} uses a material map. I will do nothing.'"
+        return echo_cmd
+    
     source_command = source_epic_command(workflow_config, benchmark_name)
     material_map_dir = workflow_config.paths.material_map_dir_path(benchmark_name)
     change_directory_cmd = f'cd {material_map_dir}'
     material_map_script_path = str(workflow_config.paths.material_map_script_path(benchmark_name))
     if not material_map_script_path.startswith("/"):
         material_map_script_path = f'./{material_map_script_path}'
+    material_map_script_path = f'{material_map_script_path} --nevents={n_events}'
     run_mat_map_script_cmd = material_map_script_path
-    all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd)
+    delete_mat_map_root_outputs = 'rm *.root'
+    all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd, delete_mat_map_root_outputs)
     return all_commands
     
 

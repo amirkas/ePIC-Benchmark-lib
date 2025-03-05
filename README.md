@@ -31,8 +31,42 @@ conda env create -f environment.yml
 ### Activating the conda environment
 
 ```
-conda activate epic_benchmarks
+conda activate ePIC_benchmarks
 ```
+
+### The Workflow Hierarchy:
+
+
+A workflow is defined as a nested class structure that is YAML, JSON, and XAML compatible.
+Below is the general structure of a workflow configuration with nested configuration classes marked in **Bold**, and a description of each class marked in *Italic* :
+
+- **WorkflowConfig**:
+	- *Contains list of all benchmarks to run in 1 submission to a cluster manager / local system thread scheduler + additional options such as setting which files/folders to keep, turning on debugging output, etc.*
+	- List of **BenchmarkConfigs**
+		- *Defines the configuration for an ePIC repository for a set of simulations. Also defines the naming convention for the workflow file system. Configuration for a Benchmark's ePIC repository include:*
+			- Current Branch
+			- List of changes to Detector Description Files via **DetectorConfig**
+		- List of **SimulationConfigs**
+			- *Defines the configuration for **npsim** and **eicrecon** execution*
+		- List of **DetectorConfigs**
+			- *Defines the configuration for 1 update to an ePIC detector description xml file. An update type is one of be 'SET', 'ADD', or 'DELETE'*
+	- **ParslConfig**
+		- *Defines the configuration for parsl job submissions*
+		- List of **ParslExecutorConfigs**
+			- *Defines the configuration for one of parsl's job submission executor strategies which include:*
+				- **High Throughput Executor Config** which submits jobs  
+				
+
+
+
+
+### Workflow classes
+
+#### Workflow Config
+
+
+
+
 
 ### Defining a workflow
 	
@@ -62,7 +96,7 @@ conda env update --file environment.yml --prune
 ### Updating your IDE's intellisense
 
 ```
-Set the mypy config file location in your IDE settings to /path/to/ePIC-Benchmark-lib/epic_benchmarks/mypy.ini
+Set the mypy config file location in your IDE settings to /path/to/ePIC-Benchmark-lib/ePIC_benchmarks/mypy.ini
 ```
 	
 	

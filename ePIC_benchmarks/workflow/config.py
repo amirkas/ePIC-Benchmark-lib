@@ -115,9 +115,9 @@ class WorkflowConfig(BaseModel):
     @field_validator('parsl_config', mode='after')
     def update_parsl_config(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
-        working_dir = Path(info.data["working_directory"]).resolve()
+        working_dir = Path(info.data["working_directory"])
         workflow_dir_name = info.data["workflow_dir_name"]
-        run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME).resolve()
+        run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME)
         parsl_config.run_dir = str(run_dir)
         debug_enabled = info.data["debug"]
         for executor in parsl_config.executors:
