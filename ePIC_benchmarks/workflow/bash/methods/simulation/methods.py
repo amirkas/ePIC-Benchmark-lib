@@ -37,7 +37,7 @@ def run_eicrecon(
         workflow_config.simulation_config(benchmark_name, simulation_name).material_map_path = material_map_path
 
     source_command = source_epic_command(workflow_config, benchmark_name)
-    temp_dir = workflow_config.paths.reconstruction_instance_temp_dir_path(benchmark_name)
+    temp_dir = workflow_config.paths.reconstruction_instance_temp_dir_path(benchmark_name, simulation_name)
     change_temp_dir_cmd = change_directory_command(temp_dir)
     eicrecon_command = workflow_config.executor.eicrecon_command_string(
         benchmark_name=benchmark_name,
