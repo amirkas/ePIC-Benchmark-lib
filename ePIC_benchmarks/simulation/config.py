@@ -52,7 +52,8 @@ class SimulationBase(BaseModel):
     particle : Union[str, Particle] = Field(default=Particle.PionNeutral)
     multiplicity : float = Field(default=1.0)
     detector_xml : Path = Field(exclude=False)
-    material_map_path : Optional[PathType] = Field(default=None)
+    use_material_map : bool = False
+    material_map_path : Optional[PathType] = Field(default=None, init=False)
 
 class SimulationConfig(SimulationBase, DistributionSettings):
 
@@ -189,6 +190,8 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         serialized_dict["detector_xml"] = str(self.detector_xml)
         if self.material_map_path is not None:
             serialized_dict["material_map_path"] = str(self.material_map_path)
+        if self.use_material_map:
+            serialized_dict["use_material_map"] = self.use_material_map
 
         return serialized_dict
 

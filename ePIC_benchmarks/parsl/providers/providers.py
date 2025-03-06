@@ -118,7 +118,7 @@ class LocalProviderConfig(ProviderWithWorkerInit):
     init_blocks : int = 1
     min_blocks : int = 0
     max_blocks : int = 1
-    cmd_timeout : int = 30,
+    cmd_timeout : int = 30
     parallelism : float = 1
 
 class LSFProviderConfig(ProviderWithWorkerInit):

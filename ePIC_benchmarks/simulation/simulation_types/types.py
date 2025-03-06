@@ -7,7 +7,7 @@ from ePIC_benchmarks.simulation._quantity import Quantity
 @dataclass
 class Momentum(Quantity):
 
-    standard_unit = "eV"
+    standard_unit = "GeV"
     delimiter = "*"
 
 @dataclass

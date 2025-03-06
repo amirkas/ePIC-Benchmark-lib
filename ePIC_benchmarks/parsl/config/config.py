@@ -1,11 +1,11 @@
 import os
-from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar
+from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar, Any
 
 from parsl.config import Config
 from parsl.dataflow.dependency_resolvers import DependencyResolver
 from parsl.dataflow.taskrecord import TaskRecord
 from parsl.monitoring import MonitoringHub
-from pydantic import ConfigDict, Field, RootModel, SerializeAsAny, field_validator, ValidationInfo
+from pydantic import ConfigDict, Field, RootModel, SerializeAsAny, computed_field, field_validator, ValidationInfo
 
 from ePIC_benchmarks.parsl._base import BaseParslModel
 from ePIC_benchmarks.parsl.executors import (
@@ -24,7 +24,7 @@ ExecutorUnion = Union[
 
 Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_type_name')]
 
-def std_autopath(run_dir : str, task_record : TaskRecord, kw):
+def set_std_autopath(run_dir : str, task_record : TaskRecord, kw):
 
     label = task_record['kwargs'].get('label')
     task_id = task_record['id']
@@ -53,8 +53,8 @@ class ExecutorList(RootModel):
 
 class ParslConfig(BaseParslModel):
 
-    model_config = ConfigDict(validate_assignment=True)
-
+    model_config = ConfigDict(validate_assignment=True, revalidate_instances='always')
+   
     config_type_name : Literal['Config'] = "Config" 
     config_type : ClassVar[Type] = Config
 
@@ -76,7 +76,7 @@ class ParslConfig(BaseParslModel):
     retries: int = 0
     retry_handler: Optional[Callable[[Exception, TaskRecord], float]] = None
     run_dir: str = 'runinfo'
-    std_autopath: Optional[Callable] = None
+    # std_autopath: Optional[Callable] = None
     strategy: Optional[str] = 'simple'
     strategy_period: Union[float, int] = 5
     max_idletime: float = 120.0
@@ -85,12 +85,31 @@ class ParslConfig(BaseParslModel):
     project_name: Optional[str] = None
     initialize_logging: bool = True
 
-    @field_validator('std_autopath', mode='after')
-    def set_log_autopath(cls, autopath, info : ValidationInfo) -> Callable:
+    # @field_validator('std_autopath', mode='after')
+    # def set_log_autopath(cls, autopath, info : ValidationInfo) -> Callable:
 
-        rundir = info.data['run_dir']
-        return lambda x, y : std_autopath(rundir, x, y)
+    #     rundir = info.data['run_dir']
+    #     return lambda x, y : set_std_autopath(rundir, x, y)
 
+    @computed_field
+    @property
+    def std_autopath(self) -> Callable[[Any, Any], Any]:
+
+        def helper(task_record, kw):
+
+            label = task_record['kwargs'].get('label')
+            task_id = task_record['id']
+            return os.path.join(
+                self.run_dir,
+                'task_logs',
+                str(int(task_id / 10000)).zfill(4),
+                'task_{}_{}.{}'.format(
+                str(task_id).zfill(4), 
+                label,
+                kw    
+                )
+            )
+        return helper
 
     def all_executor_labels(self):
 
@@ -126,6 +145,3 @@ class ParslConfig(BaseParslModel):
         return executor.get_container_config()
     
     
-    
-
-

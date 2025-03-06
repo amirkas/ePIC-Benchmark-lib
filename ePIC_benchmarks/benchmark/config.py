@@ -13,7 +13,7 @@ from ePIC_benchmarks._file.types import PathType
 
 class BenchmarkConfig(BaseModel):
 
-    model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True)
+    model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True, revalidate_instances='always')
 
     name : Optional[str] = Field(default=None, description="Name of the Benchmark")
     epic_branch : str = Field(default="main", description="Name of the branch of the ePIC repository to clone")
@@ -32,6 +32,11 @@ class BenchmarkConfig(BaseModel):
             " which store the desired configuration for"
             " simulation / reconstruction related tasks"
         )
+    )
+    generate_material_map : bool = Field(
+        default=True,
+        init=False,
+        description="Generates a material map if set to to True"
     )
     benchmark_dir_name: Optional[str] = Field(
         default=None,
@@ -91,6 +96,16 @@ class BenchmarkConfig(BaseModel):
     def define_temp_recon_dir(cls, v : Any, info : ValidationInfo) -> str:
         recon_out_dir = info.data["reconstruction_out_directory_name"]
         return f"{recon_out_dir}_temp"
+    
+    #Set material map to True if any simulation config uses a material map
+    @field_validator('generate_material_map', mode='after')
+    def generate_material_map_for_reconstruction(cls, v : Any, info : ValidationInfo) -> bool:
+
+        sim_configs : List[SimulationConfig] = info.data["simulation_configs"]
+        for sim_config in sim_configs:
+            if sim_config.use_material_map:
+                return True
+        return False
 
     @model_validator(mode='after')
     def validate_unique_simulations(self) -> Self:
@@ -105,6 +120,9 @@ class BenchmarkConfig(BaseModel):
         if any_identical_objects(self.detector_configs):
             raise AttributeError("All detector configurations must be unique")
         return self
+
+
+
 
     @model_validator(mode='after')
     def validate_unique_directories(self) -> Self:
@@ -133,12 +151,15 @@ class BenchmarkConfig(BaseModel):
         serialized_dict["analysis_out_directory_name"] = self.analysis_out_directory_name
         serialized_dict["simulation_temp_directory_name"] = self.simulation_temp_directory_name
         serialized_dict["reconstruction_temp_directory_name"] = self.reconstruction_temp_directory_name
+        if self.generate_material_map:
+            serialized_dict["generate_material_map"] = self.generate_material_map
         serialized_dict["detector_configs"] = [
             detector_config.model_dump() for detector_config in self.detector_configs
         ]
         serialized_dict["simulation_configs"] = [
             sim_config.model_dump() for sim_config in self.simulation_configs
         ]
+        
         return serialized_dict
 
     def add_simulation_config(self, simulation_config: SimulationConfig) -> None:
