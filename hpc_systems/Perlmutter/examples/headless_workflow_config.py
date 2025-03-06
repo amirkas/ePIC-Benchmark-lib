@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
-from typing import Literal
 from ePIC_benchmarks.simulation import SimulationConfig
 from ePIC_benchmarks.detector import DetectorConfig
 from ePIC_benchmarks.simulation.simulation_types import GunDistribution, Particle
 from ePIC_benchmarks.benchmark import BenchmarkConfig
 from ePIC_benchmarks.parsl.config import ParslConfig
-from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig, ThreadPoolExecutorConfig
-from ePIC_benchmarks.parsl.providers import SlurmProviderConfig, LocalProviderConfig
+from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
+from ePIC_benchmarks.parsl.providers import LocalProviderConfig
 from ePIC_benchmarks.parsl.launchers import SrunLauncherConfig
-from ePIC_benchmarks.workflow import WorkflowConfig, run_from_file_path, run_from_config
+from ePIC_benchmarks.workflow import WorkflowConfig, run_from_config
 
 #Generates eta bins with uniform intervals (step)
 def generate_eta_ranges(min, max, step):
