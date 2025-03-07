@@ -31,7 +31,8 @@ def compile_epic(
 def generate_material_map(
         workflow_config : WorkflowConfig,
         benchmark_name : str,
-        n_events=DEFAULT_MAT_MAP_NEVENTS, **kwargs) -> str:
+        n_events=DEFAULT_MAT_MAP_NEVENTS,
+        keep_root_files : bool = False, **kwargs) -> str:
     
     benchmark_config = workflow_config.benchmark_config(benchmark_name)
     if not benchmark_config.generate_material_map:
@@ -46,8 +47,11 @@ def generate_material_map(
         material_map_script_path = f'./{material_map_script_path}'
     material_map_script_path = f'{material_map_script_path} --nevents={n_events}'
     run_mat_map_script_cmd = material_map_script_path
-    delete_mat_map_root_outputs = 'rm *.root'
-    all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd, delete_mat_map_root_outputs)
+    if not keep_root_files:
+        delete_mat_map_root_outputs = 'rm *.root'
+        all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd, delete_mat_map_root_outputs)
+    else:
+        all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd)
     return all_commands
     
 
