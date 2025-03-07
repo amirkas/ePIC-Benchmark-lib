@@ -46,7 +46,6 @@ MOMENTUM = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20]
 ETA_RANGES = generate_eta_ranges(-3, -1, 2)
 
 
-
 ##############################
 ### Detector Configuration ###
 ##############################
@@ -62,7 +61,7 @@ CONFIGURE_DETECTOR_ATTRIBUTE = "TrackerEndcapNDisk4_zmin"
 
 
 WORKFLOW_CONFIG_FILENAME = "workflow_config.yml"
-WORKFLOW_SCRIPT_NAME = "workflow_script.py"
+WORKFLOW_SCRIPT_NAME = "workflow_headless_script.py"
 
 ###############################
 ### Benchmark Configuration ###
@@ -140,6 +139,7 @@ def generate_detector_configs(detector_file, lookup_attribute_name, lookup_attri
         )
         all_detector_configs.append(detector_config)
 
+
     return all_detector_configs
 
 
@@ -169,7 +169,7 @@ def generate_benchmark_configs():
 
     formatted_end_cap_distances = format_endcap_distances(END_CAP_DISTANCES)
     detector_configs = generate_detector_configs(CONFIGURE_DETECTOR_XML, "name", CONFIGURE_DETECTOR_ATTRIBUTE, "value", formatted_end_cap_distances)
-
+    other_detector_configs = [....]
     simulation_configs = generate_simulation_configs()
     benchmark_configs = []
     for distance, detector_config in zip(END_CAP_DISTANCES, detector_configs):
@@ -224,6 +224,8 @@ def generate_workflow_config():
 
 #Generate the workflow
 workflow = generate_workflow_config()
+
+workflow.paths.simulation_out_file_path("Benchmark_100", "eicrecon_eta[-3_-1]")
 
 #Save workflow to disk
 workflow.save(WORKFLOW_CONFIG_FILEPATH)

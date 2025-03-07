@@ -4,7 +4,7 @@
 
 ***Execute workflows locally on a compute node, bypassing the need to keep a login node running for workflow completion***
 
-1. Copy 'headless_workflow_config.py', 'headless_workflow.sl', and 'workflow_scipt.py' to your preferred working directory.
+1. Copy 'headless_workflow_config.py', 'headless_workflow.sl', and 'workflow_headless_scipt.py' to your preferred working directory.
 
 2. Define your workflow using 'headless_workflow_config.py' as a template. 
 
@@ -24,7 +24,7 @@ sbatch headless_workflow.sl
 
 ***This requires that both your login node, and the parent process of the workflow stay alive during the duration of execution***
 
-1. Copy 'local_slurm_workflow_config.py' and 'workflow_script.py' to your preferred working directory
+1. Copy 'local_slurm_workflow_config.py' and 'workflow_local_script.py' to your preferred working directory
 
 2. Define your workflow using 'local_slurm_workflow_config.py' as a template. 
 

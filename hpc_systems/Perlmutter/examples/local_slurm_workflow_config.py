@@ -62,7 +62,7 @@ CONFIGURE_DETECTOR_ATTRIBUTE = "TrackerEndcapNDisk4_zmin"
 
 
 WORKFLOW_CONFIG_FILENAME = "workflow_config.yml"
-WORKFLOW_SCRIPT_NAME = "workflow_script.py"
+WORKFLOW_SCRIPT_NAME = "workflow_local_script.py"
 
 ###############################
 ### Benchmark Configuration ###

@@ -15,14 +15,14 @@ eicshell_container = ShifterConfig(
     entry_command="source activate parsl;"
 )
 
-clone_epic_app = bash_app(clone_epic, executors=['Headless_Executor'])
-pull_containers_app = bash_app(pull_containers, executors=['Headless_Executor'])
-checkout_app = bash_app(checkout_epic_branch, executors=['Headless_Executor'])
-compile_epic_app = bash_app(compile_epic, executors=['Headless_Executor'], container=eicshell_container)
-run_npsim_app = bash_app(run_npsim, executors=['Headless_Executor'], container=eicshell_container)
-run_eicrecon_app = bash_app(run_eicrecon, executors=['Headless_Executor'], container=eicshell_container)
-generate_material_map_app = bash_app(generate_material_map, executors=['Headless_Executor'], container=eicshell_container)
-apply_detector_configuration_app = python_app(apply_detector_configs, executors=['Headless_Executor'])
+clone_epic_app = bash_app(clone_epic, executors=['Low_Workload_Executor'])
+pull_containers_app = bash_app(pull_containers, executors=['Low_Workload_Executor'])
+checkout_app = bash_app(checkout_epic_branch, executors=['Low_Workload_Executor'])
+compile_epic_app = bash_app(compile_epic, executors=['Slurm_Executor'], container=eicshell_container)
+run_npsim_app = bash_app(run_npsim, executors=['Slurm_Executor'], container=eicshell_container)
+run_eicrecon_app = bash_app(run_eicrecon, executors=['Slurm_Executor'], container=eicshell_container)
+generate_material_map_app = bash_app(generate_material_map, executors=['Slurm_Executor'], container=eicshell_container)
+apply_detector_configuration_app = python_app(apply_detector_configs, executors=['Slurm_Executor'])
 
 def run(config : WorkflowConfig, futures : List[FutureType]):
 
@@ -44,7 +44,7 @@ def run(config : WorkflowConfig, futures : List[FutureType]):
             compile_epic_future = compile_epic_app(config, benchmark_name, num_threads=4,inputs=[update_detectors_future])
             futures.append(compile_epic_future)
 
-            gen_material_map_future = generate_material_map_app(config, benchmark_name, n_events=100, inputs=[compile_epic_future])
+            gen_material_map_future = generate_material_map_app(config, benchmark_name, n_events=100, keep_root_files=False, inputs=[compile_epic_future])
             futures.append(gen_material_map_future)
 
             for simulation_name in config.simulation_names(benchmark_name):
