@@ -23,7 +23,7 @@ cd ePIC-Benchmark-lib
 ```
 ### Create the conda environment from the library's environment.yml configuration
 ```
-conda env create -f environment.yml
+conda env create -f environment.yml -n ePIC_benchmarks
 ```
 
 # Using the library:
