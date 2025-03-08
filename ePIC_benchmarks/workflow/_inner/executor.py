@@ -116,8 +116,8 @@ class WorkflowExecutor:
 
 
         benchmark_suite_path = self.parent.paths.workflow_dir_path
-        if self.parent.redo_all_benchmarks:
-            shutil.rmtree(benchmark_suite_path, ignore_errors=True)
+        # if self.parent.redo_all_benchmarks:
+        #     shutil.rmtree(benchmark_suite_path, ignore_errors=True)
         benchmark_suite_path.mkdir(parents=True, exist_ok=True)
 
         for benchmark_name in self.parent.benchmark_names():
