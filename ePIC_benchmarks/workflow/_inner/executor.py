@@ -128,6 +128,9 @@ class WorkflowExecutor:
             epic_path = self.parent.paths.epic_repo_path(benchmark_name)
             epic_path.mkdir(parents=True, exist_ok=True)
 
+            analysis_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
+            analysis_path.mkdir(parents=True, exist_ok=True)
+
             sim_out_dir_path = self.parent.paths.simulation_out_dir_path(benchmark_name)
             sim_out_dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -163,6 +166,10 @@ class WorkflowExecutor:
             if not self.parent.keep_reconstruction_outputs:
                 recon_out_dir_path = self.parent.paths.reconstruction_out_dir_path(benchmark_name)
                 shutil.rmtree(recon_out_dir_path, ignore_errors=True)
+
+            if not self.parent.keep_analysis_outputs:
+                analysis_out_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
+                shutil.rmtree(analysis_out_path, ignore_errors=True)
 
             sim_temp_dir_path = self.parent.paths.simulation_temp_dir_path(benchmark_name)
             shutil.rmtree(sim_temp_dir_path, ignore_errors=True)

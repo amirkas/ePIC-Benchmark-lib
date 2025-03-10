@@ -32,9 +32,10 @@ class WorkflowConfig(BaseModel):
     script_path : Optional[PathType] = Field(default=None)
     redo_all_benchmarks : bool = Field(default=False)
     redo_all_benchmarks : bool = Field(default=False)
-    keep_epic_repos : bool = Field(default=False)
-    keep_simulation_outputs : bool = Field(default=False)
-    keep_reconstruction_outputs : bool = Field(default=False)
+    keep_epic_repos : bool = Field(default=True)
+    keep_simulation_outputs : bool = Field(default=True)
+    keep_reconstruction_outputs : bool = Field(default=True)
+    keep_analysis_outputs : bool = Field(default=True)
 
     @cached_property
     def paths(self):

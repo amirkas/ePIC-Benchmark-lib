@@ -58,10 +58,18 @@ class BenchmarkConfig(BaseModel):
         default="analysis",
         description="Name of the output directory for analysis-related outputs"
     )
+    enable_simulation_analysis_subfolder : bool = Field(
+        default=True,
+        description=(
+            "Determines whether analysis outputs are organized within a folder"
+            " for each simulation or a folder for each benchmark"
+        )
+    )
     #Temporarily stores calibrations and fieldmaps directories for each execution of 'npsim'
     simulation_temp_directory_name : str = Field(default="simulations_temp", init=False) 
     #Temporarily stores calibrations and fieldmaps directories for each execution of 'eicrecon'
     reconstruction_temp_directory_name : str = Field(default="reconstructions_temp", init=False)
+
 
     @field_validator('name', mode='after')
     def validate_name(cls, v : Any, info : ValidationInfo) -> str:
@@ -153,6 +161,8 @@ class BenchmarkConfig(BaseModel):
         serialized_dict["reconstruction_temp_directory_name"] = self.reconstruction_temp_directory_name
         if self.generate_material_map:
             serialized_dict["generate_material_map"] = self.generate_material_map
+        if self.enable_simulation_analysis_subfolder:
+            serialized_dict["enable_simulation_analysis_subfolder"] = self.enable_simulation_analysis_subfolder
         serialized_dict["detector_configs"] = [
             detector_config.model_dump() for detector_config in self.detector_configs
         ]

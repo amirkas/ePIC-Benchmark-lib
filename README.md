@@ -26,10 +26,14 @@ cd ePIC-Benchmark-lib
 conda env create -f environment.yml -n ePIC_benchmarks
 ```
 
+### To update the existing conda environment
+```
+conda env update -f environment.yml --prune
+```
+
 # Using the library:
 
 ### Activating the conda environment
-
 ```
 conda activate ePIC_benchmarks
 ```
@@ -93,7 +97,7 @@ cd /path/to/ePIC-Benchmark-lib
 conda env update --file environment.yml --prune
 ```
 
-### Updating your IDE's intellisense
+### Updating your IDE's intellisense (Optional)
 
 ```
 Set the mypy config file location in your IDE settings to /path/to/ePIC-Benchmark-lib/ePIC_benchmarks/mypy.ini
