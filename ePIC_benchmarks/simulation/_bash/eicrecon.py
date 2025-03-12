@@ -31,8 +31,23 @@ class EicreconModel(BashCommand):
 
     executable_command : Literal["eicrecon"] = "eicrecon"
 
-    detector_path : Annotated[PathType, PlainSerializer(EicreconCompactFileFlag.flag_string, return_type=str)]
-    num_events : Annotated[int, PlainSerializer(EicreconNumEventsFlag.flag_string, return_type=str)]
-    material_map_path : Annotated[Optional[PathType], PlainSerializer(MaterialMapFlag.flag_string, return_type=str)] = None
-    output_path : Annotated[PathType, PlainSerializer(EicreconOutFileFlag.flag_string, return_type=str)]
-    input_path : Annotated[PathType, PlainSerializer(EicreconInFileFlag.flag_string, return_type=str)]
+    detector_path : Annotated[PathType, PlainSerializer(
+        EicreconCompactFileFlag.flag_string,
+        return_type=str
+    )]
+    num_events : Annotated[int, PlainSerializer(
+        EicreconNumEventsFlag.flag_string,
+        return_type=str
+    )]
+    material_map_path : Annotated[Optional[PathType], PlainSerializer(
+        MaterialMapFlag.flag_string,
+        return_type=str
+    )] = None
+    output_path : Annotated[PathType, PlainSerializer(
+        EicreconOutFileFlag.flag_string,
+        return_type=str
+    )]
+    input_path : Annotated[PathType, PlainSerializer(
+        EicreconInFileFlag.flag_string,
+        return_type=str
+    )]

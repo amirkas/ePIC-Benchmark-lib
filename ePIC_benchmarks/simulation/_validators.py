@@ -10,16 +10,16 @@ def format_simulation_name(
         distribution_max :  DistributionLimitType=None) -> str:
     
     if momentum_min is not None and momentum_max is None:
-        momentum_str = f"[{momentum_min}]"
+        momentum_str = f"{momentum_min}"
     elif momentum_max is not None and momentum_min is None:
-        momentum_str = f"[{momentum_max}]"
-    if momentum_min == momentum_max:
-        momentum_str = f"[{momentum_min}]"
+        momentum_str = f"{momentum_max}"
+    elif momentum_min == momentum_max:
+        momentum_str = f"{momentum_min}"
     else:
-        momentum_str = f"[{momentum_min}_{momentum_max}]"
+        momentum_str = f"{momentum_min}_to_{momentum_max}"
 
     distribution_type_str = distribution_type.value
-    distribution_str = f"{distribution_type_str}[{distribution_min}_{distribution_max}]"
+    distribution_str = f"{distribution_type_str}_{distribution_min}_to_{distribution_max}"
     name_str = f"{distribution_str}_{momentum_str}"
     return name_str
 
@@ -63,7 +63,10 @@ def validate_momentum_range(momentum_min : Optional[Momentum], momentum_max : Op
         err = f"No momentum provided. At least one limit for the momentum range must be provided."
     elif momentum_min is not None and momentum_max is not None:
         if momentum_min > momentum_max:
-            err = f"Minimum momentum '{momentum_min}' must be less than or equal to the maximum momentum '{momentum_max}'"
+            err = (
+                f"Minimum momentum '{momentum_min}' must be less" 
+                f"than or equal to the maximum momentum '{momentum_max}'"
+            )
 
     if err is not None:
         raise ValueError(err)

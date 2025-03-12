@@ -28,10 +28,9 @@ class WorkflowConfig(BaseModel):
     working_directory : str = Field(default_factory=os.getcwd, init=False, exclude=True)
     workflow_dir_name : Optional[str] = Field(default="Benchmarks")
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)
+    redo_all_benchmarks : bool = Field(default=False)
     parsl_config : Optional[ParslConfig] = Field(default=None)
     script_path : Optional[PathType] = Field(default=None)
-    redo_all_benchmarks : bool = Field(default=False)
-    redo_all_benchmarks : bool = Field(default=False)
     keep_epic_repos : bool = Field(default=True)
     keep_simulation_outputs : bool = Field(default=True)
     keep_reconstruction_outputs : bool = Field(default=True)
@@ -114,20 +113,39 @@ class WorkflowConfig(BaseModel):
             raise ValueError("Could not parse parsl configuration")
         
     @field_validator('parsl_config', mode='after')
-    def update_parsl_config(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
+    def update_parsl_run_dir(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
         working_dir = Path(info.data["working_directory"])
         workflow_dir_name = info.data["workflow_dir_name"]
         run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME)
         parsl_config.run_dir = str(run_dir)
+        return parsl_config
+    
+    @field_validator('parsl_config', mode='after')
+    def update_parsl_debug_mode(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
+
+        working_dir = Path(info.data["working_directory"])
+        workflow_dir_name = info.data["workflow_dir_name"]
         debug_enabled = info.data["debug"]
+
+        parsl_config.initialize_logging = debug_enabled
         for executor in parsl_config.executors:
             executor.working_dir = str(working_dir.joinpath(workflow_dir_name))
             if isinstance(executor, (HighThroughputExecutorConfig, MPIExecutorConfig)):
                 executor.worker_debug = debug_enabled
             elif isinstance(executor, WorkQueueExecutorConfig):
                 executor.full_debug = debug_enabled
-        parsl_config.initialize_logging = debug_enabled
+        
+        return parsl_config
+
+        
+    @field_validator('parsl_config', mode='after')
+    def update_parsl_checkpointing_mode(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
+
+        enable_checkpointing = info.data['redo_all_benchmarks']
+        if enable_checkpointing:
+            parsl_config.checkpoint_mode = 'task_exit'
+        
         return parsl_config
     
     @field_validator('script_path', mode='after')

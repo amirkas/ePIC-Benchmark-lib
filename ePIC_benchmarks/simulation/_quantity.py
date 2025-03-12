@@ -83,7 +83,11 @@ class Quantity:
         escaped_delimeter = re.escape(cls.delimiter)
         order_subpattern = rf"{UnitPrefix.prefix_subpattern()}?"
 
-        return rf"^({non_decimal_subpattern})({decimal_subpattern})?({escaped_delimeter})?({order_subpattern})({escaped_unit})?$"
+        return (
+            rf"^({non_decimal_subpattern})({decimal_subpattern})?" 
+            rf"({escaped_delimeter})?({order_subpattern})({escaped_unit})?$"
+        )
+    
     @classmethod
     def from_string(cls, quantity_str : str):
 
@@ -128,7 +132,6 @@ class Quantity:
         return self > other or self == other
 
     def _same_type(self, other : Any):
-
         return isinstance(self, type(other))
 
     def _check_same_type(self, other):

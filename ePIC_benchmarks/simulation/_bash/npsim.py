@@ -56,18 +56,57 @@ class NpsimModel(BashCommand):
 
     executable_command : Literal["npsim"] = "npsim"
 
-    num_events : Annotated[int, PlainSerializer(NpsimNumEventsFlag.flag_string, return_type=str)]
-    momentum_min : Annotated[Union[Momentum, str], PlainSerializer(GunMomentumMinFlag.flag_string, return_type=str)] = Field(alias='momentum')
-    momentum_max : Annotated[Union[Momentum, str], PlainSerializer(GunMomentumMaxFlag.flag_string, return_type=str)] = Field(alias='momentum')
-    distribution_type : Annotated[Union[GunDistribution, str], PlainSerializer(GunDistributionFlag.flag_string, return_type=str)]
-    theta_min : Annotated[Optional[Union[Angle, str]], PlainSerializer(GunThetaMinFlag.flag_string, return_type=str)] = None
-    theta_max : Annotated[Optional[Union[Angle, str]], PlainSerializer(GunThetaMaxFlag.flag_string, return_type=str)] = None
-    eta_min : Annotated[Optional[Union[Eta, str]], PlainSerializer(GunEtaMinFlag.flag_string, return_type=str)] = None
-    eta_max : Annotated[Optional[Union[Eta, str]], PlainSerializer(GunEtaMaxFlag.flag_string, return_type=str)] = None
-    enable_gun : Annotated[bool, PlainSerializer(EnableGunFlag.flag_string, return_type=str)]
-    particle : Annotated[Union[Particle, str], PlainSerializer(GunParticleFlag.flag_string, return_type=str)]
-    multiplicity : Annotated[float, PlainSerializer(GunMultiplicityFlag.flag_string, return_type=str)]
-    detector_path : Annotated[PathType, PlainSerializer(NpsimCompactFileFlag.flag_string, return_type=str)]
-    output_path : Annotated[PathType, PlainSerializer(NpsimOutFileFlag.flag_string, return_type=str)]
+    num_events : Annotated[int, PlainSerializer(
+        NpsimNumEventsFlag.flag_string,
+        return_type=str
+    )]
+    momentum_min : Annotated[Union[Momentum, str], PlainSerializer(
+        GunMomentumMinFlag.flag_string,
+        return_type=str
+    )] = Field(alias='momentum')
+    momentum_max : Annotated[Union[Momentum, str], PlainSerializer(
+        GunMomentumMaxFlag.flag_string,
+        return_type=str
+    )] = Field(alias='momentum')
+    distribution_type : Annotated[Union[GunDistribution, str], PlainSerializer(
+        GunDistributionFlag.flag_string,
+        return_type=str
+    )]
+    theta_min : Annotated[Optional[Union[Angle, str]], PlainSerializer(
+        GunThetaMinFlag.flag_string,
+        return_type=str
+    )] = None
+    theta_max : Annotated[Optional[Union[Angle, str]], PlainSerializer(
+        GunThetaMaxFlag.flag_string,
+        return_type=str
+    )] = None
+    eta_min : Annotated[Optional[Union[Eta, str]], PlainSerializer(
+        GunEtaMinFlag.flag_string,
+        return_type=str
+    )] = None
+    eta_max : Annotated[Optional[Union[Eta, str]], PlainSerializer(
+        GunEtaMaxFlag.flag_string,
+        return_type=str
+    )] = None
+    enable_gun : Annotated[bool, PlainSerializer(
+        EnableGunFlag.flag_string,
+        return_type=str
+    )]
+    particle : Annotated[Union[Particle, str], PlainSerializer(
+        GunParticleFlag.flag_string,
+        return_type=str
+    )]
+    multiplicity : Annotated[float, PlainSerializer(
+        GunMultiplicityFlag.flag_string,
+        return_type=str
+    )]
+    detector_path : Annotated[PathType, PlainSerializer(
+        NpsimCompactFileFlag.flag_string,
+        return_type=str
+    )]
+    output_path : Annotated[PathType, PlainSerializer(
+        NpsimOutFileFlag.flag_string,
+        return_type=str
+    )]
 
 

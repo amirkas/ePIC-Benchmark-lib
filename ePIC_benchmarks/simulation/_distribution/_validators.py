@@ -59,7 +59,10 @@ def validate_limit_matches_type(
         input_value : DistributionLimitType, distribution_type : GunDistribution) -> None:
 
     if not isinstance(input_value, distribution_type.limit_type):
-        err = f"Input value '{input_value}' with type '{type(input_value)}' does not match the distribution limit type '{distribution_type.limit_type}'"
+        err = (
+            f"Input value '{input_value}' with type '{type(input_value)}'"
+            f" does not match the distribution limit type '{distribution_type.limit_type}'"
+        )
         raise ValueError(err)
 
 def validate_both_limits_provided(min_limit : DistributionLimitType, max_limit : DistributionLimitType) -> None:
@@ -67,7 +70,10 @@ def validate_both_limits_provided(min_limit : DistributionLimitType, max_limit :
     both_none = min_limit is None and max_limit is None
     both_present = min_limit is not None and max_limit is not None
     if not both_none and not both_present:
-        err = f"If either the minimum or maximum limit for a distribution type is provided, the other one must also be provided"
+        err = (
+            "If either the minimum or maximum limit for a distribution"
+            " type is provided, the other one must also be provided"
+        )
         raise ValueError(err)
 
 def validate_limits_same_type(min_limit : DistributionLimitType, max_limit : DistributionLimitType) -> None:
@@ -76,7 +82,10 @@ def validate_limits_same_type(min_limit : DistributionLimitType, max_limit : Dis
     max_limit_type = type(max_limit)
 
     if min_limit_type != max_limit_type:
-        err = f"Type for the minimum distribution limit '{min_limit_type}' does not match the type for the maximum distribution limit '{max_limit_type}'"
+        err = (
+            f"Type for the minimum distribution limit '{min_limit_type}' does"
+            f" not match the type for the maximum distribution limit '{max_limit_type}'"
+        )
         raise ValueError(err)
     
 def validate_only_one_limit_type(
@@ -116,11 +125,16 @@ def validate_limit_range(min_limit : DistributionLimitType, max_limit : Distribu
     else:
         range_allowed = min_limit < max_limit
 
-    if range_allowed:
-        return
+    if not range_allowed:
 
-    if same_value_allowed:
-        err = f"Value for minimum limit '{min_limit}' must be less than or equal to the maximum limit '{max_limit}'"
-    else:
-        err = f"Value for minimum limit '{min_limit}' must be strictly less than the maximum limit '{max_limit}'"
-    raise ValueError(err)
+        if same_value_allowed:
+            err = (
+                f"Value for minimum limit '{min_limit}' must be less"
+                f" than or equal to the maximum limit '{max_limit}'"
+            )
+        else:
+            err = (
+                f"Value for minimum limit '{min_limit}' must be"
+                f" strictly less than the maximum limit '{max_limit}'"
+            )
+        raise ValueError(err)
