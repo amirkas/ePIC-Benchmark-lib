@@ -15,8 +15,14 @@ class BenchmarkConfig(BaseModel):
 
     model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True, revalidate_instances='always')
 
-    name : Optional[str] = Field(default=None, description="Name of the Benchmark")
-    epic_branch : str = Field(default="main", description="Name of the branch of the ePIC repository to clone")
+    name : Optional[str] = Field(
+        default=None,
+        description="Name of the Benchmark"
+    )
+    epic_branch : str = Field(
+        default="main",
+        description="Name of the branch of the ePIC repository to clone"
+    )
     detector_configs : List[DetectorConfig] = Field(
         default_factory=list,
         description=(
@@ -66,11 +72,17 @@ class BenchmarkConfig(BaseModel):
         )
     )
     #Temporarily stores calibrations and fieldmaps directories for each execution of 'npsim'
-    simulation_temp_directory_name : str = Field(default="simulations_temp", init=False) 
+    simulation_temp_directory_name : str = Field(
+        default="simulations_temp",
+        init=False
+    ) 
     #Temporarily stores calibrations and fieldmaps directories for each execution of 'eicrecon'
-    reconstruction_temp_directory_name : str = Field(default="reconstructions_temp", init=False)
+    reconstruction_temp_directory_name : str = Field(
+        default="reconstructions_temp",
+        init=False
+    )
 
-
+    #Provides unique name to benchmark if its not provided during instance initialization
     @field_validator('name', mode='after')
     def validate_name(cls, v : Any, info : ValidationInfo) -> str:
 
@@ -80,12 +92,14 @@ class BenchmarkConfig(BaseModel):
 
         return v
 
+    #Checks if the branch is part of the ePIC repository 
     @field_validator('epic_branch', mode='after')
     def check_epic_branch_exists(cls, v : Any) -> str:
 
         #TODO: Check branches from epic repository and check if self.epic_branch is valid
         return v
 
+    #Provides a name for the benchmark root directory 
     @field_validator('benchmark_dir_name', mode='after')
     def validate_benchmark_dir(cls, v : Any, info : ValidationInfo) -> str:
 
@@ -94,12 +108,14 @@ class BenchmarkConfig(BaseModel):
             return config_name
         return v
 
+    #Provides a name for the temporary npsim directory, required for multithreaded npsim execution 
     @field_validator('simulation_temp_directory_name',mode='before')
     def define_temp_sim_dir(cls, v : Any, info : ValidationInfo) -> str:
         sim_out_dir = info.data["simulation_out_directory_name"]
         return f"{sim_out_dir}_temp"
 
 
+    #Provides a name for the temporary eicrecon directory, required for multithreaded eicrecon execution 
     @field_validator('reconstruction_temp_directory_name', mode='before')
     def define_temp_recon_dir(cls, v : Any, info : ValidationInfo) -> str:
         recon_out_dir = info.data["reconstruction_out_directory_name"]
@@ -115,6 +131,7 @@ class BenchmarkConfig(BaseModel):
                 return True
         return False
 
+    #Ensures no child simulation configs are identical (and therefore redundant)
     @model_validator(mode='after')
     def validate_unique_simulations(self) -> Self:
 
@@ -122,6 +139,7 @@ class BenchmarkConfig(BaseModel):
             raise AttributeError("All simulation configurations must be unique")
         return self
 
+    #Ensures no child detector configs are identical (and therefore redundant)
     @model_validator(mode='after')
     def validate_unique_detector_configs(self) -> Self:
 

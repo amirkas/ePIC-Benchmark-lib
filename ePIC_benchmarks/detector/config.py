@@ -91,6 +91,7 @@ class DetectorConfig(BaseModel):
         )
     )
 
+    #Validates whether the detector description file is valid
     @field_validator('file', mode='after')
     def validate_file(cls, v : Any) -> Any:
         #TODO: Check whether filepath is in a readable directory
@@ -100,21 +101,24 @@ class DetectorConfig(BaseModel):
             return str(v)
         return v
 
+    #Casts edit type to string if it is an instance of DetectorConfigType
     @field_validator('edit_type', mode='before')
     def validate_edit_type(cls, v : Any) -> str:
         if isinstance(v, DetectorConfigType):
             return v.value
         return v
 
+    #Ensures that an update value is passed if edit type is 'SET' or 'ADD'
     @model_validator(mode='after')
     def check_update_value_required(self) -> Self:
         if self.update_value is None:
-            if self.edit_type == DetectorConfigType.SET.value:
+            if self.edit_type == "SET":
                 raise ValueError("Update Value must be specified for set operation")
-            elif self.edit_type == DetectorConfigType.ADD.value:
+            elif self.edit_type == "ADD":
                 raise ValueError("Update Value must be specified for add operation")
         return self
     
+    #Serializes the model to a python dictionary
     @model_serializer(mode='wrap')
     def serialize_detector_config(self, handler) -> Dict[Any, Any]:
 
@@ -138,7 +142,7 @@ class DetectorConfig(BaseModel):
         
         return serialized_dict
 
-
+    #Generates the xpath query used to find the xml element to be updated.
     @property
     def xpath_query(self) -> str:
 
@@ -152,6 +156,7 @@ class DetectorConfig(BaseModel):
         )
         return query
 
+    #Applies the update to the detector description file located at 'file'
     def apply_changes(self, directory_path : Optional[PathType]=None):
 
         xml_path = Path(self.file)

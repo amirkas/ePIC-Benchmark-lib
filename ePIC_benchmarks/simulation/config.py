@@ -59,6 +59,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
 
     model_config = ConfigDict(validate_assignment=True, validate_default=True, populate_by_name=True)
 
+    #Generates the npsim command for a Simulation Config instance
     def npsim_cmd(self, output_dir_path : PathType, epic_repo_path : Optional[PathType]=None,):
         
         dumped_self = self.model_dump(exclude_none=True)
@@ -67,6 +68,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         npsim_model = NpsimModel(**dumped_self)
         return npsim_model.generate_command()
 
+    #Generates the eicrecon command for a Simulation Config instance
     def eicrecon_cmd(self, output_dir_path : PathType, input_dir_path : PathType, epic_repo_path : Optional[PathType]=None):
 
         dumped_self = self.model_dump(exclude_none=True)
@@ -76,28 +78,36 @@ class SimulationConfig(SimulationBase, DistributionSettings):
         eicrecon_model = EicreconModel(**dumped_self)
         return eicrecon_model.generate_command()    
 
+    #Returns the absolute path to a Simulation Config instance's detector build file
+    #using the provided path to the ePIC repository
     def _abs_detector_path(self, epic_repo_path : Optional[PathType]):
 
         relative_detective_build_path = Path('install', 'share', 'epic')
         relative_detector_path = relative_detective_build_path.joinpath(self.detector_xml)
         return absolute_path(relative_detector_path, epic_repo_path)
     
+    #Returns the absolute path to a Simulation Config instance's npsim output root file
     def _abs_npsim_output_path(self, output_dir : PathType):
 
         return absolute_path(self.npsim_filename, output_dir)
     
+    #Returns the absolute path to a Simulation Config instance's eicrecon output root file
     def _abs_eicrecon_output_path(self, output_dir : PathType):
 
         return absolute_path(self.eicrecon_filename, output_dir)
     
+    #Returns the absolute path to a Simulation Config instance's eicrecon input root file
+    #NOTE: This will always be the output path of the npsim output root file
     def _abs_eicrecon_input_path(self, input_dir : PathType):
 
         return self._abs_npsim_output_path(input_dir)
 
+    #Generates the name for the npsim output root file
     @property
     def npsim_filename(self):
         return _generate_file_name(self.name, NPSIM_OUTPUT_FILE_PREFIX, ROOT_FILE_SUFFIX)
     
+    #Generates the name for the eicrecon output root file
     @property
     def eicrecon_filename(self):
         return _generate_file_name(self.name, EICRECON_OUTPUT_FILE_PREFIX, ROOT_FILE_SUFFIX)
@@ -141,6 +151,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
             raise e
         return number_of_events
 
+    #Checks whether the provided particle is valid and casts it if necessary.
     @field_validator('particle', mode='before')
     def validate_particle(cls, particle : Union[str, Particle]) -> str:
         try:
@@ -157,6 +168,7 @@ class SimulationConfig(SimulationBase, DistributionSettings):
             raise e
         return multiplicity
     
+    #Serializes a particle to a string format
     @field_serializer('particle')
     def serialize_particle(cls, particle : Union[str, Particle]) -> str:
         if isinstance(particle, Particle):

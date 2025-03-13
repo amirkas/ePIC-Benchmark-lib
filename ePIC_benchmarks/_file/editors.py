@@ -67,7 +67,10 @@ class YamlEditor:
     def save(self):
         self.save_as(self.file_path)
        
-                                              
+#######################################
+### XML Editor Search Query helpers ###
+#######################################
+#                                      
 def tag_to_xpath(tags=""):
     if len(tags) == 0:
         return ""
@@ -108,6 +111,7 @@ def attribute_dict_to_xpath(attribute_dict={}):
     return "[{all}]".format(all=attribute_str)
 
 
+#Decorator for XmlEditor methods that autosaves updates
 def autosave(func):
     def wrapper(self, *args, **kw):
         #Call function before post-processing
@@ -118,6 +122,7 @@ def autosave(func):
         return out
     return wrapper
 
+#Class used to search for an Xml file's elements and make updates to them
 class XmlEditor:
 
     def __init__(self, filepath, autosave=False):

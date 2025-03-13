@@ -10,7 +10,11 @@ import ePIC_benchmarks.simulation._distribution._validators as distribution_vali
 
 class DistributionSettings(BaseModel):
 
-    distribution_type : GunDistribution = Field(default=GunDistribution.Uniform, validate_default=True)
+    distribution_type : GunDistribution = Field(
+        default=GunDistribution.Uniform,
+        validate_default=True,
+        description="Phase Space used for simulation. Options include: ['Uniform', 'Eta']"
+    )
     theta_min : Optional[Angle] = Field(
         default=None,
         validation_alias=AliasChoices(
@@ -43,6 +47,7 @@ class DistributionSettings(BaseModel):
             AliasPath('eta_range', 1),
         ),
     )
+    #Private attributes used for distribution validation 
     distribution_min : Optional[DistributionLimitType] = Field(default=None, init=False)
     distribution_max : Optional[DistributionLimitType] = Field(default=None, init=False)
     
@@ -88,6 +93,7 @@ class DistributionSettings(BaseModel):
                 raise e
         return limit_value
 
+    #Sets the minimum limit for a general distribution type
     @field_validator('distribution_min', mode='after')
     def set_distribution_min(cls, value : Any, info : ValidationInfo) -> DistributionLimitType:
 
@@ -100,6 +106,7 @@ class DistributionSettings(BaseModel):
         else:
             return None
         
+    #Sets the maximum limit for a general distribution type
     @field_validator('distribution_max', mode='after')
     def set_distribution_max(cls, value : Any, info : ValidationInfo) -> DistributionLimitType:
 
@@ -166,6 +173,7 @@ class DistributionSettings(BaseModel):
             raise e
         return self
     
+    #Casts distribution type to a string format for serialization
     @field_serializer('distribution_type')
     def serialize_type(cls, dist_type : Union[str, GunDistribution]):
 

@@ -17,9 +17,9 @@ class WorkflowPaths:
 
         #TODO: Rework required to avoid user defined Dir_name/Same_dir_name bug
         working_dir_path = Path(self.parent.working_directory).resolve()
-        if working_dir_path.parts[-1] == self.parent.workflow_dir_name:
+        if working_dir_path.parts[-1] == self.parent.name:
             return working_dir_path
-        return working_dir_path.joinpath(self.parent.workflow_dir_name)
+        return working_dir_path.joinpath(self.parent.name)
 
     def benchmark_names(self):
 

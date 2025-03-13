@@ -2,7 +2,6 @@
 from enum import Enum
 from typing import Any, Type
 
-
 def validate_enum(value : Any, enum_type : Type):
 
     assert(issubclass(enum_type, Enum))

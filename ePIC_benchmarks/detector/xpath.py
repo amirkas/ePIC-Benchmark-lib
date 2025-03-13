@@ -11,6 +11,8 @@ class DetectorConfigXpath:
     READOUT_TAG : str = "readout"
     SEGMENTATION_TAG : str = "segmentation"
 
+    #Generates the xpath query for a single xml tag with 1 or more attributes
+    #to search against.
     @classmethod
     def create_tag_query(cls, tag, attributes) -> str:
         if not isinstance(attributes, dict) and attributes is not None:
@@ -25,6 +27,7 @@ class DetectorConfigXpath:
             query += f'[{all_attr_str}]'
         return query
     
+    #Generates and concatenates individual xpath queries for each tag
     @classmethod
     def create_generic_query(cls, query_elems : dict) -> str:
 
@@ -34,6 +37,7 @@ class DetectorConfigXpath:
                 combined_query += cls.create_tag_query(tag, attributes)
         return combined_query
     
+    #Generates the entire search xpath search query for a detector description file
     @classmethod
     def create_query(
             cls,

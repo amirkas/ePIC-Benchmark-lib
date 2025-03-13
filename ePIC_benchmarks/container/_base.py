@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Literal, Dict, Any
 from pydantic import BaseModel, SerializationInfo, model_serializer
 
-
+#Abstract class for Container Configuration Classes
 class BaseContainerConfig(BaseModel, ABC):
 
     container_type : Literal["Base"] = "Base"

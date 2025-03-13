@@ -5,12 +5,14 @@ from ePIC_benchmarks.workflow.bash.utils import concatenate_commands, source_epi
 EPIC_REPO_URL = "https://github.com/eic/epic.git"
 DEFAULT_MAT_MAP_NEVENTS = 1000
 
+#Returns the string format for the command that clones the ePIC repository
 def clone_epic(workflow_config : WorkflowConfig, benchmark_name : str, **kwargs) -> str:
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
     clone_command = f'git clone {EPIC_REPO_URL} "{epic_directory_path}"'
     return clone_command
 
+#Returns the string format for the command that changes the ePIC repository branch
 def checkout_epic_branch(workflow_config : WorkflowConfig, benchmark_name : str, **kwargs) -> str:
 
     epic_directory_path = workflow_config.paths.epic_repo_path(benchmark_name)
@@ -18,6 +20,7 @@ def checkout_epic_branch(workflow_config : WorkflowConfig, benchmark_name : str,
     checkout_command = f'git -C "{epic_directory_path}" checkout "{branch}"'
     return checkout_command
 
+#Returns the string format for the command that compiles and builds the ePIC repository
 def compile_epic(
         workflow_config : WorkflowConfig, benchmark_name : str, num_threads : int = 1, **kwargs) -> str:
 
@@ -28,6 +31,7 @@ def compile_epic(
     all_commands = concatenate_commands(change_directory_cmd, compile_pt_one_cmd, compile_pt_two_cmd)
     return all_commands
 
+#Returns the string format for the command that generates the material map for the ePIC repository
 def generate_material_map(
         workflow_config : WorkflowConfig,
         benchmark_name : str,
@@ -43,10 +47,13 @@ def generate_material_map(
     material_map_dir = workflow_config.paths.material_map_dir_path(benchmark_name)
     change_directory_cmd = f'cd {material_map_dir}'
     material_map_script_path = str(workflow_config.paths.material_map_script_path(benchmark_name))
+
     if not material_map_script_path.startswith("/"):
         material_map_script_path = f'./{material_map_script_path}'
+
     material_map_script_path = f'{material_map_script_path} --nevents={n_events}'
     run_mat_map_script_cmd = material_map_script_path
+    
     if not keep_root_files:
         delete_mat_map_root_outputs = 'rm *.root'
         all_commands = concatenate_commands(source_command, change_directory_cmd, run_mat_map_script_cmd, delete_mat_map_root_outputs)

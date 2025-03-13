@@ -16,6 +16,7 @@ from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig, MPIExe
 from ePIC_benchmarks._file.types import PathType
 from ePIC_benchmarks._file.utils import save_raw_config, load_from_file
 from ePIC_benchmarks.utils.equality import any_identical_objects
+from ePIC_benchmarks._file.supported import DEFAULT_CONFIG_FILE_EXT
 
 RUN_INFO_DIR_NAME = "runinfo"
 
@@ -23,10 +24,21 @@ class WorkflowConfig(BaseModel):
 
     model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True)
 
-    name : Optional[str] = Field(default="Workflow")
-    debug : bool = Field(default=False)
-    working_directory : str = Field(default_factory=os.getcwd, init=False, exclude=True)
-    workflow_dir_name : Optional[str] = Field(default="Benchmarks")
+    name : Optional[str] = Field(
+        default="Workflow",
+        description="Name of the ePIC Simulation Workflow",
+        alias="workflow_dir_name"
+    )
+    debug : bool = Field(
+        default=False,
+        description="Toggle whether debugging output is saved to the filesystem"
+    )
+    working_directory : str = Field(
+        default_factory=os.getcwd,
+        init=False,
+        exclude=True,
+        description="Path to the current working directory"
+    )
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)
     redo_all_benchmarks : bool = Field(default=False)
     parsl_config : Optional[ParslConfig] = Field(default=None)
@@ -56,20 +68,26 @@ class WorkflowConfig(BaseModel):
         suite_config = WorkflowConfig.model_validate(loaded_data)
         return suite_config
 
+    #Saves workflow config to file
     @classmethod
-    def save_to_file(cls, filepath : PathType, suite_config : WorkflowConfig) -> None:
+    def save_to_file(cls, suite_config : WorkflowConfig, filepath : Optional[PathType] = None) -> None:
 
-        save_raw_config(raw_config=suite_config, file_path=filepath, overwrite=True)
+        suite_config.save(filepath=filepath)
 
-    def save(self, filepath : PathType):
+    def save(self, filepath : Optional[PathType] = None):
 
-        WorkflowConfig.save_to_file(filepath, self)
+        if filepath is None:
+            working_directory = Path(self.working_directory).resolve()
+            filename = f'{self.name}_config{DEFAULT_CONFIG_FILE_EXT}'
+            filepath = working_directory.joinpath(working_directory, filename)
+            
+        save_raw_config(raw_config=self, file_path=filepath, overwrite=True)
 
     @cached_property
     def workflow_dir_path(self):
 
         working_dir_path = Path(self.working_directory).resolve()
-        return working_dir_path.joinpath(self.workflow_dir_name).resolve()
+        return working_dir_path.joinpath(self.name).resolve()
 
     def benchmark_names(self):
 
@@ -116,7 +134,7 @@ class WorkflowConfig(BaseModel):
     def update_parsl_run_dir(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
         working_dir = Path(info.data["working_directory"])
-        workflow_dir_name = info.data["workflow_dir_name"]
+        workflow_dir_name = info.data["name"]
         run_dir = working_dir.joinpath(workflow_dir_name, RUN_INFO_DIR_NAME)
         parsl_config.run_dir = str(run_dir)
         return parsl_config
@@ -125,7 +143,7 @@ class WorkflowConfig(BaseModel):
     def update_parsl_debug_mode(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
         working_dir = Path(info.data["working_directory"])
-        workflow_dir_name = info.data["workflow_dir_name"]
+        workflow_dir_name = info.data["name"]
         debug_enabled = info.data["debug"]
 
         parsl_config.initialize_logging = debug_enabled

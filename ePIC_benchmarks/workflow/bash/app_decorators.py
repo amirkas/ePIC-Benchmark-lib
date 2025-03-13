@@ -6,7 +6,7 @@ from parsl import AUTO_LOGNAME
 from ePIC_benchmarks.container._base import BaseContainerConfig
 from ePIC_benchmarks.container.containers import ContainerUnion
 
-
+#Decorates the bash app so that it can be run inside a container
 def bash_app(function: Optional[Callable] = None,
                             data_flow_kernel: Optional[DataFlowKernel] = None,
                             cache: bool = False,

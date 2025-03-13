@@ -5,18 +5,29 @@ from typing import ClassVar, Literal, Sequence, Any, Optional, TypeVar, Generic
 
 T = TypeVar('T')
 
+#Base class for a Bash Exeuctable Flag 
 @dataclass
 class BashFlag(Generic[T]):
 
+    #Value for a Bash Flag instance
     value : Optional[T] = field(default=None)
+
+    #String format for the bash flag
     flag : ClassVar[Literal['']] = ''
+
+    #Toggles whether any input value is cast to a string
     coerce_to_str : ClassVar[bool] = False
+
+    #Toggles whether the boolean value for a flag instance is included in its string format
     exclude_bool_arg : ClassVar[bool] = True
+
+    #Toggles whether the enum name or the enum value is used for flag instance's string format
     use_enum_val : ClassVar[bool] = False
 
     def __repr__(self) -> str:
         return self.__class__.flag_string(self.value)
         
+    #Generates the string format for a bash flag
     @classmethod
     def flag_string(cls, value):
 
@@ -40,7 +51,7 @@ class BashFlag(Generic[T]):
                 return f"'{val}'"
             return f"{cls.flag}='{val}'"
 
-
+#Model that generates the string format for a bash executable 
 class BashCommand(BaseModel):
 
     model_config = ConfigDict(

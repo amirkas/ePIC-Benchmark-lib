@@ -2,6 +2,7 @@ from typing import Any, Optional
 from ePIC_benchmarks.simulation.simulation_types import Momentum, GunDistribution
 from ePIC_benchmarks.simulation.simulation_types.types import DistributionLimitType
 
+#Formats the simulation name based on its momentum range and phase space range
 def format_simulation_name(
         momentum_min : Optional[Momentum] =None,
         momentum_max : Optional[Momentum]=None,
@@ -9,6 +10,8 @@ def format_simulation_name(
         distribution_min :  DistributionLimitType=None,
         distribution_max :  DistributionLimitType=None) -> str:
     
+    #Formats the momentum substring based on whether
+    #momentum_min and/or momentum_max is provided
     if momentum_min is not None and momentum_max is None:
         momentum_str = f"{momentum_min}"
     elif momentum_max is not None and momentum_min is None:
@@ -18,15 +21,18 @@ def format_simulation_name(
     else:
         momentum_str = f"{momentum_min}_to_{momentum_max}"
 
+    #Formats the phase space range substring
     distribution_type_str = distribution_type.value
     distribution_str = f"{distribution_type_str}_{distribution_min}_to_{distribution_max}"
     name_str = f"{distribution_str}_{momentum_str}"
     return name_str
 
+#Casts a provided momentum value to an instance of Momentum
 def validate_momentum_limit(momentum_value : Any) -> Momentum:
 
     return Momentum.to_quantity(momentum_value)
-    
+
+#Formats the name for a Simulation Config if one isn't provided.
 def validate_name(
         name_value : str,
         momentum_min :  Optional[Momentum] =None,
@@ -55,7 +61,8 @@ def validate_name(
         except:
             err = f"Input for name has type '{type(name_value)}' which cannot be converted to a string"
             raise ValueError(err)
-        
+
+#Validates and formats the limits of a Simulation Config's momentum range
 def validate_momentum_range(momentum_min : Optional[Momentum], momentum_max : Optional[Momentum]) -> None:
 
     err = None
@@ -71,12 +78,14 @@ def validate_momentum_range(momentum_min : Optional[Momentum], momentum_max : Op
     if err is not None:
         raise ValueError(err)
     
+#Checks that the number of events is greater than 0
 def validate_num_events(num_events : int) -> None:
 
     if num_events <= 0:
         err = f"Number of events to simulate cannot be 0 or negative. Got '{num_events}'"
         raise ValueError(err)
-    
+
+#Checks that the multiplicity is greater than 0  
 def validate_multiplicity(multiplicity : float) -> None:
 
     if multiplicity <= 0.0:
