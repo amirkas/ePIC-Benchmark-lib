@@ -1,6 +1,6 @@
 from typing import Sequence, Any, TypeVar, Hashable
 
-T = TypeVar['T']
+T = TypeVar("T")
 
 #Checks whether any 2 objects in a list are equal
 def any_identical_objects(object_iterable : Sequence[T]) -> bool:
@@ -14,7 +14,7 @@ def any_identical_objects(object_iterable : Sequence[T]) -> bool:
         if isinstance(first_elem, Hashable):
 
             object_set = set(object_iterable)
-            return len(object_set) == len(object_iterable)
+            return len(object_set) != len(object_iterable)
 
         #If the list's element type has a less than, or greater than comparator
         #Run the second fastest method ( O(nlogn) ) for checking if any 2 objects are identical

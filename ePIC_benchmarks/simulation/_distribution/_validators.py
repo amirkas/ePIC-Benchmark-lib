@@ -57,7 +57,7 @@ def validate_only_one_limit_type(
     #Checks that only 1 maximum phase space limit is not None
     #Formats an error if more than 1 is not None
     num_max_limits = len(maximum_limits) - maximum_limit_none_cnt
-    max_error = None
+    max_err = None
     if num_max_limits > 1:
         max_err = f"Too many maximum limits provided. Only one maximum limit can be provided."
     elif num_max_limits == 0:

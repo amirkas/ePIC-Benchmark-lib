@@ -1,5 +1,5 @@
 from . import (analysis, benchmark, container, detector, parsl, simulation, workflow)
-from workflow._run import run_from_file_path
+from .workflow._run import run_from_file_path
 import argparse
 
 __all__ = ['analysis', 'benchmark', 'container', 'detector', 'parsl', 'simulation', 'workflow']
