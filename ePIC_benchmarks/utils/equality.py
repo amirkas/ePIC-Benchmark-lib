@@ -5,9 +5,14 @@ T = TypeVar("T")
 #Checks whether any 2 objects in a list are equal
 def any_identical_objects(object_iterable : Sequence[T]) -> bool:
 
+    #Early check
+    if len(object_iterable) <= 1:
+        return False
+
     #Tries to run faster algorithms for element equality checking
-    if len(object_iterable) > 0:
+    if len(object_iterable) > 1:
         first_elem = object_iterable[0]
+        second_elem = object_iterable[1]
 
         #If the lists's element type is hashable, run the fastest method ( O(n) )
         #for checking if any 2 objects are identical
@@ -15,10 +20,15 @@ def any_identical_objects(object_iterable : Sequence[T]) -> bool:
 
             object_set = set(object_iterable)
             return len(object_set) != len(object_iterable)
+        try:
+            _ = first_elem < second_elem
+            comparable = True
+        except:
+            comparable = False
 
         #If the list's element type has a less than, or greater than comparator
         #Run the second fastest method ( O(nlogn) ) for checking if any 2 objects are identical
-        elif hasattr(first_elem, '__lt__'):
+        if comparable:
 
             sorted_iterable = sorted(object_iterable)
             for i in range(len(sorted_iterable) - 2):
