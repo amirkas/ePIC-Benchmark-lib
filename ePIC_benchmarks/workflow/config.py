@@ -17,8 +17,6 @@ from ePIC_benchmarks.simulation.config import SimulationConfig
 from ePIC_benchmarks.detector.config import DetectorConfig
 from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig, MPIExecutorConfig, WorkQueueExecutorConfig
 from ePIC_benchmarks.workflow.future import WorkflowFuture
-from ePIC_benchmarks.workflow._inner.executor import get_workflow_script_func
-from ePIC_benchmarks.workflow.join import join_app
 from ePIC_benchmarks._file.types import PathType
 from ePIC_benchmarks._file.utils import save_raw_config, load_from_file
 from ePIC_benchmarks.utils.equality import any_identical_objects
