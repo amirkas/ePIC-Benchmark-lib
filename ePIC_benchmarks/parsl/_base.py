@@ -1,6 +1,10 @@
+from dataclasses import dataclass, is_dataclass
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, SerializationInfo
 from pydantic.main import IncEx
 from typing import TYPE_CHECKING, Dict, Any, Optional, Type, Union, TypeVar, Literal, ClassVar
+from parsl.dataflow.dependency_resolvers import DependencyResolver
+import logging
+logger = logging.getLogger(__name__)
 
 SERIALIZATION_OPTIONS = {'dict', 'config'}
 ParslConfigType = TypeVar("ParslConfigType")
@@ -35,7 +39,7 @@ class BaseParslModel(BaseModel):
         option = 'dict'
         context = info.context
         if context:
-            option= context.get('option', 'dict')
+            option = context.get('option', 'dict')
         result = handler(self)
         assert(isinstance(result, dict))
         if option == 'dict':
@@ -47,7 +51,12 @@ class BaseParslModel(BaseModel):
             #Remove config_type_name from result
             result.pop('config_type_name', None)
 
-            return self.config_type(**result)
+            if "dependency_resolver" in result.keys() and isinstance(result["dependency_resolver"], dict):
+                result['dependency_resolver'] = DependencyResolver(**result['dependency_resolver'])
+
+            as_config = self.config_type(**result)
+            return as_config
+        
         else:
             err = f"Option '{option}' is not valid. Valid options are {", ".join(SERIALIZATION_OPTIONS)}"
             raise ValueError(err)

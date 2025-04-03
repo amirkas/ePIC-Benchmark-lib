@@ -9,6 +9,7 @@ setup(
         'pyyaml',
         'pydantic',
         'pydantic-xml',
+        'pydantic-settings',
         'mypy',
         'lxml',
         'jupyter',

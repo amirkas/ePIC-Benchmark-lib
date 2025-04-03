@@ -1,90 +1,51 @@
 import shutil
 import parsl
 import importlib.util
+import sys
+from concurrent.futures import Future
 
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Callable, Union
 from parsl.configs.local_threads import config
 from parsl.utils import get_all_checkpoints
-from parsl.dataflow.futures import AppFuture
-from parsl.app.futures import DataFuture
 
 from ePIC_benchmarks._file.types import PathType
-from ePIC_benchmarks.workflow.config import WorkflowConfig
+from ePIC_benchmarks.workflow.config import WorkflowConfig, WorkflowScript
+from ePIC_benchmarks.workflow.future import WorkflowFuture
 from ePIC_benchmarks.container.containers import ContainerUnion
+from ePIC_benchmarks.workflow.join import join_app
+from ePIC_benchmarks.workflow.run import execute_workflow
 
 
-def run_workflow_script(script_path : PathType, workflow_config : WorkflowConfig, all_futures : Sequence[Union[AppFuture, DataFuture]]):
+def get_workflow_script_func(script_path : PathType, func_name : str = "run") -> WorkflowScript:
 
-    path = Path(script_path).resolve()
-    spec = importlib.util.spec_from_file_location("workflow", str(path))
-    script = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(script)
+    try:
+        path = Path(script_path).resolve()
+        spec = importlib.util.spec_from_file_location("user_workflow", str(path))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["user_workflow"] = module
+        spec.loader.exec_module(module)
 
-    #TODO: Check if run function exists and has correct signature
-    return script.run(workflow_config, all_futures)
+        #TODO: Check if run function exists and has correct signature
+        run_func = getattr(module, func_name, None)
+        if run_func is None:
+            err = f"'{func_name}' function could not be found in {script_path}"
+            raise ModuleNotFoundError(err)
+        elif not callable(run_func):
+            err = f"'{func_name}' is not a callable function"
+            raise ImportError(err)
+        else:
+            return run_func
+    except Exception as e:
+        raise e
 
 class WorkflowExecutor:
 
     parent : WorkflowConfig
 
-
     def __init__(self, parent):
         assert(isinstance(parent, WorkflowConfig))
         self.parent = parent
-
-    def run_benchmarks(self, script_path : Optional[str] = None):
-
-        #Check if script path is provided
-        if script_path is None and self.parent.script_path is None:
-            raise ValueError("Must provide a path to a workflow script to execute")
-
-        #Set script path
-        exec_script_path = script_path if script_path is not None else self.parent.script_path
-
-        #Initialize any uninitialized directories
-        self.init_directories()
-
-        #Set checkpointing mode to checkpoint on task exit.
-        config.checkpoint_mode = "task_exit"
-
-        #If workflow is not being redone, start from the last recorded checkpoints
-        if not self.parent.redo_all_benchmarks:
-
-            config.checkpoint_files = get_all_checkpoints()
-
-        #Load Provided Parsl Config
-        parsl.load(self.parent.parsl_config.to_parsl_config())
-
-        try:
-            all_futures = []
-
-            #Execute provided workflow script to add tasks to parsl dependency graph
-            try:
-                run_workflow_script(exec_script_path, self.parent, all_futures)
-            except Exception as e:
-                print(f"Could not execute script located at '{exec_script_path}'.")
-                raise ValueError(e)
-
-            #Wait for every task to complete
-            for task_future in all_futures:
-                assert(isinstance(task_future, AppFuture) or isinstance(task_future, DataFuture))
-                task_future.result()
-
-        except Exception as e:
-            #Ensure cleanup keeps all files regardless of config settings if workflow terminates early.
-            #Guarantees checkpointing will work as intended.
-            self.parent.keep_epic_repos = True
-            self.parent.keep_simulation_outputs = True
-            self.parent.keep_reconstruction_outputs= True
-            raise e
-
-        finally:
-            #Cleanup routine
-            try:
-                self.cleanup_directories()
-            finally:
-                parsl.dfk().cleanup()
 
     def epic_branch(self, benchmark_name : str) -> str:
 
@@ -98,6 +59,13 @@ class WorkflowExecutor:
     def get_container(self, executor_label) -> Optional[ContainerUnion]:
         
         return self.parent.parsl_config.executor_container(executor_label)
+    
+    def run_benchmarks(
+        self, workflow : WorkflowConfig, script_func : Optional[WorkflowScript] = None,
+        script_path : Optional[str] = None, script_func_name : Optional[str] = None) -> None:
+    
+        return execute_workflow(workflow, script_func=script_func, script_path=script_path, script_func_name=script_func_name)
+
 
     def apply_detector_configs(self, benchmark_name : str):
 
@@ -177,5 +145,3 @@ class WorkflowExecutor:
             recon_temp_dir_path = self.parent.paths.reconstruction_temp_dir_path(benchmark_name)
             shutil.rmtree(recon_temp_dir_path, ignore_errors=True)
 
-
-    

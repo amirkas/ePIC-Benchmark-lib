@@ -1,6 +1,7 @@
-from . import (analysis, benchmark, container, detector, parsl, simulation, workflow)
-
-__all__ = ['analysis', 'benchmark', 'container', 'detector', 'parsl', 'simulation', 'workflow']
+from .workflow.config import WorkflowConfig
+from .workflow.run import convert_to_abs_path, execute_workflow
+import argparse
+import os
 
 if __name__ == "__main__":
 

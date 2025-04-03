@@ -2,9 +2,12 @@ from __future__ import annotations
 from functools import cached_property
 import os
 from pathlib import Path
-from typing import Optional, List, Any, Self
+from typing import Optional, List, Any, Self, Callable
+import parsl
 
 from parsl import Config
+from parsl.configs.local_threads import config
+from parsl.utils import get_all_checkpoints
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict
 from pydantic_core.core_schema import ValidationInfo
 
@@ -13,6 +16,9 @@ from ePIC_benchmarks.benchmark.config import BenchmarkConfig
 from ePIC_benchmarks.simulation.config import SimulationConfig
 from ePIC_benchmarks.detector.config import DetectorConfig
 from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig, MPIExecutorConfig, WorkQueueExecutorConfig
+from ePIC_benchmarks.workflow.future import WorkflowFuture
+from ePIC_benchmarks.workflow._inner.executor import get_workflow_script_func
+from ePIC_benchmarks.workflow.join import join_app
 from ePIC_benchmarks._file.types import PathType
 from ePIC_benchmarks._file.utils import save_raw_config, load_from_file
 from ePIC_benchmarks.utils.equality import any_identical_objects
@@ -42,7 +48,8 @@ class WorkflowConfig(BaseModel):
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)
     redo_all_benchmarks : bool = Field(default=False)
     parsl_config : Optional[ParslConfig] = Field(default=None)
-    script_path : Optional[PathType] = Field(default=None)
+    script_path : Optional[PathType] = Field(default=None, deprecated=True)
+    workflow_script : Optional[Callable[[Self], WorkflowFuture]] = Field(default=None, exclude=True)
     keep_epic_repos : bool = Field(default=True)
     keep_simulation_outputs : bool = Field(default=True)
     keep_reconstruction_outputs : bool = Field(default=True)
@@ -50,12 +57,12 @@ class WorkflowConfig(BaseModel):
 
     @cached_property
     def paths(self):
-        from ePIC_benchmarks.workflow._inner import WorkflowPaths
+        from ._inner.paths import WorkflowPaths
         return WorkflowPaths(parent=self)
     
     @cached_property
     def executor(self):
-        from ePIC_benchmarks.workflow._inner import WorkflowExecutor
+        from ._inner.executor import WorkflowExecutor
         return WorkflowExecutor(parent=self)
 
     def add_benchmark(self, benchmark_config : BenchmarkConfig) -> None:
@@ -139,6 +146,17 @@ class WorkflowConfig(BaseModel):
         parsl_config.run_dir = str(run_dir)
         return parsl_config
     
+    # @field_validator('parsl_config', mode='after')
+    # def init_monitoring_database(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
+
+    #     if parsl_config.monitoring is not None:
+    #         parsl_run_dir = parsl_config.run_dir
+    #         db_path = os.path.join(parsl_run_dir, "monitoring.db")
+    #         conn = sqlite3.connect(db_path)
+    #         conn.close()
+    #     return parsl_config
+
+    
     @field_validator('parsl_config', mode='after')
     def update_parsl_debug_mode(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
@@ -160,7 +178,7 @@ class WorkflowConfig(BaseModel):
     @field_validator('parsl_config', mode='after')
     def update_parsl_checkpointing_mode(cls, parsl_config : ParslConfig, info : ValidationInfo) -> ParslConfig:
 
-        enable_checkpointing = info.data['redo_all_benchmarks']
+        enable_checkpointing = not info.data['redo_all_benchmarks']
         if enable_checkpointing:
             parsl_config.checkpoint_mode = 'task_exit'
         

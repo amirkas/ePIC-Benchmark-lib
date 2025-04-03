@@ -21,3 +21,5 @@ dependencies:
   - pip:
     - .
     - pydantic-xml
+    - pydantic-settings
+    - parsl[monitoring, visualization]

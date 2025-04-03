@@ -1,11 +1,11 @@
 import os
-from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar, Any
+from typing import Annotated, Optional, Sequence, Type, Union, Literal, Callable, ClassVar, Any, Dict
 
 from parsl.config import Config
-from parsl.dataflow.dependency_resolvers import DependencyResolver
 from parsl.dataflow.taskrecord import TaskRecord
 from parsl.monitoring import MonitoringHub
-from pydantic import ConfigDict, Field, RootModel, SerializeAsAny, computed_field, field_validator, ValidationInfo
+from parsl.dataflow.dependency_resolvers import DependencyResolver, DEEP_DEPENDENCY_RESOLVER
+from pydantic import ConfigDict, Field, RootModel, SerializeAsAny, computed_field, field_validator, ValidationInfo, field_serializer, WrapSerializer
 
 from ePIC_benchmarks.parsl._base import BaseParslModel
 from ePIC_benchmarks.parsl.executors import (
@@ -13,6 +13,10 @@ from ePIC_benchmarks.parsl.executors import (
     MPIExecutorConfig, FluxExecutorConfig, WorkQueueExecutorConfig
 )
 from ePIC_benchmarks.parsl.executors.executors import ParslExecutorConfigWithProvider, ParslExecutorConfig
+from ePIC_benchmarks.parsl.dependency_resolver.dependency_resolvers import (
+    ParslDependencyResolver, dependency_resolver_serializer
+)
+from ePIC_benchmarks.parsl.monitoring import ParslMonitoringHub
 from ePIC_benchmarks.container.containers import ContainerUnion
 from ePIC_benchmarks.parsl.launchers.launchers import ParslLauncherConfig
 from ePIC_benchmarks.container._base import BaseContainerConfig
@@ -23,6 +27,7 @@ ExecutorUnion = Union[
 ]
 
 Discriminated_Executor = Annotated[ExecutorUnion, Field(discriminator='config_type_name')]
+
 
 def set_std_autopath(run_dir : str, task_record : TaskRecord, kw):
 
@@ -53,7 +58,11 @@ class ExecutorList(RootModel):
 
 class ParslConfig(BaseParslModel):
 
-    model_config = ConfigDict(validate_assignment=True, revalidate_instances='always')
+    model_config = ConfigDict(
+        validate_assignment=True,
+        revalidate_instances='always',
+        strict=False, arbitrary_types_allowed=True,
+    )
    
     config_type_name : Literal['Config'] = "Config" 
     config_type : ClassVar[Type] = Config
@@ -67,20 +76,25 @@ class ParslConfig(BaseParslModel):
         Literal['periodic'],
         Literal['dfk_exit'],
         Literal['manual']
-    ] = 'task_exit'
+    ] = None
     checkpoint_period: Optional[str] = None
-    dependency_resolver: Optional[DependencyResolver] = None
+    dependency_resolver: Optional[
+        Annotated[
+            DependencyResolver,
+            WrapSerializer(dependency_resolver_serializer, Union[Dict[str, Any], DependencyResolver])
+        ]
+    ] = DEEP_DEPENDENCY_RESOLVER
     exit_mode: Literal['cleanup', 'skip', 'wait'] = 'cleanup'
     garbage_collect: bool = True
     internal_tasks_max_threads: int = 10
     retries: int = 0
-    retry_handler: Optional[Callable[[Exception, TaskRecord], float]] = None
+    retry_handler: Optional[Callable[[Exception, SerializeAsAny[TaskRecord]], float]] = None
     run_dir: str = 'runinfo'
-    # std_autopath: Optional[Callable] = None
+    std_autopath: Optional[Callable] = None
     strategy: Optional[str] = 'simple'
     strategy_period: Union[float, int] = 5
     max_idletime: float = 120.0
-    monitoring: Optional[MonitoringHub] = None
+    monitoring: Optional[ParslMonitoringHub] = None
     usage_tracking: int = 0
     project_name: Optional[str] = None
     initialize_logging: bool = True
@@ -91,25 +105,25 @@ class ParslConfig(BaseParslModel):
     #     rundir = info.data['run_dir']
     #     return lambda x, y : set_std_autopath(rundir, x, y)
 
-    @computed_field
-    @property
-    def std_autopath(self) -> Callable[[Any, Any], Any]:
+    # @computed_field
+    # @property
+    # def std_autopath(self) -> Callable[[Any, Any], Any]:
 
-        def helper(task_record, kw):
+    #     def helper(task_record, kw):
 
-            label = task_record['kwargs'].get('label')
-            task_id = task_record['id']
-            return os.path.join(
-                self.run_dir,
-                'task_logs',
-                str(int(task_id / 10000)).zfill(4),
-                'task_{}_{}.{}'.format(
-                str(task_id).zfill(4), 
-                label,
-                kw    
-                )
-            )
-        return helper
+    #         label = task_record['kwargs'].get('label')
+    #         task_id = task_record['id']
+    #         return os.path.join(
+    #             self.run_dir,
+    #             'task_logs',
+    #             str(int(task_id / 10000)).zfill(4),
+    #             'task_{}_{}.{}'.format(
+    #             str(task_id).zfill(4), 
+    #             label,
+    #             kw    
+    #             )
+    #         )
+    #     return helper
 
     def all_executor_labels(self):
 
@@ -143,5 +157,16 @@ class ParslConfig(BaseParslModel):
 
         executor = self.executor_by_label(executor_label)
         return executor.get_container_config()
+    
+    # @field_serializer('dependency_resolver')
+    # def serialize_dependency_resolver(cls, resolver : Any) -> DependencyResolver:
+
+    #     if isinstance(resolver, dict):
+    #         return DependencyResolver(**resolver)
+    #     if isinstance(resolver, DependencyResolver):
+    #         return resolver
+    #     else:
+    #         return resolver
+
     
     
