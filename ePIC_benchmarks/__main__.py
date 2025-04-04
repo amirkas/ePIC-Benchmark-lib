@@ -30,4 +30,4 @@ if __name__ == "__main__":
         raise ValueError(err)
     
     workflow_config = WorkflowConfig.load_from_file(config_path)
-    execute_workflow(workflow_config, script_path=script_path, func_name=func_name)
+    execute_workflow(workflow_config, script_path=script_path, script_func_name=func_name)

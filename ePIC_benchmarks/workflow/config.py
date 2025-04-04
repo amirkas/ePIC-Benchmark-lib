@@ -3,12 +3,9 @@ from functools import cached_property
 import os
 from pathlib import Path
 from typing import Optional, List, Any, Self, Callable
-import parsl
 
 from parsl import Config
-from parsl.configs.local_threads import config
-from parsl.utils import get_all_checkpoints
-from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator, ConfigDict, AliasChoices
 from pydantic_core.core_schema import ValidationInfo
 
 from ePIC_benchmarks.parsl.config import ParslConfig
@@ -31,7 +28,11 @@ class WorkflowConfig(BaseModel):
     name : Optional[str] = Field(
         default="Workflow",
         description="Name of the ePIC Simulation Workflow",
-        alias="workflow_dir_name"
+        validation_alias=AliasChoices(
+            "name",
+            "workflow_dir_name",
+            "workflow_name"
+        )
     )
     debug : bool = Field(
         default=False,
