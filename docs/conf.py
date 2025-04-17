@@ -16,3 +16,12 @@ extensions = [
     'sphinx.ext.napoleon'
 ]
 
+source_suffix = '.rst'
+
+master_doc = 'index'
+
+project = 'ePIC Benchmarks'
+copyright = '2024-2025, ePIC Benchmarks'
+author = 'Amir Abdou'
+
+autosummary_generate = True
