@@ -1,4 +1,5 @@
 import importlib
+# import logging
 import parsl
 import os
 import sys
@@ -10,6 +11,8 @@ from ePIC_benchmarks._file.types import PathType
 from ePIC_benchmarks.workflow.config import WorkflowConfig
 from ePIC_benchmarks.workflow.future import WorkflowFuture
 from ePIC_benchmarks.workflow.join import join_app
+
+# logging.basicConfig(level=logging.DEBUG)
 
 def convert_to_abs_path(path : str, cwd : str):
 
@@ -35,6 +38,7 @@ def get_workflow_script_func(script_path : PathType, func_name : str = "run"):
             err = f"'{func_name}' is not a callable function"
             raise ImportError(err)
         else:
+            # logging.info("Workflow script succesfully loaded")
             return run_func
     except Exception as e:
         raise e
@@ -59,19 +63,24 @@ def execute_workflow(
         else:
             exec_func = exec_script_func if exec_script_func is not None else get_workflow_script_func(exec_script_path)
 
+        # logging.info("Initializing workflow directories...")
+
         #Initialize any uninitialized directories
         workflow.executor.init_directories()
 
+        # logging.info("Workflow directories initialized")
+
         #Set checkpointing mode to checkpoint on task exit.
-        # config.checkpoint_mode = "task_exit"
+        config.checkpoint_mode = "task_exit"
 
         parsl.clear()
 
         #If workflow is not being redone, start from the last recorded checkpoints
         if not workflow.redo_all_benchmarks:
-
+            # logging.info("Loading last task checkpoints")
             config.checkpoint_files = get_all_checkpoints()
         
+        # logging.info("Starting the workflow")
         #Load Provided Parsl Config
         with parsl.load(workflow.parsl_config.to_parsl_config()):
 
@@ -102,6 +111,7 @@ def execute_workflow(
             finally:
                 #Cleanup routine
                 try:
+                    # logging.info("Cleaning up directories")
                     workflow.executor.cleanup_directories()
                 finally:
                     parsl.dfk().cleanup()

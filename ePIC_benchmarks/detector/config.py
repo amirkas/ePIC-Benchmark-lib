@@ -1,13 +1,43 @@
 from pathlib import Path
-from typing import Any, Dict, Union, Optional, Self, Literal
+from typing import Any, Dict, Union, Optional, Self, Literal, Sequence, Annotated
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_serializer, model_validator, Field
+from pydantic import (
+    BaseModel, ConfigDict, field_validator, model_serializer,
+    model_validator, Field, RootModel, SerializeAsAny
+)
 
 from ePIC_benchmarks._file.editors import XmlEditor
 from ePIC_benchmarks.detector.types import DetectorConfigType
 from ePIC_benchmarks.detector.xpath import DetectorConfigXpath
+from ePIC_benchmarks.detector.xml_elements._base import XmlElement, XmlElementList
+from ePIC_benchmarks.detector.xml_elements.detector import *
+from ePIC_benchmarks.detector.xml_elements.constant import *
+from ePIC_benchmarks.detector.xml_elements.plugins import *
+from ePIC_benchmarks.detector.xml_elements.readout import *
 from ePIC_benchmarks._file.types import PathType
 
+
+XmlElementUnion = Union[
+    XmlDetectorElement, XmlModuleElement, XmlModuleComponentElement,
+    XmlLayerElement, XmlLayerMaterialElement, XmlRphiLayoutElement, XmlTrdElement,
+    XmlDimensionsElement, XmlRingElement, XmlEnvelopeElement, XmlBarrelEnvelopeElement,
+    XmlTypeFlagsElement, XmlZLayoutElement, XmlFrameElement, XmlConstantElement,
+    XmlPluginElement, XmlArgumentElement,
+    XmlReadoutElement, XmlSegmentationElement, XmlReadoutIdElement
+]
+
+XmlElementDiscriminator = Annotated[XmlElementUnion, Field(discriminator='element_tag')]
+
+class XmlElementDiscriminatedList(RootModel):
+    
+    model_config = ConfigDict(strict=True)
+    root : SerializeAsAny[Sequence[XmlElementDiscriminator]]
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, item):
+        return self.root[item]
 
 class DetectorConfig(BaseModel):
 
@@ -19,6 +49,78 @@ class DetectorConfig(BaseModel):
             " relative to the compact folder of the ePIC repository."
         )
     )
+
+    edit_element_trees : Union[XmlElementDiscriminator, XmlElementDiscriminatedList]
+
+    def apply_changes(self, directory_path : Optional[PathType]=None):
+
+        xml_path = Path(self.file)
+        if directory_path:
+            if isinstance(directory_path, str):
+                directory_path = Path(directory_path)
+            elif isinstance(directory_path, Path):
+                directory_path = directory_path.resolve()
+            else:
+                raise ValueError("Directory path must be a valid path")
+            xml_path = directory_path.joinpath(xml_path)
+        if not xml_path.exists():
+            raise ValueError("Path does not exist")
+
+        xml_editor = XmlEditor(xml_path, autosave=False)
+
+        queries = self._all_queries()
+
+        for q in queries:
+
+            xml_query, update_attribute, update_type, update_value = q
+            match update_type:
+                case "SET":
+                    xml_editor.set_attribute_xpath(xml_query, update_attribute, update_value)
+                case "ADD":
+                    raise NotImplementedError()
+                case "DELETE":
+                    raise NotImplementedError()
+            xml_editor.save()
+        
+    def _all_queries(self):
+
+        queries = []
+        if not hasattr(self.edit_element_trees, '__iter__'):
+            for query in self.edit_element_trees.create_queries():
+                queries.append(query)
+        else:
+            for element_tree in self.edit_element_trees:
+                for query in element_tree.create_queries():
+                    queries.append(query) 
+        return queries
+    
+    #Validates whether the detector description file is valid
+    @field_validator('file', mode='after')
+    def validate_file(cls, v : Any) -> Any:
+        #TODO: Check whether filepath is in a readable directory
+        # if not is_file_path_readable(v):
+        #     raise ValueError('File path is not readable')
+        if not isinstance(v, str):
+            return str(v)
+        return v
+    
+    @field_validator('edit_element_trees', mode='before')
+    def validate_edit_trees(cls, v : Any) -> Any:
+        if not isinstance(v, list):
+            return [v]
+        return v
+    
+class DetectorConfigOld(BaseModel):
+
+    model_config = ConfigDict(use_enum_values=True, validate_assignment=True, validate_default=True,)
+
+    file : PathType = Field(
+        description=(
+            "Path of the detector description xml file to be updated,"
+            " relative to the compact folder of the ePIC repository."
+        )
+    )
+
     edit_type : Literal["SET", "ADD", "DELETE"] = Field(description="Type of edit to detector description.")
     detector_attributes : Optional[Dict[str, str]] = Field(
         default=None,
@@ -182,3 +284,4 @@ class DetectorConfig(BaseModel):
             case "DELETE":
                 raise NotImplemented()
         xml_editor.save()
+

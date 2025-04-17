@@ -12,8 +12,8 @@ def format_simulation_name(
     
     #Formats the momentum substring based on whether
     #momentum_min and/or momentum_max is provided
-    momentum_min = momentum_min.replace('*', '')
-    momentum_max = momentum_max.replace('*', '')
+    momentum_min = str(momentum_min).replace('*', '')
+    momentum_max = str(momentum_max).replace('*', '')
     if momentum_min is not None and momentum_max is None:
         momentum_str = f"{momentum_min}"
     elif momentum_max is not None and momentum_min is None:

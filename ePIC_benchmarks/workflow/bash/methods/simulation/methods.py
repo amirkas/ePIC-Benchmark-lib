@@ -1,11 +1,15 @@
 from parsl import AUTO_LOGNAME
 from ePIC_benchmarks.workflow.config import WorkflowConfig
+from ePIC_benchmarks.container.containers import ContainerUnion
+from typing import Optional
 from ePIC_benchmarks.workflow.bash.utils import concatenate_commands, source_epic_command, change_directory_command
 
 def run_npsim(
         workflow_config : WorkflowConfig,
         benchmark_name : str,
         simulation_name : str,
+        container : Optional[ContainerUnion] = None,
+        stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME,
         **kwargs) -> str:
 
     source_command = source_epic_command(workflow_config, benchmark_name)
@@ -16,6 +20,8 @@ def run_npsim(
         simulation_name=simulation_name, 
     )
     all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
+    if container is not None:
+        all_commands = container.init_with_extra_commands(all_commands)
     return all_commands
 
 def run_eicrecon(
@@ -23,6 +29,8 @@ def run_eicrecon(
         benchmark_name : str,
         simulation_name : str,
         use_generated_material_map : bool = False,
+        container : Optional[ContainerUnion] = None,
+        stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME,
         **kwargs) -> str:
     
     if use_generated_material_map:
@@ -44,5 +52,7 @@ def run_eicrecon(
         simulation_name=simulation_name, 
     )
     all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
+    if container is not None:
+        all_commands = container.init_with_extra_commands(all_commands)
     return all_commands
 

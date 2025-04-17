@@ -52,7 +52,7 @@ def save_serialized_config(serialized_config : Any, file_path : PathType, file_e
 
 def save_raw_config(raw_config : BaseModel, file_path : PathType, file_extension=None, overwrite=False) -> None:
 
-    serialized_config = raw_config.model_dump()
+    serialized_config = raw_config.model_dump(exclude_none=True)
     save_serialized_config(serialized_config, file_path, file_extension, overwrite)
 
 

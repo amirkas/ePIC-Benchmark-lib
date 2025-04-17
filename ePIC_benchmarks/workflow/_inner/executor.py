@@ -1,4 +1,5 @@
 import shutil
+from multiprocessing import Pool
 from typing import Optional, Sequence, Callable
 from ePIC_benchmarks.workflow.config import WorkflowConfig
 from ePIC_benchmarks.workflow.future import WorkflowFuture
@@ -47,44 +48,107 @@ class WorkflowExecutor:
         benchmark_config = self.parent.benchmark_config(benchmark_name)
         return benchmark_config.eicrecon_cmd(simulation_name, self.parent.paths.workflow_dir_path)
 
+    def init_benchmark_directory(self, benchmark_name):
+
+        benchmark_dir_path = self.parent.paths.benchmark_dir_path(benchmark_name)
+        if self.parent.redo_all_benchmarks:
+            shutil.rmtree(benchmark_dir_path, ignore_errors=True)
+        benchmark_dir_path.mkdir(parents=True, exist_ok=True)
+
+        epic_path = self.parent.paths.epic_repo_path(benchmark_name)
+        if self.parent.redo_epic_building:
+            shutil.rmtree(epic_path, ignore_errors=True)
+        epic_path.mkdir(parents=True, exist_ok=True)
+
+        analysis_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
+        if self.parent.redo_analysis:
+            shutil.rmtree(analysis_path, ignore_errors=True)
+        analysis_path.mkdir(parents=True, exist_ok=True)
+
+        sim_out_dir_path = self.parent.paths.simulation_out_dir_path(benchmark_name)
+        sim_temp_dir_path = self.parent.paths.simulation_temp_dir_path(benchmark_name)
+        if self.parent.redo_simulations:
+            shutil.rmtree(sim_out_dir_path, ignore_errors=True)
+            shutil.rmtree(sim_temp_dir_path, ignore_errors=True)
+        sim_out_dir_path.mkdir(parents=True, exist_ok=True)
+        sim_temp_dir_path.mkdir(parents=True, exist_ok=True)
+
+        recon_out_dir_path = self.parent.paths.reconstruction_out_dir_path(benchmark_name)
+        recon_temp_dir_path = self.parent.paths.reconstruction_temp_dir_path(benchmark_name)
+        if self.parent.redo_reconstructions:
+            shutil.rmtree(recon_out_dir_path, ignore_errors=True)
+            shutil.rmtree(recon_temp_dir_path, ignore_errors=True)
+
+        recon_out_dir_path.mkdir(parents=True, exist_ok=True)
+        recon_temp_dir_path.mkdir(parents=True, exist_ok=True)
+
+        #Initialize temporary directory for each npsim and eicrecon execution  
+        for simulation_name in self.parent.simulation_names(benchmark_name):
+            simulation_instance_temp_path = self.parent.paths.simulation_instance_temp_dir_path(benchmark_name, simulation_name)
+            simulation_instance_temp_path.mkdir(parents=True, exist_ok=True)
+
+            reconstruction_instance_temp_path = self.parent.paths.reconstruction_instance_temp_dir_path(benchmark_name, simulation_name)
+            reconstruction_instance_temp_path.mkdir(parents=True, exist_ok=True)
+
     def init_directories(self):
 
-
         benchmark_suite_path = self.parent.paths.workflow_dir_path
-        # if self.parent.redo_all_benchmarks:
-        #     shutil.rmtree(benchmark_suite_path, ignore_errors=True)
         benchmark_suite_path.mkdir(parents=True, exist_ok=True)
 
-        for benchmark_name in self.parent.benchmark_names():
+        benchmark_names = self.parent.benchmark_names()
 
-            benchmark_dir_path = self.parent.paths.benchmark_dir_path(benchmark_name)
-            benchmark_dir_path.mkdir(parents=True, exist_ok=True)
+        pool = Pool(len(benchmark_names))
 
-            epic_path = self.parent.paths.epic_repo_path(benchmark_name)
-            epic_path.mkdir(parents=True, exist_ok=True)
+        try:
+            pool.map(self.init_benchmark_directory, benchmark_names)
+        except:
+            pool.close()
+            pool.join()
 
-            analysis_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
-            analysis_path.mkdir(parents=True, exist_ok=True)
 
-            sim_out_dir_path = self.parent.paths.simulation_out_dir_path(benchmark_name)
-            sim_out_dir_path.mkdir(parents=True, exist_ok=True)
+        # for benchmark_name in self.parent.benchmark_names():
 
-            recon_out_dir_path = self.parent.paths.reconstruction_out_dir_path(benchmark_name)
-            recon_out_dir_path.mkdir(parents=True, exist_ok=True)
 
-            sim_temp_dir_path = self.parent.paths.simulation_temp_dir_path(benchmark_name)
-            sim_temp_dir_path.mkdir(parents=True, exist_ok=True)
 
-            recon_temp_dir_path = self.parent.paths.reconstruction_temp_dir_path(benchmark_name)
-            recon_temp_dir_path.mkdir(parents=True, exist_ok=True)
+            # benchmark_dir_path = self.parent.paths.benchmark_dir_path(benchmark_name)
+            # if self.parent.redo_all_benchmarks:
+            #     shutil.rmtree(benchmark_dir_path, ignore_errors=True)
+            # benchmark_dir_path.mkdir(parents=True, exist_ok=True)
 
-            #Initialize temporary directory for each npsim and eicrecon execution  
-            for simulation_name in self.parent.simulation_names(benchmark_name):
-                simulation_instance_temp_path = self.parent.paths.simulation_instance_temp_dir_path(benchmark_name, simulation_name)
-                simulation_instance_temp_path.mkdir(parents=True, exist_ok=True)
+            # epic_path = self.parent.paths.epic_repo_path(benchmark_name)
+            # if self.parent.redo_epic_building:
+            #     shutil.rmtree(epic_path, ignore_errors=True)
+            # epic_path.mkdir(parents=True, exist_ok=True)
 
-                reconstruction_instance_temp_path = self.parent.paths.reconstruction_instance_temp_dir_path(benchmark_name, simulation_name)
-                reconstruction_instance_temp_path.mkdir(parents=True, exist_ok=True)
+            # analysis_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
+            # if self.parent.redo_analysis:
+            #     shutil.rmtree(epic_path, ignore_errors=True)
+            # analysis_path.mkdir(parents=True, exist_ok=True)
+
+            # sim_out_dir_path = self.parent.paths.simulation_out_dir_path(benchmark_name)
+            # sim_temp_dir_path = self.parent.paths.simulation_temp_dir_path(benchmark_name)
+            # if self.parent.redo_simulations:
+            #     shutil.rmtree(sim_out_dir_path, ignore_errors=True)
+            #     shutil.rmtree(sim_temp_dir_path, ignore_errors=True)
+            # sim_out_dir_path.mkdir(parents=True, exist_ok=True)
+            # sim_temp_dir_path.mkdir(parents=True, exist_ok=True)
+
+            # recon_out_dir_path = self.parent.paths.reconstruction_out_dir_path(benchmark_name)
+            # recon_temp_dir_path = self.parent.paths.reconstruction_temp_dir_path(benchmark_name)
+            # if self.parent.redo_reconstructions:
+            #     shutil.rmtree(recon_out_dir_path, ignore_errors=True)
+            #     shutil.rmtree(recon_temp_dir_path, ignore_errors=True)
+
+            # recon_out_dir_path.mkdir(parents=True, exist_ok=True)
+            # recon_temp_dir_path.mkdir(parents=True, exist_ok=True)
+
+            # #Initialize temporary directory for each npsim and eicrecon execution  
+            # for simulation_name in self.parent.simulation_names(benchmark_name):
+            #     simulation_instance_temp_path = self.parent.paths.simulation_instance_temp_dir_path(benchmark_name, simulation_name)
+            #     simulation_instance_temp_path.mkdir(parents=True, exist_ok=True)
+
+            #     reconstruction_instance_temp_path = self.parent.paths.reconstruction_instance_temp_dir_path(benchmark_name, simulation_name)
+            #     reconstruction_instance_temp_path.mkdir(parents=True, exist_ok=True)
 
     def cleanup_directories(self):
 

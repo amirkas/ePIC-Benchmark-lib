@@ -4,7 +4,8 @@
 '''
 ## this block of functions are copied from epic_analysis.ipynb 
 from matplotlib.backends.backend_pdf import PdfPages
-
+from ePIC_benchmarks.simulation import SimulationConfig
+# import logging
 import os
 import sys
 import pandas as pd
@@ -17,8 +18,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.pylab as plt
 
+from typing import Optional
+
 print('Uproot version: ' + ur.__version__) ## this script assumed version 4 
 ur.default_library="pd" ## does not work???
+
+# logging.basicConfig(level=logging.DEBUG)
 
 #Pandas view options
 pd.set_option('display.max_rows', 500)
@@ -257,6 +262,11 @@ def hist_gaus(dataset, ax, bins=100, klog=0, header=None, plot_zcores=False, max
 
 
 def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):
+
+    # logging.info(f"Generating efficiency plots")
+    # logging.info(f"Efficiency eta bins: {eta_bins}")
+
+
     fig, ax = plt.subplots(1,1,figsize=[6,6])
     plt.title("")
     ## eff
@@ -295,6 +305,9 @@ def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):
 def plot_resol(pion, params, plot_resol_zscores=False):
     fig, axs = plt.subplots(2, 2, figsize=(10,6), dpi=300)
     plt.title("")
+
+    # logging.info(f"Generating resolution plots")
+
 
     ## calculate resolutions
     dp_lim=10 * 4 #%
@@ -373,14 +386,30 @@ def plot_resol(pion, params, plot_resol_zscores=False):
     return sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig
 
 
+def final_output_name(file_path, output_name : Optional[str] = None):
+
+    if output_name is None:
+
+        file_name = os.path.basename(file_path)
+        output_name = os.path.splittext(file_name)[0]
+    return output_name
+
+
 ## set eff_eta_bins to [] to disable eff plots. similar for resol
 def performance_plot(
         file_path,
         dir_path=None, plot_resol_zscores=False,
         eff_eta_bins=np.arange(-4, 4.1, 0.5),
         resol_eta_bins=np.arange(-4, 4.1, 0.5), kchain=0,
-        output_name=None, output_dir=CWD):
+        output_name=None, output_dir=CWD,
+        simulation_momentum="10GeV", simulation_eta_range=(-1, 1)):
    
+    # logging.info(f"Generating performance plots")
+    # logging.info(f"Efficiency eta bins: {eff_eta_bins}")
+    # logging.info(f"Resolution eta bins: {resol_eta_bins}")
+
+    #TODO: Save efficiency and resolution slice data in pandas-readable format
+
     ## If output name is not given, use the filename 
     if output_name is None:
 
@@ -418,6 +447,12 @@ def performance_plot(
         fig.savefig(plot_file_path)
         plt.close()
 
+        
+        # df = pd.DataFrame(columns=['name', 'momentum', 'eta_min', 'eta_max', *eff_eta_bins, ])
+        
+
+
+        #TODO: Fix decimal place formatting errors
         formatted_string = (
             f"{output_name};"
             f"{track_eff.tolist()};"
@@ -475,9 +510,9 @@ def performance_plot(
 
                     sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig = plot_resol(pion_slice, params_slice)
 
-                    fig.axes[0].set_title(f"{deg_lo} < eta < {deg_hi} in {output_name}")
+                    fig.axes[0].set_title(f"{deg_lo:.2f} < eta < {deg_hi:.2f} in {output_name}")
 
-                    filename = f'resol_{output_name}_eta_{deg_lo}_{deg_hi}.png'
+                    filename = f'resol_{output_name}_eta_{deg_lo:.2f}_{deg_hi:.2f}.png'
                     output_path = os.path.join(output_dir, filename)
 
                     fig.savefig(output_path)
@@ -485,8 +520,10 @@ def performance_plot(
 
                     temp = [sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
                     temp = ' '.join(map(str, temp))
-                    formatted_string = f"{output_name} {deg_lo} {deg_hi} {temp}"
+                    formatted_string = f"{output_name} {deg_lo:.2f} {deg_hi:.2f} {temp}"
 
                     resolution_out_path = os.path.join(output_dir, 'resol_out_slices.txt')
                     with open(resolution_out_path, 'a') as resol_file:
                         resol_file.write(formatted_string + '\n')
+
+

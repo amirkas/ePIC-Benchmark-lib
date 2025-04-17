@@ -41,7 +41,7 @@ class BenchmarkConfig(BaseModel):
     )
     generate_material_map : bool = Field(
         default=True,
-        init=False,
+        init=True,
         description="Generates a material map if set to to True"
     )
     benchmark_dir_name: Optional[str] = Field(
