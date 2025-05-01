@@ -1,6 +1,7 @@
 '''
     check tracking eff, resol, etc
     Shujie Li, Sept 2024
+    Amir Abdou, March 2025
 '''
 ## this block of functions are copied from epic_analysis.ipynb 
 from matplotlib.backends.backend_pdf import PdfPages
@@ -302,12 +303,142 @@ def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):
 
 
 
+def save_dataframe(df : pd.DataFrame, path) -> None:
+
+    df.to_csv(path, index=False)
+
+def load_dataframe(path) -> pd.DataFrame:
+
+    assert(os.path.exists(path))
+
+    try:
+        df = pd.read_csv(path)
+        return df
+    except Exception as e:
+        raise e
+    
+def process_data(column_names, *data_params):
+
+    params_as_list = list(data_params)
+
+    assert(len(params_as_list) >= 3)
+    config_name = params_as_list[0]
+    momentum_min = params_as_list[1]
+    momentum_max = params_as_list[2]
+    
+    assert(not isinstance(config_name, list))
+    assert(not isinstance(momentum_min, list))
+    assert(not isinstance(momentum_max, list))
+
+    numerical_params = params_as_list[3:]
+
+    assert(len(column_names) == len(params_as_list))
+
+    if all(isinstance(param, list) for param in numerical_params):
+
+        #Check if every list is the same the size
+        first_elem_len = len(numerical_params[0])
+        if not all(len(param_lst) == first_elem_len for param_lst in numerical_params):
+            raise ValueError("Every numerical param must have the same length")
+        
+        config_name_lst = [config_name for i in range(first_elem_len)]
+        momentum_min_lst = [momentum_min for i in range(first_elem_len)]
+        momentum_max_lst = [momentum_max for i in range(first_elem_len)]
+        data = [config_name_lst, momentum_min_lst, momentum_max_lst]
+        data.extend(numerical_params)     
+    elif all(not isinstance(param, list) for param in numerical_params):
+        data = list([param] for param in params_as_list)
+    else:
+        err = (
+            "Each numerical parameter must either b"
+            " a singular value, or lists of the same size"
+        )
+        raise ValueError(err) 
+    data_dict = {col_name : col_data for col_name, col_data in zip(column_names, data)} 
+    return data_dict
+
+    
+def init_generic_dataframe(data_columns, *data_params):
+
+    assert(len(data_params) == len(data_columns))
+
+    data = process_data(data_columns, *data_params)
+    try:
+        df = pd.DataFrame(data)
+    except:
+        raise ValueError(data)
+    return df
+
+def add_to_generic_dataframe(df : pd.DataFrame, data_columns, *data_params) -> pd.DataFrame:
+
+    assert(len(data_params) == len(data_columns))
+
+    if df is None:
+        return init_generic_dataframe(data_columns, *data_params)
+
+    assert(all(df_col == col for df_col, col in zip(df.columns, data_columns)))
+
+    new_df = init_generic_dataframe(data_columns, *data_params)
+    df = pd.concat([df, new_df], ignore_index=True)
+    return df
+
+def add_to_generic_file(path, data_columns, *data_params):
+
+    assert len(data_params) == len(data_columns), f"length of data params '{len(data_params)}' does not match the number of columns '{len(data_columns)}'"
+    if not os.path.exists(path):
+        df = init_generic_dataframe(data_columns, *data_params)
+        save_dataframe(df, path)
+    else:
+        df = load_dataframe(path)
+        df = add_to_generic_dataframe(df, data_columns, *data_params)
+        save_dataframe(df, path)
+
+RESOLUTION_COLUMNS = [
+    'config_name',
+    'momentum_min', 'momentum_max',
+    'eta_min', 'eta_max',
+    'momentum_std', 'momentum_err',
+    'theta_std', 'theta_err',
+    'phi_std', 'phi_err',
+    'dca_std', 'dca_err'
+]
+
+EFFICIENCY_COLUMNS = [
+    'config_name',
+    'momentum_min', 'momentum_max',
+    'eta_midpoint',
+    'efficiency_std', 'efficiency_err'
+]
+
+def init_resolution_dataframe(*resolution_params) -> pd.DataFrame:
+
+    return init_generic_dataframe(RESOLUTION_COLUMNS, *resolution_params)
+
+def add_to_resolution_dataframe(df : Optional[pd.DataFrame], *resolution_params) -> pd.DataFrame:
+    
+    return add_to_generic_dataframe(df, RESOLUTION_COLUMNS, *resolution_params)
+
+def add_to_resolution_file(path, *resolution_params) -> None:
+
+    return add_to_generic_file(path, RESOLUTION_COLUMNS, *resolution_params)
+
+def init_efficiency_dataframe(*efficiency_params) -> pd.DataFrame:
+
+    return init_generic_dataframe(EFFICIENCY_COLUMNS, *efficiency_params)
+
+def add_to_efficiency_dataframe(df : pd.DataFrame, *efficiency_params) -> pd.DataFrame:
+
+    return add_to_generic_dataframe(df, EFFICIENCY_COLUMNS, *efficiency_params)
+
+def add_to_efficiency_file(path, *efficiency_params) -> None:
+
+    return add_to_generic_file(path, EFFICIENCY_COLUMNS, *efficiency_params)
+
 def plot_resol(pion, params, plot_resol_zscores=False):
     fig, axs = plt.subplots(2, 2, figsize=(10,6), dpi=300)
     plt.title("")
 
     # logging.info(f"Generating resolution plots")
-
 
     ## calculate resolutions
     dp_lim=10 * 4 #%
@@ -398,15 +529,13 @@ def final_output_name(file_path, output_name : Optional[str] = None):
 ## set eff_eta_bins to [] to disable eff plots. similar for resol
 def performance_plot(
         file_path,
-        dir_path=None, plot_resol_zscores=False,
+        dir_path=None, 
         eff_eta_bins=np.arange(-4, 4.1, 0.5),
-        resol_eta_bins=np.arange(-4, 4.1, 0.5), kchain=0,
-        output_name=None, output_dir=CWD,
-        simulation_momentum="10GeV", simulation_eta_range=(-1, 1)):
-   
-    # logging.info(f"Generating performance plots")
-    # logging.info(f"Efficiency eta bins: {eff_eta_bins}")
-    # logging.info(f"Resolution eta bins: {resol_eta_bins}")
+        resol_eta_bins=np.arange(-4, 4.1, 0.5),
+        momentum_min=None, momentum_max=None,
+        simulation_config : Optional[SimulationConfig] = None,
+        kchain=0, output_name=None, output_dir=CWD,
+        plot_resol_zscores=False):
 
     #TODO: Save efficiency and resolution slice data in pandas-readable format
 
@@ -418,6 +547,24 @@ def performance_plot(
 
         #Removes the file extension
         output_name = os.path.splitext(file_name)[0] 
+
+    #End early if no momentum ranges are provided
+    if all(param is None for param in [momentum_min, momentum_max, simulation_config]):
+        err = (
+            "Momemtum range must be provided from any one of:\n"
+            "   'momentum_min'\n"
+            "   'momentum_max'\n"
+            "   'simulation_config'\n"
+        )
+        raise ValueError("Momemtum range must be provided from any one of: 'momentum")
+
+    if momentum_min is not None and momentum_max is None:
+        momentum_max = momentum_min
+    elif momentum_min is None and momentum_max is not None:
+        momentum_min = momentum_max
+    elif momentum_min is None and momentum_max is None:
+        momentum_min = simulation_config.momentum_min.magnitude
+        momentum_max = simulation_config.momentum_max.magnitude
 
     ## read events tree
     pion_o, pion, params = pre_proc(file_path, dir_path)
@@ -447,29 +594,17 @@ def performance_plot(
         fig.savefig(plot_file_path)
         plt.close()
 
-        
-        # df = pd.DataFrame(columns=['name', 'momentum', 'eta_min', 'eta_max', *eff_eta_bins, ])
-        
-
-
-        #TODO: Fix decimal place formatting errors
-        formatted_string = (
-            f"{output_name};"
-            f"{track_eff.tolist()};"
-            f"{track_err.tolist()};"
-            f"{eta_centers.tolist()}"
-        )
-
-        eff_out_file_name = f"eff_out.txt"
-        eff_out_file_path = os.path.join(output_dir, eff_out_file_name)
-
-        with open(eff_out_file_path, 'a') as eff_file:
-            eff_file.write(formatted_string + '\n')
+        data_entry = [output_name, momentum_min, momentum_max, eta_centers.tolist(), track_eff.tolist(), track_err.tolist()]
+        eff_out_temp_path = os.path.join(output_dir, "efficiency_data.txt")
+        add_to_efficiency_file(eff_out_temp_path, *data_entry)
 
     ## resolutions    
     if len(resol_eta_bins) > 0:
 
         if len(resol_eta_bins) == 1:
+
+            eta_min = resol_eta_bins[0]
+            eta_max = None
 
             sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig = plot_resol(
                 pion, params, plot_resol_zscores=plot_resol_zscores
@@ -483,23 +618,19 @@ def performance_plot(
             fig.savefig(image_file_path)
             plt.close()
 
-            temp = [sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
-            temp = ' '.join(map(str, temp))
-            formatted_string = f"{output_name} {temp}"
-
-            text_file_path = os.path.join(output_dir, 'resol_out_whole.txt')
-            with open(text_file_path, 'a') as resol_file:
-                resol_file.write(formatted_string + '\n')
+            data_entry = [output_name, momentum_min, momentum_max, eta_min, eta_max, sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
+            temp_path = os.path.join(output_dir, 'resolution_data.txt')
+            add_to_resolution_file(temp_path, *data_entry)
 
         ## need to make slices of eta/theta for simulation campaign data
         else:
             for dd in np.arange(len(resol_eta_bins) - 1): 
 
-                deg_lo = resol_eta_bins[dd]
-                deg_hi = resol_eta_bins[dd+1]
+                eta_min = round(resol_eta_bins[dd], 2)
+                eta_max = round(resol_eta_bins[dd+1], 2)
 
-                cond1  = (pion.eta) > deg_lo
-                cond2  = (pion.eta) <= deg_hi
+                cond1  = (pion.eta) > eta_min
+                cond2  = (pion.eta) <= eta_max
                 cond   = cond1 & cond2
 
                 pion_slice   = pion[cond].reset_index()
@@ -510,20 +641,17 @@ def performance_plot(
 
                     sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig = plot_resol(pion_slice, params_slice)
 
-                    fig.axes[0].set_title(f"{deg_lo:.2f} < eta < {deg_hi:.2f} in {output_name}")
+                    fig.axes[0].set_title(f"{eta_min:.2f} < eta < {eta_max:.2f} in {output_name}")
 
-                    filename = f'resol_{output_name}_eta_{deg_lo:.2f}_{deg_hi:.2f}.png'
+                    filename = f'resol_{output_name}_eta_{eta_min:.2f}_{eta_max:.2f}.png'
                     output_path = os.path.join(output_dir, filename)
 
                     fig.savefig(output_path)
                     plt.close()
 
-                    temp = [sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
-                    temp = ' '.join(map(str, temp))
-                    formatted_string = f"{output_name} {deg_lo:.2f} {deg_hi:.2f} {temp}"
+                    data_entry = [output_name, momentum_min, momentum_max, eta_min, eta_max, sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
+                    temp_path = os.path.join(output_dir, 'resolution_data.txt')
+                    add_to_resolution_file(temp_path, *data_entry)
 
-                    resolution_out_path = os.path.join(output_dir, 'resol_out_slices.txt')
-                    with open(resolution_out_path, 'a') as resol_file:
-                        resol_file.write(formatted_string + '\n')
 
 

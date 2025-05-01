@@ -41,7 +41,7 @@ class WorkflowConfig(BaseModel):
     working_directory : str = Field(
         default_factory=os.getcwd,
         init=False,
-        exclude=True,
+        exclude=False,
         description="Path to the current working directory"
     )
     benchmarks : List[BenchmarkConfig] = Field(default_factory=list)

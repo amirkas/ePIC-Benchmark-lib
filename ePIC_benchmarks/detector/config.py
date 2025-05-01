@@ -59,14 +59,19 @@ class DetectorConfig(BaseModel):
             if isinstance(directory_path, str):
                 directory_path = Path(directory_path)
             elif isinstance(directory_path, Path):
-                directory_path = directory_path.resolve()
+                directory_path = directory_path
             else:
                 raise ValueError("Directory path must be a valid path")
             xml_path = directory_path.joinpath(xml_path)
         if not xml_path.exists():
-            raise ValueError("Path does not exist")
+            err = f"Path '{xml_path}' does not exist"
+            raise ValueError(err)
 
-        xml_editor = XmlEditor(xml_path, autosave=False)
+        try:
+            xml_editor = XmlEditor(xml_path, autosave=False)
+        except:
+            err = f"Could not load file '{xml_path}'"
+            raise ValueError(err)
 
         queries = self._all_queries()
 
@@ -75,12 +80,26 @@ class DetectorConfig(BaseModel):
             xml_query, update_attribute, update_type, update_value = q
             match update_type:
                 case "SET":
-                    xml_editor.set_attribute_xpath(xml_query, update_attribute, update_value)
+                    try:
+                        xml_editor.set_attribute_xpath(xml_query, update_attribute, update_value)
+                    except:
+                        err = (
+                            f"could not make update with:\n[\n"
+                            f"    Query: {xml_query}\n"
+                            f"    Update Attribute: {update_attribute}\n"
+                            f"    Update Value: {update_value}\n]"
+                        )
+                        raise ValueError(err)
                 case "ADD":
                     raise NotImplementedError()
                 case "DELETE":
                     raise NotImplementedError()
-            xml_editor.save()
+                
+            try:
+                xml_editor.save()
+            except:
+                err = f"Could not save updated xml file '{xml_path}'"
+                raise ValueError(err)
         
     def _all_queries(self):
 

@@ -202,7 +202,9 @@ class XmlEditor:
 
     @autosave
     def set_attribute_xpath(self, xpath_query, attribute, value):
-
-        found_elems = self.root.xpath(xpath_query)
+        try:
+            found_elems = self.root.xpath(xpath_query)
+        except:
+            raise ValueError("Could not find element for query {query}".format(query=xpath_query))
         for elem in found_elems:
             elem.set(attribute, value)
