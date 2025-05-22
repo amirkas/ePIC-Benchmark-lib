@@ -70,7 +70,10 @@ class WorkflowPaths:
 
         benchmark_config = self.parent.benchmark_config(benchmark_name)
         epic_dir_path = benchmark_config.epic_repo_path(self.workflow_dir_path)
-        return epic_dir_path.joinpath("scripts", "material_map")
+        if benchmark_config.existing_material_map_path is None:
+            return epic_dir_path.joinpath("scripts", "material_map")
+        else:
+            return benchmark_config.existing_material_map_path
 
     def material_map_script_path(self, benchmark_name):
 

@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from ePIC_benchmarks.simulation import SimulationConfig
 from ePIC_benchmarks.detector import DetectorConfig
+from ePIC_benchmarks.detector.xml_elements.detector import (
+    XmlDetectorElement, XmlModuleElement,XmlModuleComponentElement
+)
 from ePIC_benchmarks.simulation.simulation_types import GunDistribution, Particle
 from ePIC_benchmarks.benchmark import BenchmarkConfig
 from ePIC_benchmarks.parsl.config import ParslConfig
@@ -132,10 +135,18 @@ def generate_detector_configs(detector_file, lookup_attribute_name, lookup_attri
 
         detector_config = DetectorConfig(
             file=detector_file,
-            constant_attributes={lookup_attribute_name : lookup_attribute_value},
-            update_attribute=edit_attribute_name,
-            update_value=edit_value,
-            edit_type="SET"            
+            edit_element_trees = XmlDetectorElement(
+                name=outer_name,
+                modules=XmlModuleElement(
+                    name=module_name,
+                    module_components=[
+                        XmlModuleComponentElement(
+                            material='CarbonFiber',
+                            update_attribute='thickness',
+                            update_value='SiTrackerEndcapCF_thickness*2',
+                            update_type='SET'
+                        ),
+        )     
         )
         all_detector_configs.append(detector_config)
 

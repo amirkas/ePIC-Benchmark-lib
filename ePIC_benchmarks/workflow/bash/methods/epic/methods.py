@@ -69,6 +69,10 @@ def generate_material_map(
         echo_cmd =  f"echo 'No simulation for benchmark {benchmark_config.name} uses a material map. I will do nothing.'"
         return echo_cmd
     
+    if benchmark_config.existing_material_map_path is not None:
+        echo_cmd =  f"echo 'Material map for benchmark {benchmark_config.name} already exists. I will not generate a new material map.'"
+        return echo_cmd
+
     source_command = source_epic_command(workflow_config, benchmark_name)
     material_map_dir = workflow_config.paths.material_map_dir_path(benchmark_name)
     change_directory_cmd = f'cd {material_map_dir}'

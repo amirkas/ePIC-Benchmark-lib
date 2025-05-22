@@ -41,8 +41,11 @@ class BenchmarkConfig(BaseModel):
     )
     generate_material_map : bool = Field(
         default=True,
-        init=True,
         description="Generates a material map if set to to True"
+    )
+    existing_material_map_path : Optional[PathType] = Field(
+        default=None,
+        description="Optional path to an existing material map"
     )
     benchmark_dir_name: Optional[str] = Field(
         default=None,
@@ -51,6 +54,10 @@ class BenchmarkConfig(BaseModel):
     epic_directory_name : str = Field(
         default="ePIC",
         description="Name of the ePIC directory for the current benchmark"
+    )
+    existing_epic_directory_path : Optional[PathType] = Field(
+        default=None,
+        description="Optional path to an existing ePIC directory."
     )
     simulation_out_directory_name : str = Field(
         default="simulations",
@@ -91,14 +98,14 @@ class BenchmarkConfig(BaseModel):
             return f"Benchmark_{random_uuid}"
 
         return v
-
+    
     #Checks if the branch is part of the ePIC repository 
     @field_validator('epic_branch', mode='after')
     def check_epic_branch_exists(cls, v : Any) -> str:
 
         #TODO: Check branches from epic repository and check if self.epic_branch is valid
         return v
-
+    
     #Provides a name for the benchmark root directory 
     @field_validator('benchmark_dir_name', mode='after')
     def validate_benchmark_dir(cls, v : Any, info : ValidationInfo) -> str:
@@ -146,8 +153,6 @@ class BenchmarkConfig(BaseModel):
         if any_identical_objects(self.detector_configs):
             raise AttributeError("All detector configurations must be unique")
         return self
-
-
 
 
     @model_validator(mode='after')
@@ -233,12 +238,19 @@ class BenchmarkConfig(BaseModel):
     
     def epic_repo_path(self, working_dir : PathType) -> Path:
 
-        _benchmark_dir_path = self.benchmark_dir_path(working_dir)
-        return _benchmark_dir_path.joinpath(self.epic_directory_name)
+        if self.existing_epic_directory_path is not None:
+            return self.existing_epic_directory_path
+        else:
+            _benchmark_dir_path = self.benchmark_dir_path(working_dir)
+            return _benchmark_dir_path.joinpath(self.epic_directory_name)
     
     def material_map_path(self, working_dir : PathType, file_name : str = "material-map.cbor") -> Path:
-        _benchmark_dir_path = self.benchmark_dir_path(working_dir)
-        return _benchmark_dir_path.joinpath(file_name)
+
+        if self.existing_material_map_path:
+            return self.existing_material_map_path
+        else:
+            _benchmark_dir_path = self.benchmark_dir_path(working_dir)
+            return _benchmark_dir_path.joinpath(file_name)
 
     def simulation_out_dir_path(self, working_dir : PathType) -> Path:
 
