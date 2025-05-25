@@ -1,11 +1,31 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-dependencies = { file = ["docs/requirements.txt"] }
+[tool.setuptools.packages.find]
+where = [
+    "ePIC_benchmarks"
+]
 
 [project]
+dependencies = [
+    "pyyaml",
+    "pydantic",
+    "pydantic-xml",
+    "pydantic-settings",
+    "mypy",
+    "lxml",
+    "jupyter",
+    "numpy",
+    "pandas",
+    "scipy",
+    "seaborn",
+    "uproot",
+    "uncertainties",
+    "parsl",
+    "lmfit",
+    "matplotlib"
+]
 name = "ePIC_benchmarks"
 authors = [{name = "Amir Abdou", email = "AmirKS@lbl.gov"}]
-dynamic = ["version", "description"]
+dynamic = ["version"]

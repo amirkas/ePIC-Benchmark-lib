@@ -20,7 +20,7 @@ dependencies:
   - sphinx
   - pip
   - pip:
-    - .
+    - -e .
     - pydantic-xml
     - pydantic-settings
     - parsl[monitoring, visualization]
