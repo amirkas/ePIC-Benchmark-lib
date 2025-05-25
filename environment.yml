@@ -24,3 +24,4 @@ dependencies:
     - pydantic-xml
     - pydantic-settings
     - parsl[monitoring, visualization]
+    - pip-tools
