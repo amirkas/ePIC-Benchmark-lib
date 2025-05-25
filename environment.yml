@@ -17,6 +17,7 @@ dependencies:
   - lmfit
   - parsl
   - setuptools
+  - sphinx
   - pip
   - pip:
     - .
