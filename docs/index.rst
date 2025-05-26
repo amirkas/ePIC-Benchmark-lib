@@ -12,4 +12,5 @@ Home
    
    installation
    guide
-   modules
+   examples
+   api_ref
