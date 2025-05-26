@@ -12,18 +12,26 @@ The Structure of a Workflow Configuration
 The configuration for a workflow has the following structure of nested config objects.
 
 * WorkflowConfig
-  * ParslConfig
-    * ParslExecutorConfig
-      * ParslProviderConfig
-        * ParslLauncherConfig
-  * BenchmarkConfig(s)
-    * SimulationConfig(s)
-    * DetectorConfig(s)
+
+    * ParslConfig
+
+        * ParslExecutorConfig
+
+            * ParslProviderConfig
+
+                * ParslLauncherConfig
+  
+    * BenchmarkConfig(s)
+
+        * SimulationConfig(s)
+        * DetectorConfig(s)
+
+
 
 SimulationConfig
 ----------------
 
-.. code_block:: python
+.. code-block:: python
 
     from ePIC_benchmarks.simulation import SimulationConfig
     from ePIC_benchmarks.simulation.simulation_types import GunDistribution, Particle
@@ -41,7 +49,7 @@ SimulationConfig
 DetectorConfig
 --------------
 
-.. code_block:: python
+.. code-block:: python
 
     from ePIC_benchmarks.detector import DetectorConfig
     from ePIC_benchmarks.detector.xml_elements.detector import (
@@ -68,7 +76,7 @@ DetectorConfig
 BenchmarkConfig
 ---------------
 
-.. code_block:: python
+.. code-block:: python
 
     from ePIC_benchmarks.benchmark import BenchmarkConfig
 
@@ -82,7 +90,7 @@ BenchmarkConfig
 ParslConfig
 -----------
 
-.. code_block:: python
+.. code-block:: python
 
     from ePIC_benchmarks.parsl.config import ParslConfig
     from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
@@ -118,7 +126,7 @@ ParslLauncherConfig
 WorkflowConfig
 --------------
 
-.. code_block:: python
+.. code-block:: python
 
     from ePIC_benchmarks.workflow import WorkflowConfig
 
