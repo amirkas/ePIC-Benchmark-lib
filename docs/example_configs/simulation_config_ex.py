@@ -8,5 +8,5 @@ EXAMPLE_SIMULATION_CONFIG = SimulationConfig(
     eta_min=-4,
     eta_max=4,
     particle=Particle.PionPlus,
-    detector_xml="epic_craterlake_tracking_only.xml"
+    detector_xml="epic_craterlake_tracking_only.xml",
 )

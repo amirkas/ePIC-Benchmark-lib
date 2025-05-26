@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.intersphinx",
 ]
 
+
 intersphinx_mapping = {
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "python": ("https://docs.python.org/3/", None),
