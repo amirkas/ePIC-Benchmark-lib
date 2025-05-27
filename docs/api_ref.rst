@@ -21,14 +21,6 @@ Detector
 
     ePIC_benchmarks.detector.config.DetectorConfig
 
-Benchmark
----------
 
-.. autosummary::
-    :toctree: stubs
-    :nosignatures:
-
-
-    ePIC_benchmarks.benchmark.config.BenchmarkConfig
 
 
