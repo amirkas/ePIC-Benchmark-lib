@@ -27,9 +27,6 @@ dependencies = [
     "autodoc_pydantic"
 ]
 
-[project.scripts]
-cli = project.__main__:main
-
 name = "ePIC_benchmarks"
 authors = [{name = "Amir Abdou", email = "AmirKS@lbl.gov"}]
 dynamic = ["version"]
