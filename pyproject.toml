@@ -2,6 +2,10 @@
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["ePIC_benchmarks"]
+
 [project]
 dependencies = [
     "pyyaml",
