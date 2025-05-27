@@ -24,7 +24,8 @@ dependencies = [
     "uncertainties",
     "parsl",
     "lmfit",
-    "matplotlib"
+    "matplotlib",
+    "autodoc_pydantic"
 ]
 name = "ePIC_benchmarks"
 authors = [{name = "Amir Abdou", email = "AmirKS@lbl.gov"}]

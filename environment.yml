@@ -25,3 +25,4 @@ dependencies:
     - pydantic-settings
     - parsl[monitoring, visualization]
     - pip-tools
+    - autodoc_pydantic
