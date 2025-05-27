@@ -250,11 +250,11 @@ ParslConfig
 -----------
 
 The **ParslConfig** object is used to define how and where tasks are executed during the duration of the Workflow execution. 
-**ParslConfig** as well as every **ParslExecutorConfig**, **ParslProviderConfig**, and **ParslLauncherConfig** matches exactly with the objects defined in
-the **Parsl** package, a third-party package for Scientific Computing with documentation that can be found '`here <https://parsl.readthedocs.io/en/stable/index.html>`_ '.
+**ParslConfig** as well as every **ParslExecutorConfig**, **ParslProviderConfig**, and **ParslLauncherConfig** exactly matches the classes defined in
+the **Parsl** package, a third-party package for Scientific Computing with documentation that can be found `here <https://parsl.readthedocs.io/en/stable/index.html>`_ .
 
 When defining your **ParslConfig** object, we highly recommend following the
-section in **Parsl's** documentation titled '`Configuring Parsk <https://parsl.readthedocs.io/en/stable/userguide/configuration/index.html>`_ '.
+section in **Parsl's** documentation titled `Configuring Parsl <https://parsl.readthedocs.io/en/stable/userguide/configuration/index.html>`_ .
 This package handles loading of the **ParslConfig** for you, but you must define the **ParslConfig** itself.
 
 .. code-block:: python
@@ -372,6 +372,9 @@ This is done with the following method.
 Workflow Script
 ^^^^^^^^^^^^^^^
 
+Why the workflow script is seperate from the workflow configuration
+-------------------------------------------------------------------
+
 While the **WorkflowConfig** object stores the configuration parameters of a Workflow, it contains no information on
 the desired tasks of a Workflow and their dependencies. 
 The tasks to be executed are defined seperately as a python script so that an identical workflow task pattern can be executed for
@@ -387,6 +390,9 @@ different workflow configurations. This may be useful to you when you want to...
 
 * use an identical workflow configuration for different workflow task patterns. 
 
+App Types
+----
+
 A **Workflow Script** is defined with methods that are wrapped by 3 different types of apps:
 
 * **bash_app** An app that executes a program normally executed on the command line. (npsim, eicrecon, echo, etc.)
@@ -395,7 +401,106 @@ A **Workflow Script** is defined with methods that are wrapped by 3 different ty
 
 * **join_app** An app that returns the futures of multiple **bash_app's** and/or **python_app's**.
 
-The following is the required structure of a **Workflow Script**:
+App Futures
+-----------
+
+A **Future** is an object returned by an asynchronous method, such as the afformentioned apps.
+Attempting to obtain the result of **Future** object will block the **Workflow Script**
+until the **app** associated with the future finishes execution.
+
+Below is a demonstration of the afformentioned property. 
+
+.. code-block:: python
+   
+    from ePIC_benchmarks.workflow.python import python_app
+
+    @python_app
+    def dummy_python_app_one():
+
+        return None
+
+    @python_app
+    def dummy_python_app_two():
+
+        return None
+
+    #Get the future of the first python app
+    dummy_future_one = dummy_python_app_one()
+
+    #Block the script until dummy_python_app_one completes execution.
+    #Print the result of dummy_python_app_one when it is ready. 
+    print(dummy_future_one.result())
+
+    #Get the future of the second python app
+    dummy_future_two = dummy_python_app_two()
+
+Creating Task Dependencies
+--------------------------
+
+The above code also demonstrates one method of creating a dependency of one app to another for sequential workflows.
+The following code shows an example of creating dependencies in both parallel and sequential workflows.
+
+.. code-block:: python 
+
+    import random
+    from ePIC_benchmarks.workflow.bash import bash_app
+    from ePIC_benchmarks.workflow.python import python_app
+
+    @bash_app
+    def echo_starting(kwargs**):
+
+        return "echo 'Starting!'"
+
+    @python_app
+    def return_one(kwargs**):
+
+        return 1
+
+    @python_app
+    def add_random(number, kwargs**):
+
+        return number + random.random()
+
+    @bash_app
+    def echo_done(kwargs**):
+
+        return "echo 'Starting!'"
+
+    echo_starting_future = echo_done()
+
+    #return_one App invocation dependent on echo_starting completion.
+    return_one_future = return_one(dependency=echo_starting_future)
+
+    add_random_future_list = []
+
+    for i in range(10):
+
+        #add_random App invocation dependent on return_one completion.
+        #This means all add_random calls can be potentially be executed concurrently.
+        add_random_future = add_random(dependency=return_one_future)
+
+        #Store all add_random futures in list
+        add_random_future_list.append(add_random_future)
+
+    #echo_done App invocation dependent on the completion of all add_random invocations.
+    echo_done_future = echo_done(dependencies=add_random_future_list)
+
+**Note:** *The name of the keyword argument to add a dependency does not matter.*
+*However, 'kwargs***' *must be added to the app signature.*
+
+The structure of a Workflow Script
+----------------------------------
+
+When creating a **Workflow Script**, it is important to:
+
+* State the tasks to be executed and their dependencies **inside a function**.
+
+* **Return a list of futures** of all of the apps that are **not dependencies of other apps**.
+
+On the backend, this package wraps the workflow function as a join_app.
+To ensure all tasks get executed, the package must have access to all of the final futures of each task dependency chain.
+
+The following is pseudocode showing the required structure of a **Workflow Script**:
 
 .. code-block:: python
 
@@ -404,17 +509,17 @@ The following is the required structure of a **Workflow Script**:
     from ePIC_benchmarks.workflow.python import python_app
 
     @bash_app
-    def example_bash_app(config : WorkflowConfig, other_args):
+    def example_bash_app(config : WorkflowConfig, other_args, kwargs**):
 
         #Return the string representation of the command ordinally executed on the Command Line
 
     @python_app
-    def example_python_app(config : WorkflowConfig, other_args):
+    def example_python_app(config : WorkflowConfig, other_args, kwargs**):
 
         #Return the desired output of this python app.
 
     @bash_app
-    def example_another_bash_app(config : WorkflowConfig, other_args):
+    def example_another_bash_app(config : WorkflowConfig, other_args, kwargs**):
 
         #Return the string representation of the command ordinally executed on the Command Line
 
@@ -445,3 +550,123 @@ The following is the required structure of a **Workflow Script**:
         #Return the futures associated with apps that are not dependencies of other apps.
         return final_futures
 
+
+ePIC Workflow Bash Apps
+-----------------------
+
+This package has the following bash apps already defined for your use. 
+
+**Container-related Apps**
+
+* **pull_containers_app** - Pull a container to be ready for initialization.
+
+**ePIC repository-related Appss**
+
+* **clone_epic_app** - Clone the ePIC repository into the directory of a Benchmark.
+
+* **checkout_epic_branch_app** - Switch the ePIC repository of a Benchmark to the branch defined in its associated **BenchmarkConfig**.
+
+* **compile_epic_app** - Compile the ePIC repository of a Benchmark.
+
+* **generate_material_map_app** - Generate the material map for the ePIC Repository of a Benchmark.
+
+**Simulation-related Apps**
+
+* **run_npsim_app** - Execute npsim with the parameters defined in a specified **SimulationConfig** of a specified **BenchmarkConfig**.
+
+* **run_eicrecon_app** - Execute eicrecon with the parameters defined in a specified **SimulationConfig** of a specified **BenchmarkConfig**.
+
+ePIC Workflow Python Apps
+-------------------------
+
+This package has the following python apps already defined for your use. 
+
+**Detector Description-related Apps**
+
+* **apply_detector_configs_app** - Apply the updates to the ePIC repository's detector geometry files, defined in a **BenchmarkConfig's** list of **DetectorConfigs**.
+
+**Analysis-related Apps**
+
+* **generate_performance_plots_app** - Generate the tracking performance plots and statistics for a given simulation and benchmark.
+
+Base ePIC Workflow Script
+-------------------------
+
+Below is the code for a simple workflow that:
+
+* Retrieves and updates the ePIC Repository for each **Benchmark** with changes stated in its list of **DetectorConfig**.
+* Compiles the ePIC Repository for each **Benchmark** and generates the material map if necessary.
+* Simulates particle events and reconstructs particle trajectories with **npsim** and **eicrecon** for every **SimulationConfig** of every **BenchmarkConfig**.
+* Generates plots and statistics for the tracking performance of every **Simulation** of every **Benchmark**. 
+
+.. code-block:: python
+
+    import numpy as np
+    from ePIC_benchmarks.workflow.config import WorkflowConfig
+    from ePIC_benchmarks.workflow.bash import bash_app     
+    from ePIC_benchmarks.workflow.python import python_app
+    from ePIC_benchmarks.workflow.bash.methods.container import pull_containers
+    from ePIC_benchmarks.workflow.bash.methods.epic import (
+        clone_epic, checkout_epic_branch, compile_epic,
+        generate_material_map
+    )
+    from ePIC_benchmarks.workflow.bash.methods.simulation import run_npsim, run_eicrecon
+    from ePIC_benchmarks.workflow.python.methods.detector import apply_detector_configs
+    from ePIC_benchmarks.workflow.python.methods.analysis import generate_performance_plots
+    from ePIC_benchmarks.container import ShifterConfig
+    from parsl import AUTO_LOGNAME
+    eicshell_container = ShifterConfig(
+        entry_point="/opt/local/bin/eic-shell",
+        image="eicweb/jug_xl:25.02.0-stable",
+    )
+    clone_epic_app = bash_app(clone_epic)
+    pull_containers_app = bash_app(pull_containers)
+    checkout_app = bash_app(checkout_epic_branch)
+    compile_epic_app = bash_app(compile_epic)
+    run_npsim_app = bash_app(run_npsim)
+    run_eicrecon_app = bash_app(run_eicrecon)
+    generate_material_map_app = bash_app(generate_material_map)
+    apply_detector_configuration_app = python_app(apply_detector_configs)
+    performance_analysis_app = python_app(generate_performance_plots)
+
+    def run(config : WorkflowConfig):
+        
+        final_futures = []
+
+        pull_containers_future = pull_containers_app(eicshell_container)
+
+        for benchmark_name in config.benchmark_names():
+                
+                clone_epic_future = clone_epic_app(config, benchmark_name)
+
+                checkout_branch_future = checkout_app(config, benchmark_name,dependency=clone_epic_future)
+
+                update_detectors_future = apply_detector_configuration_app(config, benchmark_name, dependency=checkout_branch_future)
+
+                compile_epic_future = compile_epic_app(config, benchmark_name, num_threads=1, container=eicshell_container, dependency=update_detectors_future, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME)
+
+                generate_material_map_future = generate_material_map_app(config, benchmark_name, nevents=20000, container=eicshell_container, dependency=compile_epic_future)
+
+                for simulation_name in config.simulation_names(benchmark_name):
+                                        
+                    run_npsim_future = run_npsim_app(config, benchmark_name, simulation_name, container=eicshell_container, dependency=compile_epic_future, stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME)
+
+                    run_eicrecon_future = run_eicrecon_app(config, benchmark_name, simulation_name, use_generated_material_map=True, container=eicshell_container, dependencies=[run_npsim_future, generate_material_map_future], stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME)
+
+                    analysis_future = performance_analysis_app(
+                        config, benchmark_name, simulation_name,
+                        dependency=run_eicrecon_future
+                    )
+                    final_futures.append(analysis_future)
+        
+        return final_futures 
+
+**Note:** 
+
+* *The above workflow script wraps methods with python and bash apps
+so that users can customize the Parsl Executor used for each task.*
+
+* *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when
+debug=True in the Workflow's WorkflowConfig object*
+
+* *'generate_material_map' does nothing when generate_material_map=False for a given BenchmarkConfig*
