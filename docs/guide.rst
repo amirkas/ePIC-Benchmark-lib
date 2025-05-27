@@ -663,10 +663,8 @@ Below is the code for a simple workflow that:
 
 **Note:** 
 
-* *The above workflow script wraps methods with python and bash apps
-so that users can customize the Parsl Executor used for each task.*
+* *The above workflow script wraps methods with python and bash apps so that users can customize the Parsl Executor used for each task.*
 
-* *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when
-debug=True in the Workflow's WorkflowConfig object*
+* *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when debug=True in the Workflow's WorkflowConfig object*
 
 * *'generate_material_map' does nothing when generate_material_map=False for a given BenchmarkConfig*
