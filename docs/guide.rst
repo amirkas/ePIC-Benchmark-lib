@@ -556,11 +556,13 @@ ePIC Workflow Bash Apps
 
 This package has the following bash apps already defined for your use. 
 
-**Container-related Apps**
+Container-related Apps
+""""""""""""""""""""""
 
 * **pull_containers_app** - Pull a container to be ready for initialization.
 
-**ePIC repository-related Appss**
+ePIC repository-related Apps
+""""""""""""""""""""""""""""
 
 * **clone_epic_app** - Clone the ePIC repository into the directory of a Benchmark.
 
@@ -570,7 +572,8 @@ This package has the following bash apps already defined for your use.
 
 * **generate_material_map_app** - Generate the material map for the ePIC Repository of a Benchmark.
 
-**Simulation-related Apps**
+Simulation-related Apps
+"""""""""""""""""""""""
 
 * **run_npsim_app** - Execute npsim with the parameters defined in a specified **SimulationConfig** of a specified **BenchmarkConfig**.
 
@@ -581,11 +584,13 @@ ePIC Workflow Python Apps
 
 This package has the following python apps already defined for your use. 
 
-**Detector Description-related Apps**
+Detector Description-related Apps
+"""""""""""""""""""""""""""""""""
 
 * **apply_detector_configs_app** - Apply the updates to the ePIC repository's detector geometry files, defined in a **BenchmarkConfig's** list of **DetectorConfigs**.
 
-**Analysis-related Apps**
+Analysis-related Apps
+"""""""""""""""""""""
 
 * **generate_performance_plots_app** - Generate the tracking performance plots and statistics for a given simulation and benchmark.
 
