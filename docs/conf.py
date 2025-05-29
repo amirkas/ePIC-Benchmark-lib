@@ -45,6 +45,9 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ["std"]
 
+#Set gitref branch
+gitref_branch = "documentation"
+
 templates_path = ["_templates"]
 
 # -- Options for EPUB output
