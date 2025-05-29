@@ -7,7 +7,6 @@ from pydantic import (
 )
 
 from ePIC_benchmarks._file.editors import XmlEditor
-from ePIC_benchmarks.detector.types import DetectorConfigType
 from ePIC_benchmarks.detector.xpath import DetectorConfigXpath
 from ePIC_benchmarks.detector.xml_elements._base import XmlElement, XmlElementList
 from ePIC_benchmarks.detector.xml_elements.detector import *

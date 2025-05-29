@@ -3,13 +3,14 @@ from ePIC_benchmarks.parsl.config import ParslConfig
 from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
 from ePIC_benchmarks.parsl.providers import LocalProviderConfig
 from ePIC_benchmarks.parsl.launchers import SrunLauncherConfig
+from typing import Union
 from ...example_benchmark import EXAMPLE_BENCHMARK_CONFIG
 
 #Assign the values for:
 # - the number of requested nodes and the cpu cores
 # - the maximum number of physical cores each task can use.  
-NUM_NODES = ...
-CORES_PER_WORKER = ...
+NUM_NODES : int = ...
+CORES_PER_WORKER : Union[int, float] = ...
 
 #The maximum number of available cores for a Perlmutter CPU node is 128. 
 #When using the shared QOS, this may be lower which means you should change this value.

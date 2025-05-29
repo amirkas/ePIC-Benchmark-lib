@@ -4,7 +4,6 @@ from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
 from ePIC_benchmarks.parsl.providers import SlurmProviderConfig
 from ePIC_benchmarks.parsl.launchers import SrunLauncherConfig
 from typing import Literal, Union
-from pathlib import Path
 from ...example_benchmark import EXAMPLE_BENCHMARK_CONFIG
 
 #Assign the values for:
@@ -17,10 +16,6 @@ ACCOUNT : str = ...
 #Walltime must be formatted with the pattern: 'hh:mm:ss'
 WALLTIME : str = ...
 
-#Path to the workflow script to execute
-WORKFLOW_SCRIPT_PATH : Union[str, Path] = ... 
-WORKFLOW_SCRIPT_FUNC_NAME = "run" #This must match the workflow script function name.
-
 #The maximum number of available cores for a Perlmutter CPU node is 128. 
 #When using the shared QOS, this may be lower which means you should change this value.
 MAX_AVAIALBLE_CORES_PER_NODE = 128
@@ -31,7 +26,7 @@ assert CORES_PER_WORKER <= MAX_AVAIALBLE_CORES_PER_NODE
 #Do not change these values
 MAX_WORKERS_PER_NODE = MAX_AVAIALBLE_CORES_PER_NODE // CORES_PER_WORKER
 
-PERLMUTTER_HEADLESS_PARSL_CONFIG = ParslConfig(
+PERLMUTTER_LOCAL_PARSL_CONFIG = ParslConfig(
     executors=[
         HighThroughputExecutorConfig(
             label="HTEC_Executor", #Optionally update this to a name of your choice.
@@ -51,7 +46,7 @@ PERLMUTTER_HEADLESS_PARSL_CONFIG = ParslConfig(
     ]
 )
 
-PERLMUTER_HEADLESS_WORKFLOW_CONFIG = WorkflowConfig(
+PERLMUTER_LOCAL_WORKFLOW_CONFIG = WorkflowConfig(
     name="Workflow", #Optionally update this to a name of your choice.
     benchmarks=[EXAMPLE_BENCHMARK_CONFIG], #Update this to a list of your own BenchmarkConfigs
     parsl_config=ParslConfig,
@@ -59,4 +54,4 @@ PERLMUTER_HEADLESS_WORKFLOW_CONFIG = WorkflowConfig(
 )
 
 #Save the workflow config to a YML file for future reference.
-PERLMUTER_HEADLESS_WORKFLOW_CONFIG.save_to_file("workflow_config.yml")
+PERLMUTER_LOCAL_WORKFLOW_CONFIG.save_to_file("workflow_config.yml")
