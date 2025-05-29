@@ -49,8 +49,8 @@ intersphinx_disabled_domains = ["std"]
 html_theme = "pydata_sphinx_theme"
 
 html_theme_options = {
-  "show_nav_level": 2, 
-   "collapse_navigation": True
+  "show_nav_level": 2,
+  "primary_sidebar_end": [],
 }
 
 html_sidebars = {
