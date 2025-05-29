@@ -48,6 +48,8 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ["std"]
 
+#Graphviz configuration
+graphviz_output_format = 'svg'
 
 #autodoc_pydantic settings
 autodoc_pydantic_model_show_json = False
