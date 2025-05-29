@@ -1,5 +1,3 @@
-Sphinx
-sphinx_rtd_theme
 pyyaml
 pydantic
 pydantic-xml
@@ -16,6 +14,9 @@ uncertainties
 parsl
 lmfit
 matplotlib
+Sphinx
+sphinx_rtd_theme
 autodoc_pydantic
 sphinx-gitref
 sphinx-copybutton
+sphinx-rtd-dark-mode

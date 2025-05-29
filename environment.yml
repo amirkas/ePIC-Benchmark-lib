@@ -28,3 +28,4 @@ dependencies:
     - pip-tools
     - autodoc_pydantic
     - sphinx-gitref
+    - sphinx_rtd_theme

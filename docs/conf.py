@@ -36,6 +36,7 @@ extensions = [
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_copybutton",
     "sphinx_gitref",
+    "sphinx_rtd_dark_mode",
 ]
 
 
@@ -45,6 +46,8 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
 intersphinx_disabled_domains = ["std"]
+
+default_dark_mode = True
 
 #Set gitref branch
 gitref_branch = "documentation"
