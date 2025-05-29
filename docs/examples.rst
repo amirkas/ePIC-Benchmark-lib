@@ -84,9 +84,10 @@ This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission
   :language: python
 
 
-**Note:** Unfortunately, this strategy is prone to early-termination in the scenario that your
-continually running python script or your Login Node terminates before the workflow is complete.
-Therefore, we **highly recommend** using the previously mentioned **Headless Workflow Submission** strategy to complete your workflows.
+.. warning::
+  Unfortunately, this strategy is prone to early-termination in the scenario that your
+  continually running python script or your Login Node terminates before the workflow is complete.
+  Therefore, we **highly recommend** using the previously mentioned **Headless Workflow Submission** strategy to complete your workflows.
 
 
 

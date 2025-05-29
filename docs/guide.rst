@@ -197,7 +197,8 @@ we would define the following **XmlElement** tree:
         )
     )
 
-**Note:** All of the leaf nodes of an **XmlElement** tree must have non-None values for its **update_type** and the **update_attribute** parameters.
+.. note::
+    All of the leaf nodes of an **XmlElement** tree must have non-None values for its **update_type** and the **update_attribute** parameters.
 
 To integrate this example of an detector geometry update into a workflow for the **tracking/silicon_disks.xml** detector description file,
 we would initialize the following DetectorConfig object:
@@ -283,8 +284,9 @@ When defining your **ParslConfig** object, we highly recommend following the
 section in **Parsl's** documentation titled `Configuring Parsl <https://parsl.readthedocs.io/en/stable/userguide/configuration/index.html>`_ .
 This package handles loading of the **ParslConfig** for you, but you must define the **ParslConfig** itself.
 
-**Note:** *This Package does not support the use of instances of Parsl's classes, but rather wrapped versions of these classes with the same name*
-*and the prefix* **'Config'**. *This is with the exception of the root Parsl Config which is has the name* **'ParslConfig'**.
+.. note::
+    *This Package does not support the use of instances of Parsl's classes, but rather wrapped versions of these classes with the same name*
+    *and the prefix* **'Config'**. *This is with the exception of the root Parsl Config which is has the name* **'ParslConfig'**.
 
 .. literalinclude:: example_configs/parsl_config_ex.py
   :language: python
@@ -565,8 +567,9 @@ The following code shows an example of creating dependencies in both parallel an
     #echo_done App invocation dependent on the completion of all add_random invocations.
     echo_done_future = echo_done(dependencies=add_random_future_list)
 
-**Note:** *The name of the keyword argument to add a dependency does not matter.*
-*However, 'kwargs***' *must be added to the app signature.*
+.. note::
+    *The name of the keyword argument to add a dependency does not matter.*
+    *However, 'kwargs***' *must be added to the app signature.*
 
 The structure of a Workflow Script
 ----------------------------------
@@ -829,13 +832,13 @@ Below is the code for a simple workflow that:
  
 This code can also be found in the git repository at this :gitref:`location <scripts/workflow_script.py>`
 
-**Note:** 
+.. note::
 
-* *The above workflow script wraps methods with python and bash apps so that users can customize the Parsl Executor used for each task as mentioned in .*
+  * *The above workflow script wraps methods with python and bash apps so that users can customize the Parsl Executor used for each task as mentioned in .*
 
-* *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when debug=True in the Workflow's WorkflowConfig object*
+  * *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when debug=True in the Workflow's WorkflowConfig object*
 
-* *'generate_material_map' does nothing when generate_material_map=False for a given BenchmarkConfig*
+  * *'generate_material_map' does nothing when generate_material_map=False for a given BenchmarkConfig*
 
 
 Running your Workflow
