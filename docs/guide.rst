@@ -855,7 +855,7 @@ Below is the code for a simple workflow that:
         
 ..         return final_futures 
 
-This code can also be found at :gitref:`../scripts/workflow_script.py`
+This code can also be found at this :gitref:`location <../scripts/workflow_script.py>`
 
 **Note:** 
 
