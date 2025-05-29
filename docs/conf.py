@@ -87,7 +87,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme_options = {
     "repository_url": "https://github.com/amirkas/ePIC-Benchmark-lib",
     "use_repository_button": True,
-    "show_toc_level": 2,
+    "max_navbar_depth": 4,
+    "home_page_in_toc": True,
+    "collapse_navbar": False,
     "logo": {
         "text": "ePIC Workflows",
         "image_light": "_static/ePIC_transparent_black_bkgnd.png",
