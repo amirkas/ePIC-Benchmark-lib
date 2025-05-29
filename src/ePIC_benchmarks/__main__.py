@@ -5,8 +5,6 @@ from .workflow.run import convert_to_abs_path, execute_workflow
 
 if __name__ == "__main__":
 
-    # logging.basicConfig(level=logging.DEBUG)
-
     CWD = os.getcwd()
 
     parser = argparse.ArgumentParser("ePIC Workflow entry point")
@@ -41,10 +39,6 @@ if __name__ == "__main__":
     if len(func_name) == 0:
         err = f"Workflow script function name must be a string with length > 1"
         raise ValueError(err)
-    
-    # logging.info(f"Got workflow config file at {config_path}")
-    # logging.info(f"Got workflow script file at {script_path}")
-    # logging.info(f"Got workflow function name '{func_name}'")
 
     workflow_config = WorkflowConfig.load_from_file(config_path)
     execute_workflow(workflow_config, script_path=script_path, script_func_name=func_name)
