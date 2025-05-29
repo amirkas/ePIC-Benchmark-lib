@@ -26,12 +26,10 @@ Python script that creates the Workflow Configuration
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. literalinclude:: examples/Perlmutter/Headless_Workflow/create_config.py
-  :language: python
 
 Slurm Submission Script 
 """""""""""""""""""""""
 .. literalinclude:: examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
-  :language: bash
 
 Both of these files are located under the directory ...
 
@@ -61,12 +59,10 @@ Python script that creates the Workflow Configuration
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. literalinclude:: examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py
-  :language: python
 
 Python Submission Script 
 """""""""""""""""""""""
 .. literalinclude:: examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py
-  :language: python
 
 
 Both of these files are located under the directory ....

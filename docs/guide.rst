@@ -641,12 +641,19 @@ There are two methods for implementing a bash app with this feature.
 
 1. Use the **concatenate_commands** function, provided in **ePIC_benchmarks.workflow.bash.utils** (**Recommended**)
    **Pros:**
+
    * Simplifies the code for multi-program bash_apps.
+
    * * All programs are able to run within the same instance of a container.
+
    **Cons:**
+
    * Cannot specify individual task-dependent parameters for each program.
+
    * Debugging logs are more verbose for a single bash_app and make it more difficult to identify a problem program.
+
    * Programs cannot be run concurrently, only sequentially. 
+
    **Example:**
 
    .. code-block:: python
@@ -666,12 +673,19 @@ There are two methods for implementing a bash app with this feature.
 
 2. Convert your **bash_app** into a **join_app** where each of its internal **bash_apps** has the responsibility of a **single CLI program**
    **Pros:**
+
    * Seperation of bash_apps allows for clear identification of failed tasks when debugging
+
    * Allows for each CLI program to have their own **ParslExecutor** and other definable task-dependent parameters.
+
    * Programs can be run concurrently (*In this case, it may be more suitable to have these programs executed in the higher-level workflow script rather than within a join_app*)
+   
    **Cons:**
+
    * Introduces more complexity to your code
+
    * Executing each **ClI program** in a container with the same image requires reinitialization of the container for each program. 
+
    **Example:**
 
    .. code-block:: python
