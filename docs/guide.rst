@@ -603,12 +603,12 @@ ePIC Workflow Bash Apps
 This package has the following bash apps already defined for your use. 
 
 Container-related Apps
-""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^
 
 * **pull_containers_app** - Pull a container to be ready for initialization.
 
 ePIC repository-related Apps
-""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * **clone_epic_app** - Clone the ePIC repository into the directory of a Benchmark.
 
@@ -619,7 +619,7 @@ ePIC repository-related Apps
 * **generate_material_map_app** - Generate the material map for the ePIC Repository of a Benchmark.
 
 Simulation-related Apps
-"""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^
 
 * **run_npsim_app** - Execute npsim with the parameters defined in a specified **SimulationConfig** of a specified **BenchmarkConfig**.
 
@@ -631,12 +631,12 @@ ePIC Workflow Python Apps
 This package has the following python apps already defined for your use. 
 
 Detector Description-related Apps
-"""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * **apply_detector_configs_app** - Apply the updates to the ePIC repository's detector geometry files, defined in a **BenchmarkConfig's** list of **DetectorConfigs**.
 
 Analysis-related Apps
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 * **generate_performance_plots_app** - Generate the tracking performance plots and statistics for a given simulation and benchmark.
 
@@ -676,7 +676,7 @@ we suggest you read **Parsl's** documention on '`Creating Apps <https://parsl.re
 We also provide additional tools to help you develop your own bash_apps.
 
 Concatenating multiple commands for a single Bash App
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Many bash apps may require the sequential execution of several CLI programs.
 There are two methods for implementing a bash app with this feature.
@@ -761,7 +761,7 @@ There are two methods for implementing a bash app with this feature.
             return program_three_future
 
 Containerizing your Bash App
-""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To support the execution of **bash_apps** within containers, we suggest you use the following template (*Using a shifter Container as an example*):
 
