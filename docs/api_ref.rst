@@ -55,7 +55,7 @@ ParslConfig
     :members:
 
 Executors
-^^^^^^^^^
+---------
 
 ThreadPoolExecutorConfig
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +95,7 @@ WorkQueueExecutorConfig
 
 
 Providers
-^^^^^^^^^
+---------
 
 AWSProviderConfig
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -169,7 +169,11 @@ PBSProProviderConfig
 
 
 Launchers
-^^^^^^^^^
+---------
+
+SimpleLauncherConfig
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. autopydantic_model:: ePIC_benchmarks.parsl.launchers.launchers.SimpleLauncherConfig
     :model-show-json: False
     :members:
