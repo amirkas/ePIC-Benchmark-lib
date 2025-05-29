@@ -28,7 +28,9 @@ dependencies = [
     "sphinx-gitref",
     "sphinx-copybutton",
     "sphinx-rtd-dark-mode",
-    "pydata-sphinx-theme"
+    "pydata-sphinx-theme",
+    "autodoc_pydantic[erdantic]",
+    "graphviz"
 ]
 
 name = "ePIC_benchmarks"

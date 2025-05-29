@@ -47,7 +47,9 @@ intersphinx_mapping = {
 intersphinx_disabled_domains = ["std"]
 
 
-# default_dark_mode = True
+#autodoc_pydantic settings
+autodoc_pydantic_model_show_json = False
+autodoc_pydantic_settings_show_json = False
 
 #Set gitref branch
 gitref_branch = "documentation"
