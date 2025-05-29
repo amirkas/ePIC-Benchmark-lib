@@ -35,6 +35,9 @@ BenchmarkConfig
 Parsl
 -----
 
+Config
+^^^^^^
+
 ParslConfig
 """"""""""""""""""""""""""""""""""""""
 
