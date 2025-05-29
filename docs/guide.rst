@@ -34,7 +34,7 @@ Designing an **ePIC Workflow** involves the creation of two components:
     * And more...
 
 This tutorial will guide you through the steps to create your own **Workflow Configuration**, **Workflow Script**,
-and of course, how to execute your newly created **Workflow. 
+and of course, how to execute your newly created **Workflow**. 
 
 
 Workflow Configuration
