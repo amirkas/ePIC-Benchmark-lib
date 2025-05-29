@@ -257,6 +257,9 @@ When defining your **ParslConfig** object, we highly recommend following the
 section in **Parsl's** documentation titled `Configuring Parsl <https://parsl.readthedocs.io/en/stable/userguide/configuration/index.html>`_ .
 This package handles loading of the **ParslConfig** for you, but you must define the **ParslConfig** itself.
 
+**Note:** *This Package does not support the use of instances of Parsl's classes, but rather wrapped versions of these classes with the same name*
+*and the prefix* **'Config'**. *This is with the exception of the root Parsl Config which is has the name* **'ParslConfig'**.
+
 .. code-block:: python
 
     from ePIC_benchmarks.parsl.config import ParslConfig
@@ -372,7 +375,7 @@ This is done with the following method.
 Workflow Script
 ^^^^^^^^^^^^^^^
 
-Why the workflow script is seperate from the workflow configuration
+Workflow Script and Configuration Seperation
 -------------------------------------------------------------------
 
 While the **WorkflowConfig** object stores the configuration parameters of a Workflow, it contains no information on
@@ -594,6 +597,128 @@ Analysis-related Apps
 
 * **generate_performance_plots_app** - Generate the tracking performance plots and statistics for a given simulation and benchmark.
 
+
+ContainerConfig
+---------------
+
+Certain apps may need to be executed within a container.
+The ContainerConfig object is designed to enable this.
+
+Currently, this package supports the use of the following Containers:
+
+* **Docker** - Config named **DockerConfig**
+* **Shifter** - Config named **ShifterConfig**
+
+The afformentioned apps provided by this package support containerization via the container keyword argument.
+
+A ContainerConfig object is initialized with the following required keyword arguments:
+
+* **image** - Image of the container to be used. 
+
+and the following optional keyword arguments:
+
+* **entry_point** - Location of an entry point script used when initializing the container.
+
+
+Creating your own apps
+----------------------
+
+Asides from using apps and workflow scripts already provided from this package,
+this package supports the use of custom apps that meet certain requirements.
+
+Creating apps in this package is identical to creating apps when using **Parsl** by itself.
+Rather than repeating an already excellent guide on creating apps,
+we suggest you read **Parsl's** documention on '`Creating Apps <https://parsl.readthedocs.io/en/stable/userguide/apps/index.html>`_ ' 
+
+We also provide additional tools to help you develop your own bash_apps.
+
+Concatenating multiple commands for a single Bash App
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Many bash apps may require the sequential execution of several CLI programs.
+There are two methods for implementing a bash app with this feature.
+
+
+1. Use the **concatenate_commands** function, provided in **ePIC_benchmarks.workflow.bash.utils** (**Recommended**)
+   **Pros:**
+   * Simplifies the code for multi-program bash_apps.
+   * * All programs are able to run within the same instance of a container.
+   **Cons:**
+   * Cannot specify individual task-dependent parameters for each program.
+   * Debugging logs are more verbose for a single bash_app and make it more difficult to identify a problem program.
+   * Programs cannot be run concurrently, only sequentially. 
+   **Example:**
+
+   .. code-block:: python
+
+        from ePIC_benchmarks.workflow.bash import bash_app
+        from ePIC_benchmarks.workflow.bash.utils import concatenate_commands
+
+        @bash_app(...)
+        def multiple_program_bash_app(...):
+
+            program_one_command : str = ...
+            program_two_command : str = ...
+            program_three_command : str = ...
+
+            all_commands = concatenate_commands(program_one_command, program_two_command, program_three_command)
+            return all_commands
+
+2. Convert your **bash_app** into a **join_app** where each of its internal **bash_apps** has the responsibility of a **single CLI program**
+   **Pros:**
+   * Seperation of bash_apps allows for clear identification of failed tasks when debugging
+   * Allows for each CLI program to have their own **ParslExecutor** and other definable task-dependent parameters.
+   * Programs can be run concurrently (*In this case, it may be more suitable to have these programs executed in the higher-level workflow script rather than within a join_app*)
+   **Cons:**
+   * Introduces more complexity to your code
+   * Executing each **ClI program** in a container with the same image requires reinitialization of the container for each program. 
+   **Example:**
+
+   .. code-block:: python
+
+        from ePIC_benchmarks.workflow.bash import bash_app
+        from ePIC_benchmarks.workflow.join import join_app
+
+        @bash_app(...)
+        def cli_program_one(...):
+            return "echo 'executing program one'"
+
+        @bash_app(...)
+        def cli_program_two(...):
+            return "echo 'executing program two'"
+
+        @bash_app(...)
+        def cli_program_three(...):
+            return "echo 'executing program two'"
+
+        @join_app(...)
+        def joined_bash_app(...):
+
+            program_one_future = cli_program_one(...)
+            program_two_future = cli_program_two(..., dependency=program_one_future)
+            program_three_future = cli_program_three(..., dependency=program_two_future)
+            return program_three_future
+
+Containerizing your Bash App
+""""""""""""""""""""""""""""
+
+To support the execution of **bash_apps** within containers, we suggest you use the following template (*Using a shifter Container as an example*):
+
+.. code-block:: python
+
+    from ePIC_benchmarks.workflow.bash import bash_app
+    from ePIC_benchmarks.container._base import BaseContainerConfig
+
+    @bash_app
+    def example_bash_app(*args, container : BaseContainerConfig = None, kwargs**):
+
+        #Get the string representation of the CLI command(s) for your bash app
+        example_bash_cmd = ...
+        if container is not None:
+            example_bash_cmd = container.init_with_extra_commands(example_bash_cmd)
+        return example_bash_cmd
+  
+
 Base ePIC Workflow Script
 -------------------------
 
@@ -603,6 +728,8 @@ Below is the code for a simple workflow that:
 * Compiles the ePIC Repository for each **Benchmark** and generates the material map if necessary.
 * Simulates particle events and reconstructs particle trajectories with **npsim** and **eicrecon** for every **SimulationConfig** of every **BenchmarkConfig**.
 * Generates plots and statistics for the tracking performance of every **Simulation** of every **Benchmark**. 
+ 
+This code can also be found at...
 
 .. code-block:: python
 
@@ -668,7 +795,7 @@ Below is the code for a simple workflow that:
 
 **Note:** 
 
-* *The above workflow script wraps methods with python and bash apps so that users can customize the Parsl Executor used for each task.*
+* *The above workflow script wraps methods with python and bash apps so that users can customize the Parsl Executor used for each task as mentioned in .*
 
 * *stdout=AUTO_LOGNAME and stderr=AUTO_LOGNAME is used to generate log files for the workflow when debug=True in the Workflow's WorkflowConfig object*
 
