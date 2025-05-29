@@ -289,7 +289,7 @@ This package handles loading of the **ParslConfig** for you, but you must define
 .. literalinclude:: example_configs/parsl_config_ex.py
   :language: python
 
-For examples of **ParslConfig's** that may match your desired execution pattern on your specific computing infrastructure, see '...'. 
+For examples of **ParslConfig's** that may match your desired execution pattern on your specific computing infrastructure, see :ref:`the example section <examples-sec>` . 
 
 WorkflowConfig
 --------------
