@@ -247,7 +247,7 @@ WorkflowConfig
     :model-show-json: False
     :members:
 
-.. _paths_api:
+.. _paths-api:
 
 Paths API
 ---------

@@ -28,11 +28,15 @@ The following code acts as a template for this Workflow Submission Strategy:
 Python script that creates the Workflow Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+:gitref:`Location in git repo <examples/Perlmutter/Headless_Workflow/create_config.py>`
+
 .. literalinclude:: ../examples/Perlmutter/Headless_Workflow/create_config.py
   :language: python
 
 Slurm Submission Script 
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+:gitref:`Location in git repo <examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl>`
 
 .. literalinclude:: ../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
   :language: bash
@@ -66,11 +70,16 @@ The following code acts as a template for this Workflow Submission Strategy (*Us
 Python script that creates the Workflow Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+:gitref:`Location in git repo <examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py>`
+
 .. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py
   :language: python
 
 Python Submission Script 
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+:gitref:`Location in git repo <examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py>`
+
 .. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py
   :language: python
 

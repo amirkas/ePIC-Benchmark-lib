@@ -367,7 +367,7 @@ WorkflowConfig Path API
 """""""""""""""""""""""
 
 To access the paths of a workflow's directories and files we provide a Path API that is accessbile via a **WorkflowConfig's 'paths' member**. 
-The methods to access these paths are listed in the API reference in :ref:`this section <_paths_api>`.
+The methods to access these paths are listed in the API reference in :ref:`this section <paths-api>`.
 
 
 
