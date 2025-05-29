@@ -18,3 +18,4 @@ lmfit
 matplotlib
 autodoc_pydantic
 sphinx-gitref
+sphinx-copybutton

@@ -397,9 +397,12 @@ sphinx==8.2.3
     # via
     #   -r docs/requirements.in
     #   autodoc-pydantic
+    #   sphinx-copybutton
     #   sphinx-gitref
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
+sphinx-copybutton==0.5.2
+    # via -r docs/requirements.in
 sphinx-gitref==0.4.1
     # via -r docs/requirements.in
 sphinx-rtd-theme==3.0.2

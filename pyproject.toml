@@ -26,6 +26,7 @@ dependencies = [
     "matplotlib",
     "autodoc_pydantic",
     "sphinx-gitref",
+    "sphinx-copybutton",
 ]
 
 name = "ePIC_benchmarks"
