@@ -16,8 +16,11 @@ which can occur for many reasons.
 In this case the strategy for workflow submission is to:
 
 1. Save the Workflow Configuration and Workflow Script to seperate files.
+
 2. Submit a job to the Slurm Scheduler that executes a package-provided python script from the Command Line that:
+
    a. Loads the Workflow Configuration and Workflow Script from files, found using user-provided file paths.
+
    b. Handles individual task execution locally, in the perspective of the cluster of acquired Compute Nodes.
 
 The following code acts as a template for this Workflow Submission Strategy:
@@ -46,7 +49,9 @@ without the need for you to explicity submit your jobs to Slurm.
 In this case the strategy for workflow submission is to:
 
 1. Create the Workflow Configuration and Workflow Script (Which can be created in the same file or seperate files)
+
 2. Run a python script that calls a package-provided python function with the following inputs:
+
    * A WorkflowConfig instance (*which can be created in the same python script or loaded from a configuration file*)
 
    * Either:
