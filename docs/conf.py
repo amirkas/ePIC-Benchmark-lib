@@ -54,6 +54,7 @@ graphviz_output_format = 'svg'
 #autodoc_pydantic settings
 autodoc_pydantic_model_show_json = False
 autodoc_pydantic_settings_show_json = False
+autodoc_pydantic_model_hide_paramlist = True
 
 #Set gitref branch
 gitref_branch = "documentation"
@@ -78,6 +79,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "pydata_sphinx_theme"
 
+html_theme_options = {
+    "**": ["sidebar-nav-bs.html"], #Ensures primary sidebar (left) is displayed
+    "ethical_ads": {},  # disables Ethical Ads
+}
+
 # html_theme_options = {
 #   "show_nav_level": 2,
 #   "primary_sidebar_end": [],
@@ -92,3 +98,6 @@ html_theme = "pydata_sphinx_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+def setup(app):
+    app.add_css_file("custom.css")
