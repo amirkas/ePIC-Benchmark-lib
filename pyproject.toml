@@ -24,7 +24,8 @@ dependencies = [
     "parsl",
     "lmfit",
     "matplotlib",
-    "autodoc_pydantic"
+    "autodoc_pydantic",
+    "sphinx-gitref",
 ]
 
 name = "ePIC_benchmarks"

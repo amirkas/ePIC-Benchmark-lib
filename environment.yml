@@ -26,3 +26,4 @@ dependencies:
     - parsl[monitoring, visualization]
     - pip-tools
     - autodoc_pydantic
+    - sphinx-gitref
