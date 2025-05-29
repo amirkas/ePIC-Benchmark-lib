@@ -247,6 +247,18 @@ WorkflowConfig
     :model-show-json: False
     :members:
 
+Paths API
+---------
+
+.. autoclass:: ePIC_benchmarks.workflow._inner.paths.WorkflowPaths
+    :members:
+
+Executor API
+------------
+
+.. autoclass:: ePIC_benchmarks.workflow._inner.executor.WorkflowExecutor
+    :members:
+
 
 
 
