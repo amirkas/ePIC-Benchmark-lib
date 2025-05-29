@@ -7,7 +7,7 @@ Home
     :keywords: Home, Landing
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents:
    
    installation
