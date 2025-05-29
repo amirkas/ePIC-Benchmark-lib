@@ -53,6 +53,10 @@ html_theme_options = {
    "collapse_navigation": True
 }
 
+html_sidebars = {
+    "**": ["sidebar-nav-bs"]
+}
+
 
 # default_dark_mode = True
 
