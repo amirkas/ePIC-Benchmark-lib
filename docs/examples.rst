@@ -25,11 +25,11 @@ The following code acts as a template for this Workflow Submission Strategy:
 Python script that creates the Workflow Configuration
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. literalinclude:: examples/Perlmutter/Headless_Workflow/create_config.py
+.. literalinclude:: ../examples/Perlmutter/Headless_Workflow/create_config.py
 
 Slurm Submission Script 
 """""""""""""""""""""""
-.. literalinclude:: examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
+.. literalinclude:: ../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
 
 Both of these files are located under the directory ...
 
