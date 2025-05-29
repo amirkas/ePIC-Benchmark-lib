@@ -28,6 +28,7 @@ dependencies = [
     "sphinx-gitref",
     "sphinx-copybutton",
     "sphinx-rtd-dark-mode",
+    "pydata-sphinx-theme"
 ]
 
 name = "ePIC_benchmarks"

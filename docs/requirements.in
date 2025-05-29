@@ -20,3 +20,4 @@ autodoc_pydantic
 sphinx-gitref
 sphinx-copybutton
 sphinx-rtd-dark-mode
+pydata-sphinx-theme

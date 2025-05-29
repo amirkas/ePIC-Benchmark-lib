@@ -19,6 +19,7 @@ dependencies:
   - setuptools
   - sphinx
   - sphinx-copybutton
+  - pydata-sphinx-theme
   - pip
   - pip:
     - -e .
