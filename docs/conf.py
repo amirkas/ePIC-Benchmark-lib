@@ -47,6 +47,7 @@ intersphinx_disabled_domains = ["std"]
 
 #Set gitref branch
 gitref_branch = "documentation"
+gitref_updating = True
 
 templates_path = ["_templates"]
 

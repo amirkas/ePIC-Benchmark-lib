@@ -28,6 +28,8 @@ attrs==25.3.0
     # via
     #   jsonschema
     #   referencing
+autodoc-pydantic==2.2.0
+    # via -r docs/requirements.in
 awkward==2.8.3
     # via uproot
 awkward-cpp==46
@@ -51,6 +53,8 @@ cffi==1.17.1
     #   cryptography
 charset-normalizer==3.4.2
     # via requests
+click==8.2.1
+    # via sphinx-gitref
 comm==0.2.2
     # via
     #   ipykernel
@@ -78,6 +82,7 @@ dill==0.4.0
 docutils==0.21.2
     # via
     #   sphinx
+    #   sphinx-gitref
     #   sphinx-rtd-theme
 executing==2.2.0
     # via stack-data
@@ -296,6 +301,7 @@ pycparser==2.22
 pydantic==2.11.5
     # via
     #   -r docs/requirements.in
+    #   autodoc-pydantic
     #   pydantic-settings
     #   pydantic-xml
 pydantic-core==2.33.2
@@ -303,7 +309,9 @@ pydantic-core==2.33.2
     #   pydantic
     #   pydantic-xml
 pydantic-settings==2.9.1
-    # via -r docs/requirements.in
+    # via
+    #   -r docs/requirements.in
+    #   autodoc-pydantic
 pydantic-xml==2.17.0
     # via -r docs/requirements.in
 pygments==2.19.1
@@ -388,8 +396,12 @@ soupsieve==2.7
 sphinx==8.2.3
     # via
     #   -r docs/requirements.in
+    #   autodoc-pydantic
+    #   sphinx-gitref
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
+sphinx-gitref==0.4.1
+    # via -r docs/requirements.in
 sphinx-rtd-theme==3.0.2
     # via -r docs/requirements.in
 sphinxcontrib-applehelp==2.0.0

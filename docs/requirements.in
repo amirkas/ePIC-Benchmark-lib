@@ -16,3 +16,5 @@ uncertainties
 parsl
 lmfit
 matplotlib
+autodoc_pydantic
+sphinx-gitref
