@@ -46,17 +46,6 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ["std"]
 
-html_theme = "pydata_sphinx_theme"
-
-html_theme_options = {
-  "show_nav_level": 2,
-  "primary_sidebar_end": [],
-}
-
-html_sidebars = {
-    "**": ["sidebar-nav-bs"]
-}
-
 
 # default_dark_mode = True
 
@@ -80,6 +69,18 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 # html_theme = "sphinx_rtd_theme"
+
+html_theme = "pydata_sphinx_theme"
+
+html_theme_options = {
+  "show_nav_level": 2,
+  "primary_sidebar_end": [],
+}
+
+html_sidebars = {
+    "**": ["sidebar-nav-bs"]
+}
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
