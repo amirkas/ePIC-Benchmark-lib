@@ -38,15 +38,12 @@ Detector XML Elements
     :model-show-json: False
     :model-erdantic-figure: True
     :model-erdantic-figure-collapsed: False
-    :members:
 
 .. autopydantic_model:: ePIC_benchmarks.detector.xml_elements.detector.detector.XmlModuleElement
     :model-show-json: False
-    :members:
 
 .. autopydantic_model:: ePIC_benchmarks.detector.xml_elements.detector.detector.XmlModuleComponentElement
     :model-show-json: False
-    :members:
 
 .. autopydantic_model:: ePIC_benchmarks.detector.xml_elements.detector.detector.XmlTrdElement
     :model-show-json: False

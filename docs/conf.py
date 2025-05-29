@@ -33,9 +33,11 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.graphviz",
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_copybutton",
     "sphinx_gitref",
+    
 ]
 
 
