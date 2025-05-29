@@ -50,15 +50,23 @@ class WorkflowExecutor:
 
     def init_benchmark_directory(self, benchmark_name):
 
+        benchmark_config = self.parent.benchmark_config(benchmark_name)
+
         benchmark_dir_path = self.parent.paths.benchmark_dir_path(benchmark_name)
         if self.parent.redo_all_benchmarks:
             shutil.rmtree(benchmark_dir_path, ignore_errors=True)
         benchmark_dir_path.mkdir(parents=True, exist_ok=True)
 
         epic_path = self.parent.paths.epic_repo_path(benchmark_name)
+        
         if self.parent.redo_epic_building:
             shutil.rmtree(epic_path, ignore_errors=True)
         epic_path.mkdir(parents=True, exist_ok=True)
+        
+        #Copy existing ePIC Repository to Benchmark ePIC Dir if it is not None
+        if benchmark_config.existing_epic_directory_path is not None:
+            existing_epic_path = benchmark_config.existing_epic_directory_path
+            shutil.copytree(existing_epic_path, epic_path, dirs_exist_ok=True)
 
         analysis_path = self.parent.paths.analysis_out_dir_path(benchmark_name)
         if self.parent.redo_analysis:

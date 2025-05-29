@@ -70,10 +70,7 @@ class WorkflowPaths:
 
         benchmark_config = self.parent.benchmark_config(benchmark_name)
         epic_dir_path = benchmark_config.epic_repo_path(self.workflow_dir_path)
-        if benchmark_config.existing_material_map_path is None:
-            return epic_dir_path.joinpath("scripts", "material_map")
-        else:
-            return benchmark_config.existing_material_map_path
+        return epic_dir_path.joinpath("scripts", "material_map")
 
     def material_map_script_path(self, benchmark_name):
 
@@ -82,8 +79,10 @@ class WorkflowPaths:
 
     def material_map_path(self, benchmark_name : str, file_name : str = "material-map.cbor") -> Path:
 
-        material_map_dir = self.material_map_dir_path(benchmark_name)
-        return material_map_dir.joinpath(file_name)
+        benchmark_config = self.parent.benchmark_config(benchmark_name)
+        return benchmark_config.material_map_path(self.workflow_dir_path, file_name)
+        # material_map_dir = self.material_map_dir_path(benchmark_name)
+        # return material_map_dir.joinpath(file_name)
 
     def simulation_out_dir_path(self, benchmark_name : str) -> Path:
 

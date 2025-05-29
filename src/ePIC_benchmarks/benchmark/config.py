@@ -40,7 +40,7 @@ class BenchmarkConfig(BaseModel):
         )
     )
     generate_material_map : bool = Field(
-        default=True,
+        default=False,
         description="Generates a material map if set to to True"
     )
     existing_material_map_path : Optional[PathType] = Field(
@@ -238,19 +238,16 @@ class BenchmarkConfig(BaseModel):
     
     def epic_repo_path(self, working_dir : PathType) -> Path:
 
-        if self.existing_epic_directory_path is not None:
-            return self.existing_epic_directory_path
-        else:
-            _benchmark_dir_path = self.benchmark_dir_path(working_dir)
-            return _benchmark_dir_path.joinpath(self.epic_directory_name)
+        _benchmark_dir_path = self.benchmark_dir_path(working_dir)
+        return _benchmark_dir_path.joinpath(self.epic_directory_name)
     
     def material_map_path(self, working_dir : PathType, file_name : str = "material-map.cbor") -> Path:
 
         if self.existing_material_map_path:
             return self.existing_material_map_path
         else:
-            _benchmark_dir_path = self.benchmark_dir_path(working_dir)
-            return _benchmark_dir_path.joinpath(file_name)
+            epic_dir_path = self.epic_repo_path(working_dir)
+            return epic_dir_path.joinpath("scripts", "material_map", file_name)
 
     def simulation_out_dir_path(self, working_dir : PathType) -> Path:
 
