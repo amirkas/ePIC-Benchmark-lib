@@ -28,7 +28,7 @@ The following code acts as a template for this Workflow Submission Strategy:
 Python script that creates the Workflow Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:gitref:`Location in git repo <examples/Perlmutter/Headless_Workflow/create_config.py>`
+This file can be :gitref:`found here <examples/Perlmutter/Headless_Workflow/create_config.py>`
 
 .. literalinclude:: ../examples/Perlmutter/Headless_Workflow/create_config.py
   :language: python
@@ -36,12 +36,10 @@ Python script that creates the Workflow Configuration
 Slurm Submission Script 
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-:gitref:`Location in git repo <examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl>`
+This file can be :gitref:`found here <examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl>`
 
 .. literalinclude:: ../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
   :language: bash
-
-Both of these files are located under the directory ...
 
 
 Local Workflow Job Submissions
@@ -70,7 +68,7 @@ The following code acts as a template for this Workflow Submission Strategy (*Us
 Python script that creates the Workflow Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:gitref:`Location in git repo <examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py>`
+This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py>`
 
 .. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py
   :language: python
@@ -78,12 +76,11 @@ Python script that creates the Workflow Configuration
 Python Submission Script 
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-:gitref:`Location in git repo <examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py>`
+This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py>`
 
 .. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py
   :language: python
 
-Both of these files are located under the directory ....
 
 **Note:** Unfortunately, this strategy is prone to early-termination in the scenario that your
 continually running python script or your Login Node terminates before the workflow is complete.
