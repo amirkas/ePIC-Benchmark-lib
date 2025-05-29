@@ -21,5 +21,6 @@ sphinx-gitref
 sphinx-copybutton
 sphinx-rtd-dark-mode
 pydata-sphinx-theme
+sphinx-book-theme
 graphviz
 autodoc_pydantic[erdantic]

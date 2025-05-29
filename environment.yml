@@ -32,3 +32,4 @@ dependencies:
     - sphinx-gitref
     - sphinx_rtd_theme
     - autodoc_pydantic[erdantic]
+    - sphinx-book-theme

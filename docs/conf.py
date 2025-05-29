@@ -77,12 +77,12 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #
 # html_theme = "sphinx_rtd_theme"
 
-html_theme = "pydata_sphinx_theme"
+# html_theme = "pydata_sphinx_theme"
 
-html_theme_options = {
-    "**": ["sidebar-nav-bs.html"], #Ensures primary sidebar (left) is displayed
-    "ethical_ads": {},  # disables Ethical Ads
-}
+# html_theme_options = {
+#     "**": ["sidebar-nav-bs.html"], #Ensures primary sidebar (left) is displayed
+#     "ethical_ads": {},  # disables Ethical Ads
+# }
 
 # html_theme_options = {
 #   "show_nav_level": 2,
@@ -93,11 +93,12 @@ html_theme_options = {
 #     "**": ["sidebar-nav-bs"]
 # }
 
+html_theme = "sphinx_book_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-def setup(app):
-    app.add_css_file("custom.css")
+# def setup(app):
+#     app.add_css_file("custom.css")

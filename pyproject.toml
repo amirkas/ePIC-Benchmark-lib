@@ -30,7 +30,8 @@ dependencies = [
     "sphinx-rtd-dark-mode",
     "pydata-sphinx-theme",
     "autodoc_pydantic[erdantic]",
-    "graphviz"
+    "graphviz",
+    "sphinx-book-theme",
 ]
 
 name = "ePIC_benchmarks"
