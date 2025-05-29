@@ -34,7 +34,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.autodoc_pydantic",
-    'sphinx_gitref',
+    "sphinx_copybutton",
+    "sphinx_gitref",
 ]
 
 

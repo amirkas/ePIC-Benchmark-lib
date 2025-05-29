@@ -18,6 +18,7 @@ dependencies:
   - parsl
   - setuptools
   - sphinx
+  - sphinx-copybutton
   - pip
   - pip:
     - -e .
