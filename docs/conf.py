@@ -72,14 +72,14 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "pydata_sphinx_theme"
 
-html_theme_options = {
-  "show_nav_level": 2,
-  "primary_sidebar_end": [],
-}
+# html_theme_options = {
+#   "show_nav_level": 2,
+#   "primary_sidebar_end": [],
+# }
 
-html_sidebars = {
-    "**": ["sidebar-nav-bs"]
-}
+# html_sidebars = {
+#     "**": ["sidebar-nav-bs"]
+# }
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
