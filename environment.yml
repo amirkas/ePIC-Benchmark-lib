@@ -20,6 +20,7 @@ dependencies:
   - sphinx
   - sphinx-copybutton
   - pydata-sphinx-theme
+  - graphviz
   - pip
   - pip:
     - -e .
@@ -30,3 +31,4 @@ dependencies:
     - autodoc_pydantic
     - sphinx-gitref
     - sphinx_rtd_theme
+    - autodoc_pydantic[erdantic]
