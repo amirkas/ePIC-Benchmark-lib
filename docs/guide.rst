@@ -49,20 +49,25 @@ The following are **optional attributes** to be defined for a SimulationConfig:
 * **use_material_map** - Toggles whether the material map given in the parent BenchmarkConfig is used for the simulation. (**Default: False**)
 * **enable_gun** - Toggles whether the particle gun is enabled. (**Default: True**)
 
-.. code-block:: python
+The following is an example code for creating a SimulationConfig instance
 
-    from ePIC_benchmarks.simulation import SimulationConfig
-    from ePIC_benchmarks.simulation.simulation_types import GunDistribution, Particle
+.. literalinclude:: example_configs/simulation_config_ex.py
+  :language: python
 
-    EXAMPLE_SIMULATION_CONFIG = SimulationConfig(
-        num_events=10000,
-        momentum="10GeV",
-        distribution_type=GunDistribution.Eta,
-        eta_min=-4,
-        eta_max=4,
-        particle=Particle.PionPlus,
-        detector_xml="epic_craterlake_tracking_only.xml"
-    )
+.. .. code-block:: python
+
+..     from ePIC_benchmarks.simulation import SimulationConfig
+..     from ePIC_benchmarks.simulation.simulation_types import GunDistribution, Particle
+
+..     EXAMPLE_SIMULATION_CONFIG = SimulationConfig(
+..         num_events=10000,
+..         momentum="10GeV",
+..         distribution_type=GunDistribution.Eta,
+..         eta_min=-4,
+..         eta_max=4,
+..         particle=Particle.PionPlus,
+..         detector_xml="epic_craterlake_tracking_only.xml"
+..     )
 
 DetectorConfig
 --------------
@@ -235,16 +240,19 @@ The BenchmarkConfig object has the following **optional attributes**:
 Below is an example of a **BenchmarkConfig** with a single **SimulationConfig** object and a single **DetectorConfig** object
 previously defined in this document in their respective sections.
 
-.. code-block:: python
+.. literalinclude:: example_configs/benchmark_config_ex.py
+  :language: python
 
-    from ePIC_benchmarks.benchmark import BenchmarkConfig
+.. .. code-block:: python
 
-    EXAMPLE_BENCHMARK_CONFIG = BenchmarkConfig(
-        simulation_configs=[EXAMPLE_SIMULATION_CONFIG],
-        detector_configs=[EXAMPLE_DETECTOR_CONFIG],
-        epic_branch="main",
-        generate_material_map=False
-    )
+..     from ePIC_benchmarks.benchmark import BenchmarkConfig
+
+..     EXAMPLE_BENCHMARK_CONFIG = BenchmarkConfig(
+..         simulation_configs=[EXAMPLE_SIMULATION_CONFIG],
+..         detector_configs=[EXAMPLE_DETECTOR_CONFIG],
+..         epic_branch="main",
+..         generate_material_map=False
+..     )
 
 ParslConfig
 -----------
@@ -260,28 +268,31 @@ This package handles loading of the **ParslConfig** for you, but you must define
 **Note:** *This Package does not support the use of instances of Parsl's classes, but rather wrapped versions of these classes with the same name*
 *and the prefix* **'Config'**. *This is with the exception of the root Parsl Config which is has the name* **'ParslConfig'**.
 
-.. code-block:: python
+.. literalinclude:: example_configs/parsl_config_ex.py
+  :language: python
 
-    from ePIC_benchmarks.parsl.config import ParslConfig
-    from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
-    from ePIC_benchmarks.parsl.providers import LocalProviderConfig
-    from ePIC_benchmarks.parsl.launchers import SrunLauncherConfig
+.. .. code-block:: python
 
-    EXAMPLE_PARSL_CONFIG = ParslConfig(
-        executors=[
-            HighThroughputExecutorConfig(
-                label="HTEC_Executor",
-                cores_per_worker=2,
-                max_workers_per_node=10,
-                provider=LocalProviderConfig(
-                    nodes_per_block = 1,
-                    launcher=SrunLauncherConfig(overrides='-c 20'),
-                    max_blocks=1,
-                    init_blocks=1,
-                ),
-            ),
-        ],
-    )
+..     from ePIC_benchmarks.parsl.config import ParslConfig
+..     from ePIC_benchmarks.parsl.executors import HighThroughputExecutorConfig
+..     from ePIC_benchmarks.parsl.providers import LocalProviderConfig
+..     from ePIC_benchmarks.parsl.launchers import SrunLauncherConfig
+
+..     EXAMPLE_PARSL_CONFIG = ParslConfig(
+..         executors=[
+..             HighThroughputExecutorConfig(
+..                 label="HTEC_Executor",
+..                 cores_per_worker=2,
+..                 max_workers_per_node=10,
+..                 provider=LocalProviderConfig(
+..                     nodes_per_block = 1,
+..                     launcher=SrunLauncherConfig(overrides='-c 20'),
+..                     max_blocks=1,
+..                     init_blocks=1,
+..                 ),
+..             ),
+..         ],
+..     )
 
 For examples of **ParslConfig's** that may match your desired execution pattern on your specific computing infrastructure, see '...'. 
 
@@ -332,15 +343,18 @@ The optional attribues of a **WorkflowConfig** object are as follows:
 The following is an example of a **WorkflowConfig** object using a single **BenchmarkConfig** instance
 and the **ParslConfig** instance already define previously in their respective sections. 
 
-.. code-block:: python
+.. literalinclude:: example_configs/workflow_config_ex.py
+  :language: python
 
-    from ePIC_benchmarks.workflow import WorkflowConfig
+.. .. code-block:: python
 
-    EXAMPLE_WORKFLOW_CONFIG = WorkflowConfig(
-        name="Example Workflow",
-        benchmarks=[EXAMPLE_BENCHMARK_CONFIG],
-        parsl_config=EXAMPLE_PARSL_CONFIG
-    )
+..     from ePIC_benchmarks.workflow import WorkflowConfig
+
+..     EXAMPLE_WORKFLOW_CONFIG = WorkflowConfig(
+..         name="Example Workflow",
+..         benchmarks=[EXAMPLE_BENCHMARK_CONFIG],
+..         parsl_config=EXAMPLE_PARSL_CONFIG
+..     )
 
 
 A **WorkflowConfig** object can be saved to your filesystem as a configuration file with the following supported file types:
