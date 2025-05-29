@@ -12,13 +12,9 @@
 #
 import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.append(os.path.abspath(
-    os.path.join(__file__, '../../src/')
-))
-
-
+sys.path.insert(0, str(Path('..', 'src').resolve()))
 
 
 # -- Project information -----------------------------------------------------

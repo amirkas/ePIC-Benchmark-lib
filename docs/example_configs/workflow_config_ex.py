@@ -7,4 +7,3 @@ EXAMPLE_WORKFLOW_CONFIG = WorkflowConfig(
     benchmarks=[EXAMPLE_BENCHMARK_CONFIG],
     parsl_config=EXAMPLE_PARSL_CONFIG
 )
-
