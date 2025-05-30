@@ -1,3 +1,6 @@
+**********
+User Guide
+**********
 
 This tutorial will guide you through the steps needed to create various components and use them to run your ePIC Workflow.
 
