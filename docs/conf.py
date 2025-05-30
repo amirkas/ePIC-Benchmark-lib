@@ -84,25 +84,29 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #     "ethical_ads": {},  # disables Ethical Ads
 # }
 
-html_sidebars = {
-    "**": ["globaltoc.html", "navbar-logo.html", "icon-links.html", "search-button-field.html"]
-}
+html_theme = "sphinxawesome_theme"
 
-html_theme_options = {
-    "path_to_docs": "docs",
-    "repository_url": "https://github.com/amirkas/ePIC-Benchmark-lib",
-    "repository_branch": "documentation",
-    "use_repository_button": True,
-    "max_navbar_depth": 4,
-    "home_page_in_toc": True,
-    "collapse_navbar": False,
-    "show_navbar_depth": 3,
-    "logo": {
-        "text": "ePIC Workflows",
-        "image_light": "_static/ePIC_transparent_black_bkgnd.png",
-        "image_dark": "_static/ePIC_transparent_white_bkgnd.png",
-    }
-}
+# html_theme = "sphinx_book_theme"
+
+# html_sidebars = {
+#     "**": ["sbt-sidebar-nav.html", "navbar-logo.html", "icon-links.html", "search-button-field.html"]
+# }
+
+# html_theme_options = {
+#     "path_to_docs": "docs",
+#     "repository_url": "https://github.com/amirkas/ePIC-Benchmark-lib",
+#     "repository_branch": "documentation",
+#     "use_repository_button": True,
+#     "max_navbar_depth": 4,
+#     "home_page_in_toc": True,
+#     "collapse_navbar": False,
+#     "show_navbar_depth": 3,
+#     "logo": {
+#         "text": "ePIC Workflows",
+#         "image_light": "_static/ePIC_transparent_black_bkgnd.png",
+#         "image_dark": "_static/ePIC_transparent_white_bkgnd.png",
+#     }
+# }
 
 
 
@@ -116,16 +120,16 @@ html_theme_options = {
 #     "**": ["sidebar-nav-bs"]
 # }
 
-html_theme = "sphinx_book_theme"
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_css_files = [
-    'custom.css',
-]
+# html_css_files = [
+#     'custom.css',
+# ]
 
 # def setup(app):
 #     app.add_css_file("custom.css")

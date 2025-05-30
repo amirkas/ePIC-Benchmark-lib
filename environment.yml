@@ -33,3 +33,4 @@ dependencies:
     - sphinx_rtd_theme
     - autodoc_pydantic[erdantic]
     - sphinx-book-theme
+    - sphinxawesome-theme

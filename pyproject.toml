@@ -32,6 +32,7 @@ dependencies = [
     "autodoc_pydantic[erdantic]",
     "graphviz",
     "sphinx-book-theme",
+    "sphinxawesome-theme"
 ]
 
 name = "ePIC_benchmarks"
