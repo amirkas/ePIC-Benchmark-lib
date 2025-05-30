@@ -17,7 +17,7 @@ This package handles loading of the **ParslConfig** for you, but you must define
     *This Package does not support the use of instances of Parsl's classes, but rather wrapped versions of these classes with the same name*
     *and the prefix* **'Config'**. *This is with the exception of the root Parsl Config which is has the name* **'ParslConfig'**.
 
-.. literalinclude:: example_configs/parsl_config_ex.py
+.. literalinclude:: ../../../example_configs/parsl_config_ex.py
   :language: python
 
 For examples of **ParslConfig's** that may match your desired execution pattern on your specific computing infrastructure, see :ref:`the example section <examples-sec>`. 

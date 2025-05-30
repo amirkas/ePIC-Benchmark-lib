@@ -27,7 +27,7 @@ Python script that creates the Workflow Configuration
 
 This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py>`
 
-.. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py
+.. literalinclude:: ../../../examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py
   :language: python
 
 Python Submission Script 
@@ -35,7 +35,7 @@ Python Submission Script
 
 This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py>`
 
-.. literalinclude:: ../examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py
+.. literalinclude:: ../../../examples/Perlmutter/Local_Slurm_Submission_Workflow/submit_tasks_script.py
   :language: python
 
 

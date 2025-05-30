@@ -25,5 +25,5 @@ The following are **optional attributes** to be defined for a SimulationConfig:
 
 The following is an example code for creating a SimulationConfig instance
 
-.. literalinclude:: example_configs/simulation_config_ex.py
+.. literalinclude:: ../../../example_configs/simulation_config_ex.py
   :language: python

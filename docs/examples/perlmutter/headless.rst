@@ -24,7 +24,7 @@ Python script that creates the Workflow Configuration
 
 This file can be :gitref:`found here <examples/Perlmutter/Headless_Workflow/create_config.py>`
 
-.. literalinclude:: ../examples/Perlmutter/Headless_Workflow/create_config.py
+.. literalinclude:: ../../../examples/Perlmutter/Headless_Workflow/create_config.py
   :language: python
 
 Slurm Submission Script 
@@ -32,5 +32,5 @@ Slurm Submission Script
 
 This file can be :gitref:`found here <examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl>`
 
-.. literalinclude:: ../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
+.. literalinclude:: ../../../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
   :language: bash

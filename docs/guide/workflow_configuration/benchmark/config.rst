@@ -28,5 +28,5 @@ The BenchmarkConfig object has the following **optional attributes**:
 Below is an example of a **BenchmarkConfig** with a single **SimulationConfig** object and a single **DetectorConfig** object
 previously defined in this document in their respective sections.
 
-.. literalinclude:: example_configs/benchmark_config_ex.py
+.. literalinclude:: ../../../example_configs/benchmark_config_ex.py
   :language: python
