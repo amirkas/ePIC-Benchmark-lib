@@ -4,6 +4,8 @@
    :caption: Apps:
    
    app-types
+   futures
    dependencies
-   containerization
+   container
    build-apps
+   build-script

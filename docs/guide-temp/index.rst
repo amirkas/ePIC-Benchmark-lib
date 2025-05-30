@@ -39,4 +39,4 @@ and of course, how to execute your newly created **Workflow**.
    
    workflow_configuration/index
    workflow_script/index
-   workflow_execution/run_workflows
+   workflow_execution/run_workflow

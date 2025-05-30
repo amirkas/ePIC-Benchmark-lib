@@ -7,5 +7,5 @@
    simulation/config
    detector/index
    benchmark/config
-   parsl/config/index
+   parsl/config
    workflow/index
