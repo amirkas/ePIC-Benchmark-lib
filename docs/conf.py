@@ -101,7 +101,7 @@ html_theme_options = {
     "max_navbar_depth": 4,
     "home_page_in_toc": True,
     "collapse_navbar": False,
-    "show_navbar_depth": 3,
+    "show_navbar_depth": 1,
     "logo": {
         "text": "ePIC Workflows",
         "image_light": "_static/ePIC_transparent_black_bkgnd.png",
