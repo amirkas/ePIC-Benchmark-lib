@@ -84,6 +84,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #     "ethical_ads": {},  # disables Ethical Ads
 # }
 
+html_sidebars = {
+    "**": ["globaltoc.html", "navbar-logo.html", "icon-links.html", "search-button-field.html"]
+}
 
 html_theme_options = {
     "path_to_docs": "docs",
@@ -100,6 +103,8 @@ html_theme_options = {
         "image_dark": "_static/ePIC_transparent_white_bkgnd.png",
     }
 }
+
+
 
 
 # html_theme_options = {
