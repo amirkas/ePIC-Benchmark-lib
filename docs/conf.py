@@ -105,7 +105,7 @@ html_theme_options = {
     "logo": {
         "text": "ePIC Workflows",
         "image_light": "_static/ePIC_transparent_black_bkgnd.png",
-        "image_dark": "_static/ePIC_transparent_white_bkgnd.png",
+        "image_dark": "_static/ePIC_transparent_white_bkgnd_new.png",
     }
 }
 
