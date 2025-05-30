@@ -84,12 +84,16 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #     "ethical_ads": {},  # disables Ethical Ads
 # }
 
+
 html_theme_options = {
+    "path_to_docs": "docs",
     "repository_url": "https://github.com/amirkas/ePIC-Benchmark-lib",
+    "repository_branch": "documentation",
     "use_repository_button": True,
     "max_navbar_depth": 4,
     "home_page_in_toc": True,
     "collapse_navbar": False,
+    "show_navbar_depth": 3,
     "logo": {
         "text": "ePIC Workflows",
         "image_light": "_static/ePIC_transparent_black_bkgnd.png",

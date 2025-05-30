@@ -63,9 +63,9 @@ In this case the strategy for workflow submission is to:
 
    * Either:
 
-       * A path to a Workflow Script file + the name of the Workflow's encapsulating function
+     * A path to a Workflow Script file + the name of the Workflow's encapsulating function
 
-       * The workflow's encapsulating function itself.
+     * The workflow's encapsulating function itself.
 
 The following code acts as a template for this Workflow Submission Strategy (*Using a Workflow Script saved as a seperate file to the submission python script*).
 
