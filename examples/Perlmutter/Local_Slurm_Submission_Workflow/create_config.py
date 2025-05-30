@@ -49,7 +49,7 @@ PERLMUTTER_LOCAL_PARSL_CONFIG = ParslConfig(
 PERLMUTER_LOCAL_WORKFLOW_CONFIG = WorkflowConfig(
     name="Workflow", #Optionally update this to a name of your choice.
     benchmarks=[EXAMPLE_BENCHMARK_CONFIG], #Update this to a list of your own BenchmarkConfigs
-    parsl_config=ParslConfig,
+    parsl_config=PERLMUTTER_LOCAL_PARSL_CONFIG,
     #Add additional workflow parameters here
 )
 
