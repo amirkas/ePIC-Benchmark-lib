@@ -1,5 +1,5 @@
 **********************
-Parsl Reference
+Parsl Module
 **********************
 
 .. toctree::

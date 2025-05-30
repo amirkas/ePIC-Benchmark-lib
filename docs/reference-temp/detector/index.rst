@@ -1,5 +1,5 @@
 ******************
-Detector Reference
+Detector Module
 ******************
 
 .. toctree::

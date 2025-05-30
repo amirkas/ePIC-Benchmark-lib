@@ -1,5 +1,6 @@
+*************************
 Base ePIC Workflow Script
--------------------------
+*************************
 
 Below is the code for a simple workflow that:
 

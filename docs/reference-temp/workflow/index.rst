@@ -1,5 +1,5 @@
 **********************
-Workflow Reference
+Workflow Module
 **********************
 
 .. toctree::

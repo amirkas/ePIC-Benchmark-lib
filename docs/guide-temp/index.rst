@@ -1,5 +1,5 @@
 *****************
-The ePIC Workflow
+Creating a Workflow
 *****************
 
 Designing an **ePIC Workflow** involves the creation of two components:

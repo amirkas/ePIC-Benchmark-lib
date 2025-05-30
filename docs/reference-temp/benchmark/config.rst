@@ -1,3 +1,6 @@
+Benchmark Module
+----------------
+
 BenchmarkConfig
 ^^^^^^^^^^^^^^^
 
