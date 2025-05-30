@@ -5,7 +5,7 @@
    :caption: Workflow Configuration:
    
    simulation/config
-   detector
+   detector/index
    benchmark/config
-   parsl/config
-   workflow
+   parsl/config/index
+   workflow/index

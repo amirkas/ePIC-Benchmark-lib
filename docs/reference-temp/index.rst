@@ -4,7 +4,7 @@
    :caption: Reference:
    
    simulation/config
-   detector
+   detector/index
    benchmark/config
-   parsl
-   workflow
+   parsl/index
+   workflow/index

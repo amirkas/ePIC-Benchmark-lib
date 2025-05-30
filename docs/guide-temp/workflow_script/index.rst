@@ -3,6 +3,6 @@
    :maxdepth: 4
    :caption: Workflow Script:
    
-   apps
-   ePIC-apps
+   apps/index
+   ePIC-apps/index
    base-script/base

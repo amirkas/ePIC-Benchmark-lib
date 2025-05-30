@@ -37,6 +37,6 @@ and of course, how to execute your newly created **Workflow**.
    :maxdepth: 4
    :caption: Guide Contents:
    
-   workflow_configuration
-   workflow_script
+   workflow_configuration/index
+   workflow_script/index
    workflow_execution/run_workflows

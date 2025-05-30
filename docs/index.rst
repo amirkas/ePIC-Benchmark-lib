@@ -6,7 +6,7 @@ Home
    :maxdepth: 5
    :caption: Contents:
    
-   installation_temp
-   guide_temp
-   examples_temp
-   reference_temp
+   installation-temp/index
+   guide-temp/index
+   examples-temp/index
+   reference-temp/index
