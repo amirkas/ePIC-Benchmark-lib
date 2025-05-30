@@ -93,10 +93,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "sphinx_book_theme"
 
-html_sidebars = {
-    "**": ["sbt-sidebar-nav.html", "navbar-logo.html", "icon-links.html", "search-button-field.html"]
-}
-
 html_theme_options = {
     "path_to_docs": "docs",
     "repository_url": "https://github.com/amirkas/ePIC-Benchmark-lib",
