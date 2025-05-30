@@ -109,6 +109,8 @@ we would define the following **XmlElement** tree:
 To integrate this example of an detector geometry update into a workflow for the **tracking/silicon_disks.xml** detector description file,
 we would initialize the following DetectorConfig object:
 
+.. _detector-config-example:
+
 .. code-block:: python
 
     from ePIC_benchmarks.detector import DetectorConfig

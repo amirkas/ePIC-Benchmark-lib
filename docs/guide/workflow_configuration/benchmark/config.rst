@@ -1,3 +1,8 @@
+
+=======================
+Benchmark Configuration 
+=======================
+
 BenchmarkConfig
 ---------------
 
@@ -7,11 +12,17 @@ The BenchmarkConfig allows for Workflows to be partitioned in such a way that:
 * Updates to detector geometry description files from every child DetectorConfig object are made to the single ePIC repository.
 * All **npsim** and **eicrecon** executions defined by the child SimulationConfig objects use the same, updated ePIC repository. 
 
+Required Attributes
+^^^^^^^^^^^^^^^^^^^
+
 The BenchmarkConfig object has the following **required attributes**:
 
 * **name** - Unique name of the Benchmark
 * **simulation_configs** - List of **SimulationConfig** objects.
 * **detector_configs** - List of **DetectorConfig** objects.
+
+Optional Attributes
+^^^^^^^^^^^^^^^^^^^
 
 The BenchmarkConfig object has the following **optional attributes**:
 
@@ -24,6 +35,8 @@ The BenchmarkConfig object has the following **optional attributes**:
 * **reconstruction_out_directory_name** - The name for the Benchmark directory's subdirectory that stores output files of **eicrecon** executions (**Default: "reconstructions"**)
 * **analysis_out_directory_name** - The name for the Benchmark directory's subdirectory that stores output files of **Analysis** routines (**Default: "analysis"**) 
 
+Example BenchmarkConfig
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Below is an example of a **BenchmarkConfig** with a single **SimulationConfig** object and a single **DetectorConfig** object
 previously defined in this document in their respective sections.

@@ -34,8 +34,8 @@ This tutorial will guide you through the steps to create your own **Workflow Con
 and of course, how to execute your newly created **Workflow**. 
 
 .. toctree::
-   :maxdepth: 4
-   :caption: Guide Contents:
+   :maxdepth: 2
+   :caption: Contents:
    
    workflow_configuration/index
    workflow_script/index

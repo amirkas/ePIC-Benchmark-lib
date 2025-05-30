@@ -1,10 +1,10 @@
-**********************
-DetectorConfig
-**********************
+*******************************
+Detector Geometry Configuration
+*******************************
 
 .. toctree::
    :maxdepth: 2
    :caption: Detector Configuration:
 
-   xml-elements
    config
+   xml-elements

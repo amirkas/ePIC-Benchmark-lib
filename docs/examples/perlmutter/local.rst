@@ -22,8 +22,8 @@ In this case the strategy for workflow submission is to:
 
 The following code acts as a template for this Workflow Submission Strategy (*Using a Workflow Script saved as a seperate file to the submission python script*).
 
-Python script that creates the Workflow Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Workflow Configuration Generator Script
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This file can be :gitref:`found here <examples/Perlmutter/Local_Slurm_Submission_Workflow/create_config.py>`
 

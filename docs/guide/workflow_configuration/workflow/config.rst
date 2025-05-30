@@ -1,8 +1,17 @@
+
+========================
+Workflow Configuration 
+========================
+
 WorkflowConfig
 --------------
 
+
 The **WorkflowConfig** object is the root configuration object of a Workflow, which uses a single **ParslConfig** object to
 define the task execution pattern for all tasks of every Benchmark defined by a **BenchmarkConfig**. 
+
+Required Attributes
+^^^^^^^^^^^^^^^^^^^
 
 The required attribues of a **WorkflowConfig** object are as follows:
 
@@ -12,6 +21,8 @@ The required attribues of a **WorkflowConfig** object are as follows:
 
 * **parsl_config** - A **ParslConfig** instance. 
 
+Optional Attributes
+^^^^^^^^^^^^^^^^^^^
 
 The optional attribues of a **WorkflowConfig** object are as follows:
 
@@ -36,3 +47,13 @@ The optional attribues of a **WorkflowConfig** object are as follows:
 * **keep_reconstruction_outputs** - Toggles whether the output files of all **eicrecon** executions are kept after a Workflow is completed. 
 
 * **keep_analysis_outputs** - Toggles whether the output files of all **analysis** routines are kept after a Workflow is completed. 
+
+
+Example WorkflowConfig
+^^^^^^^^^^^^^^^^^^^^^^
+
+The following is an example of a **WorkflowConfig** object using a single **BenchmarkConfig** instance
+and the **ParslConfig** instance already defined previously in their respective sections. 
+
+.. literalinclude:: example_configs/workflow_config_ex.py
+  :language: python
