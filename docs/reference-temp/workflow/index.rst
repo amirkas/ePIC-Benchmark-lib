@@ -3,7 +3,7 @@ Workflow Module
 **********************
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
    :caption: Workflow:
    
    config

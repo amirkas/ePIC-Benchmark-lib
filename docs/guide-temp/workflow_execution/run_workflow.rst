@@ -1,6 +1,7 @@
-*********************
+
+=====================
 Running your Workflow 
-**********************
+=====================
 
 With your **Workflow Configuration** and **Workflow Script** now defined, you may be wondering how to actually run your workflow.
 To do so, this package provides two alternative methods for use in different scenarios. 

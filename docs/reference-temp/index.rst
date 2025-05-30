@@ -3,7 +3,7 @@ Reference
 *********
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
    :caption: Reference:
    
    simulation/config
