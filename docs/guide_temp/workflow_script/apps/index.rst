@@ -7,4 +7,3 @@
    dependencies
    containerization
    build-apps
-   package-apps

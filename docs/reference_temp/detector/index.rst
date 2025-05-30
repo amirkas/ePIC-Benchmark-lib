@@ -1,3 +1,6 @@
+******************
+Detector Reference
+******************
 
 .. toctree::
    :maxdepth: 5

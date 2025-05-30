@@ -1,3 +1,6 @@
+**************
+WorkflowConfig
+**************
 
 .. toctree::
    :maxdepth: 4

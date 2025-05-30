@@ -1,5 +1,6 @@
+******************************
 Local Workflow Job Submissions
-------------------------------
+******************************
 
 This submission strategy involves running a python script for the duration of the workflow on your current Login Node.
 The **ParslConfig** associated with this stategy allows for this package to interact with the Slurm Scheduler directly,

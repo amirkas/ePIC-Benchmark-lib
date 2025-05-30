@@ -1,3 +1,6 @@
+**********************
+Workflow Reference
+**********************
 
 .. toctree::
    :maxdepth: 5
