@@ -6,7 +6,7 @@ Home
    :maxdepth: 5
    :caption: Contents:
    
-   installation
-   guide
-   examples
-   api_ref
+   installation_temp
+   guide_temp
+   examples_temp
+   reference_temp
