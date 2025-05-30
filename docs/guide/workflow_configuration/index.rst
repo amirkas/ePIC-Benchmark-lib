@@ -1,6 +1,6 @@
-**********************
-Workflow Configuration
-**********************
+***************************
+ePIC Workflow Configuration
+***************************
 
 .. toctree::
    :maxdepth: 2

@@ -1,10 +1,10 @@
 **********************
-Detector Configuration
+Workflow Configuration
 **********************
 
 .. toctree::
    :maxdepth: 2
-   :caption: Detector Configuration:
-
+   :caption: WorkflowConfig:
+   
    config
-   xml-elements
+   api
