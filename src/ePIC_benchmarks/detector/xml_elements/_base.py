@@ -53,6 +53,7 @@ class XmlElement(BaseModel):
     update_attribute : Optional[Literal['']] = None
     update_type : Optional[Literal['SET', 'ADD', 'DELETE']] = None
     update_value : AnnotatedAttributeValue
+    case_sensitive : bool = False
 
     def create_queries(self) -> Sequence[str]:
 
@@ -83,7 +84,7 @@ class XmlElement(BaseModel):
                 attribute_lookups[field] = field_data
 
         curr_query = DetectorConfigXpath.create_tag_query(
-            tag=self.element_tag, attributes=attribute_lookups
+            tag=self.element_tag, attributes=attribute_lookups, case_sensitive=self.case_sensitive
         )
         new_parent_queries = []
         for parent_query in parent_queries:

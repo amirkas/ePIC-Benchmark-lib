@@ -14,7 +14,7 @@ class DetectorConfigXpath:
     #Generates the xpath query for a single xml tag with 1 or more attributes
     #to search against.
     @classmethod
-    def create_tag_query(cls, tag, attributes) -> str:
+    def create_tag_query(cls, tag, attributes, case_sensitive=False) -> str:
         if not isinstance(attributes, dict) and attributes is not None:
             err = f"attributes must be a dictionary or None: Got type: {type(attributes)}"
             raise ValueError(err)
@@ -22,7 +22,10 @@ class DetectorConfigXpath:
             return ""
         query = f'//{tag}'
         if len(attributes.keys()) > 0:
-            attr_str = lambda item : f"@{item[0]}='{item[1]}'"
+            if case_sensitive:
+                attr_str = lambda item : f"@{item[0]}='{item[1]}'"
+            else:
+                attr_str = lambda item : f"translate(@{item[0]}, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = '{str(item[1]).lower()}'"
             all_attr_str = " && ".join(map(attr_str, list(attributes.items())))
             query += f'[{all_attr_str}]'
         return query

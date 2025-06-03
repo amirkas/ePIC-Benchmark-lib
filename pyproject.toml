@@ -22,6 +22,7 @@ dependencies = [
     "uproot",
     "uncertainties",
     "parsl",
+    "parsl[monitoring, visualization]",
     "lmfit",
     "matplotlib",
     "autodoc_pydantic",
