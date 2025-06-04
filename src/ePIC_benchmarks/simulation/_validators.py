@@ -44,10 +44,10 @@ def validate_name(
         distribution_max :  Optional[DistributionLimitType]=None) -> str:
 
     if name_value is None:
-        assert(momentum_min is not None or momentum_max is not None, "Momentum min or max must not be None")
-        assert(distribution_type is not None, "Distribution type must not be None")
-        assert(distribution_min is not None, "Distribution min must not be None")
-        assert(distribution_max is not None, "Distribution max must not be None")
+        assert momentum_min is not None or momentum_max is not None, "Momentum min or max must not be None"
+        assert distribution_type is not None, "Distribution type must not be None"
+        assert distribution_min is not None, "Distribution min must not be None"
+        assert distribution_max is not None, "Distribution max must not be None"
         return format_simulation_name(
             momentum_min=momentum_min,
             momentum_max=momentum_max,
