@@ -1,20 +1,3 @@
-pyyaml
-pydantic
-pydantic-xml
-pydantic-settings
-mypy
-lxml
-jupyter
-numpy
-pandas
-scipy
-seaborn
-uproot
-uncertainties
-parsl
-parsl[monitoring, visualization]
-lmfit
-matplotlib
 Sphinx
 sphinx_rtd_theme
 autodoc_pydantic
