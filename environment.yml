@@ -18,9 +18,19 @@ dependencies:
   - parsl
   - setuptools
   - sphinx
+  - sphinx-copybutton
+  - pydata-sphinx-theme
+  - graphviz
   - pip
   - pip:
-    - .
+    - -e .
     - pydantic-xml
     - pydantic-settings
     - parsl[monitoring, visualization]
+    - pip-tools
+    - autodoc_pydantic
+    - sphinx-gitref
+    - sphinx_rtd_theme
+    - autodoc_pydantic[erdantic]
+    - sphinx-book-theme
+    - sphinxawesome-theme

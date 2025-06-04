@@ -1,0 +1,16 @@
+DetectorConfig
+--------------
+
+The **DetectorConfig** object is used to dynamically alter the ePIC detector geometry before its compilation. 
+
+Required Attributes
+^^^^^^^^^^^^^^^^^^^
+
+The following are the required attributes of the **DetectorConfig** object:
+
+* **file** - The relative path of the detector geometry description XML file to be updated with respect to the ePIC repository's **compact** directory. 
+* **edit_element_trees** - An **XmlElement** tree or list of **XmlElement** Trees used to search for XML elements and define how they're updated. 
+
+.. note::
+
+    See an example of a **DetectorConfig** instance in the :ref:`following section <detector-config-example>`.
