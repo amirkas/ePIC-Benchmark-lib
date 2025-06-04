@@ -144,7 +144,7 @@ class XmlEditor:
         else:
             to_save = filepath          
         try:
-            self.tree.write(to_save, xml_declaration=True)
+            self.tree.write(to_save, xml_declaration=False)
         except:
             print("Could not save file at: " + to_save)    
 
@@ -201,9 +201,9 @@ class XmlEditor:
             element.append(new_element)
 
     @autosave
-    def set_attribute_xpath(self, xpath_query, attribute, value):
+    def set_attribute_xpath(self, xpath_query : str, attribute : str, value):
         try:
-            found_elems = self.root.findall(xpath_query)
+            found_elems = self.tree.xpath(xpath_query)
         except:
             raise ValueError("Could not find element for query {query}".format(query=xpath_query))
         for elem in found_elems:

@@ -1,7 +1,4 @@
 
-========================
-Workflow Configuration 
-========================
 
 WorkflowConfig
 --------------

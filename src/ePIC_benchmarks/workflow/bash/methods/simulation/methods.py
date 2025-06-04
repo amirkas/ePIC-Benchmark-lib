@@ -1,7 +1,7 @@
 from parsl import AUTO_LOGNAME
 from ePIC_benchmarks.workflow.config import WorkflowConfig
 from ePIC_benchmarks.container.containers import ContainerUnion
-from typing import Optional
+from typing import Optional, Union, Sequence
 from ePIC_benchmarks.workflow.bash.utils import concatenate_commands, source_epic_command, change_directory_command
 
 def run_npsim(
@@ -9,6 +9,7 @@ def run_npsim(
         benchmark_name : str,
         simulation_name : str,
         container : Optional[ContainerUnion] = None,
+        extra_args : Optional[Union[str, Sequence[str]]] = None,
         stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME,
         **kwargs) -> str:
 
@@ -19,7 +20,12 @@ def run_npsim(
         benchmark_name=benchmark_name,
         simulation_name=simulation_name, 
     )
-    all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
+    if extra_args is None:
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
+    elif isinstance(extra_args, list):
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command, *extra_args)
+    else:
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command, extra_args)
     if container is not None:
         all_commands = container.init_with_extra_commands(all_commands)
     return all_commands
@@ -30,6 +36,7 @@ def run_eicrecon(
         simulation_name : str,
         use_material_map : bool = False,
         container : Optional[ContainerUnion] = None,
+        extra_args : Optional[Union[str, Sequence[str]]] = None,
         stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME,
         **kwargs) -> str:
     
@@ -53,6 +60,12 @@ def run_eicrecon(
         simulation_name=simulation_name, 
     )
     all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
+    if extra_args is None:
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
+    elif isinstance(extra_args, list):
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command, *extra_args)
+    else:
+        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command, extra_args)
     if container is not None:
         all_commands = container.init_with_extra_commands(all_commands)
     return all_commands

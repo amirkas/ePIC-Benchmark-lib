@@ -48,6 +48,8 @@ beautifulsoup4==4.13.4
     #   sphinxawesome-theme
 bleach[css]==6.2.0
     # via nbconvert
+blinker==1.9.0
+    # via flask
 certifi==2025.4.26
     # via
     #   httpcore
@@ -61,6 +63,7 @@ charset-normalizer==3.4.2
     # via requests
 click==8.2.1
     # via
+    #   flask
     #   sphinx-gitref
     #   typer
 comm==0.2.2
@@ -101,6 +104,12 @@ fastjsonschema==2.21.1
     # via nbformat
 filelock==3.18.0
     # via parsl
+flask==3.1.1
+    # via
+    #   flask-sqlalchemy
+    #   parsl
+flask-sqlalchemy==3.1.1
+    # via parsl
 fonttools==4.58.0
     # via matplotlib
 fqdn==1.5.1
@@ -113,6 +122,8 @@ globus-sdk==3.56.1
     # via parsl
 graphviz==0.20.3
     # via -r docs/requirements.in
+greenlet==3.2.2
+    # via sqlalchemy
 h11==0.16.0
     # via httpcore
 httpcore==1.0.9
@@ -143,10 +154,13 @@ ipywidgets==8.1.7
     # via jupyter
 isoduration==20.11.0
     # via jsonschema
+itsdangerous==2.2.0
+    # via flask
 jedi==0.19.2
     # via ipython
 jinja2==3.1.6
     # via
+    #   flask
     #   jupyter-server
     #   jupyterlab
     #   jupyterlab-server
@@ -212,14 +226,18 @@ kiwisolver==1.4.8
     # via matplotlib
 lmfit==1.3.3
     # via -r docs/requirements.in
+lockfile==0.12.2
+    # via python-daemon
 lxml==5.4.0
     # via -r docs/requirements.in
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
     # via
+    #   flask
     #   jinja2
     #   nbconvert
+    #   werkzeug
 matplotlib==3.10.3
     # via
     #   -r docs/requirements.in
@@ -236,6 +254,8 @@ mypy==1.15.0
     # via -r docs/requirements.in
 mypy-extensions==1.1.0
     # via mypy
+narwhals==1.41.0
+    # via plotly
 nbclient==0.10.2
     # via nbconvert
 nbconvert==7.16.6
@@ -249,6 +269,8 @@ nbformat==5.10.4
     #   nbconvert
 nest-asyncio==1.6.0
     # via ipykernel
+networkx==3.2.1
+    # via parsl
 notebook==7.4.2
     # via jupyter
 notebook-shim==0.2.4
@@ -279,15 +301,17 @@ packaging==25.0
     #   jupyterlab-server
     #   matplotlib
     #   nbconvert
+    #   plotly
     #   sphinx
     #   uproot
 pandas==2.2.3
     # via
     #   -r docs/requirements.in
+    #   parsl
     #   seaborn
 pandocfilters==1.5.1
     # via nbconvert
-parsl==2025.5.19
+parsl[monitoring,visualization]==2025.5.19
     # via -r docs/requirements.in
 parso==0.8.4
     # via jedi
@@ -297,6 +321,8 @@ pillow==11.2.1
     # via matplotlib
 platformdirs==4.3.8
     # via jupyter-core
+plotly==6.1.2
+    # via parsl
 prometheus-client==0.22.0
     # via jupyter-server
 prompt-toolkit==3.0.51
@@ -339,6 +365,8 @@ pydata-sphinx-theme==0.16.1
     # via
     #   -r docs/requirements.in
     #   sphinx-book-theme
+pydot==4.0.0
+    # via parsl
 pygments==2.19.1
     # via
     #   accessible-pygments
@@ -354,7 +382,11 @@ pygraphviz==1.14
 pyjwt[crypto]==2.10.1
     # via globus-sdk
 pyparsing==3.2.3
-    # via matplotlib
+    # via
+    #   matplotlib
+    #   pydot
+python-daemon==3.1.2
+    # via parsl
 python-dateutil==2.9.0.post0
     # via
     #   arrow
@@ -470,6 +502,10 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
+sqlalchemy==2.0.41
+    # via
+    #   flask-sqlalchemy
+    #   parsl
 stack-data==0.6.3
     # via ipython
 tblib==3.1.0
@@ -522,6 +558,7 @@ typing-extensions==4.13.2
     #   pydantic-core
     #   pydata-sphinx-theme
     #   referencing
+    #   sqlalchemy
     #   typeguard
     #   typer
     #   typing-inspection
@@ -551,6 +588,8 @@ webencodings==0.5.1
     #   tinycss2
 websocket-client==1.8.0
     # via jupyter-server
+werkzeug==3.1.3
+    # via flask
 widgetsnbextension==4.0.14
     # via ipywidgets
 xxhash==3.5.0

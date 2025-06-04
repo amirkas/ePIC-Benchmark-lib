@@ -62,7 +62,6 @@ autodoc_pydantic_field_list_validators = False
 
 
 
-
 #Set gitref branch
 gitref_branch = "documentation"
 gitref_updating = True

@@ -25,8 +25,8 @@ class DetectorConfigXpath:
             if case_sensitive:
                 attr_str = lambda item : f"@{item[0]}='{item[1]}'"
             else:
-                attr_str = lambda item : f"translate(@{item[0]}, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = '{str(item[1]).lower()}'"
-            all_attr_str = " && ".join(map(attr_str, list(attributes.items())))
+                attr_str = lambda item : f"translate(@{item[0]}, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='{str(item[1]).lower()}'"
+            all_attr_str = " and ".join(map(attr_str, list(attributes.items())))
             query += f'[{all_attr_str}]'
         return query
     

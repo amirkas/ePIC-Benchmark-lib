@@ -12,6 +12,7 @@ seaborn
 uproot
 uncertainties
 parsl
+parsl[monitoring, visualization]
 lmfit
 matplotlib
 Sphinx

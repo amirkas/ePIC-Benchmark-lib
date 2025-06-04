@@ -69,7 +69,7 @@ class XmlElement(BaseModel):
         for field in self.model_fields_set:
 
             field_data = getattr(self, field, None)
-            if field_data is None or field in ['element_tag', 'update_attribute', 'update_type', 'update_value']:
+            if field_data is None or field in ['element_tag', 'update_attribute', 'update_type', 'update_value', 'case_sensitive']:
                 continue
 
             if isinstance(field_data, XmlElement):
