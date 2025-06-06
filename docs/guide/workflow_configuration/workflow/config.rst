@@ -52,5 +52,5 @@ Example WorkflowConfig
 The following is an example of a **WorkflowConfig** object using a single **BenchmarkConfig** instance
 and the **ParslConfig** instance already defined previously in their respective sections. 
 
-.. literalinclude:: example_configs/workflow_config_ex.py
+.. literalinclude:: ../../../example_configs/workflow_config_ex.py
   :language: python
