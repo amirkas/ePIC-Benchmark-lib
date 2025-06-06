@@ -91,7 +91,7 @@ class ParslConfig(BaseParslModel):
     retry_handler: Optional[Callable[[Exception, SerializeAsAny[TaskRecord]], float]] = None
     run_dir: str = 'runinfo'
     std_autopath: Optional[Callable] = None
-    strategy: Optional[str] = 'simple'
+    strategy: Literal['simple', 'htex_auto_scale', 'none'] = 'simple'
     strategy_period: Union[float, int] = 5
     max_idletime: float = 120.0
     monitoring: Optional[ParslMonitoringHub] = None

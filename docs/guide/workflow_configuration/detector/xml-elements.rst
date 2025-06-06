@@ -2,7 +2,7 @@ XML Element Search
 ------------------
 
 Each detector geometry file in the ePIC repository has a tree-like structure of XML elements with different tags and attributes.
-Making changes to an XML element requires that a query be constructed to find the XML element of interest.
+Making changes to an XML element requires that a query be constructed to find the XML element(s) of interest.
 This library manages query construction for you, but you must define the XML Element tree associated with the query.
 This is done with the use of **XmlElement** objects defined in the submodules of **ePIC_benchmarks.detector.xml_elements** to construct an **XmlElement** Tree. 
 
@@ -13,6 +13,8 @@ XML Elements
 
 Detector XML Elements
 ^^^^^^^^^^^^^^^^^^^^^
+
+*Found in the 'ePIC_benchmarks.detector.xml_elements.detector' module*
 
 * XmlDetectorElement
 
@@ -45,10 +47,14 @@ Detector XML Elements
 Constant XML Elements
 ^^^^^^^^^^^^^^^^^^^^^^
 
+*Found in the 'ePIC_benchmarks.detector.xml_elements.constant' module*
+
 * XmlConstantElement
 
 Plugin XML Elements
 ^^^^^^^^^^^^^^^^^^^^^^
+
+*Found in the 'ePIC_benchmarks.detector.xml_elements.plugins' module*
 
 * XmlArgumentElement
 
@@ -56,6 +62,8 @@ Plugin XML Elements
 
 Readout XML elements
 ^^^^^^^^^^^^^^^^^^^^^^
+
+*Found in the 'ePIC_benchmarks.detector.xml_elements.readout' module*
 
 * XmlReadoutElement
 
@@ -66,8 +74,16 @@ Readout XML elements
 Constructing an XML Element Tree
 --------------------------------
 
-To construct a query such that for **every XmlModuleComponentElement**
-of **every XmlModuleElement** of **every XmlDetectorElement**, the **XmlModuleComponentElement's** **'sensitive'** attribute is updated to be **false**,
+To construct a query such that for
+
+1. **every XmlModuleComponentElement**
+
+2. of **every XmlModuleElement**
+
+3. of **every XmlDetectorElement**
+  
+4. the **XmlModuleComponentElement's** **'sensitive'** attribute is updated to be **false**
+
 we would define the following **XmlElement** tree:
 
 .. code-block:: python
@@ -82,10 +98,18 @@ we would define the following **XmlElement** tree:
         )
     )
 
-Whereas to construct a query where the **'sensitive'** attribute of 
-the **XmlModuleComponentElement** with **material="Silicon"** belonging to
-the **XmlModuleElement** with **name="Module1"** belonging to
-the **XmlDetectorElement** with **name="InnterTrackerEndcapP"** is updated to be **false**,
+Whereas to construct a query where:
+
+1. the **'sensitive'** attribute of 
+   
+2. the **XmlModuleComponentElement** with **material="Silicon"** belonging to
+   
+3. the **XmlModuleElement** with **name="Module1"** belonging to
+   
+4. the **XmlDetectorElement** with **name="InnterTrackerEndcapP"** is
+   
+5. updated to be **false**
+   
 we would define the following **XmlElement** tree:
 
 .. code-block:: python

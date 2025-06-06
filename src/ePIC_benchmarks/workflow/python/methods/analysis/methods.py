@@ -1,6 +1,6 @@
 from numpy import arange
 from typing import Optional
-
+from parsl import AUTO_LOGNAME
 
 from ePIC_benchmarks.workflow.config import WorkflowConfig
 from ePIC_benchmarks.analysis.performance import performance_plot
@@ -10,7 +10,9 @@ def generate_performance_plots(
         workflow_config : WorkflowConfig, benchmark_name : str, simulation_name : str,
         analysis_dir_path : Optional[str] = None, plot_z_scores : bool = False,
         efficiency_eta_bins=arange(-4, 4.1, 0.5), resolution_eta_bins=arange(-4, 4.1, 0.5),
-        kchain : int = 0, output_name : str = None, **kwargs 
+        kchain : int = 0, output_name : str = None,
+        stdout=AUTO_LOGNAME, stderr=AUTO_LOGNAME,
+        **kwargs
         ) -> str:
 
     analysis_dir = workflow_config.paths.analysis_out_dir_path(benchmark_name)

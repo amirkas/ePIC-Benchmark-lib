@@ -55,6 +55,10 @@ class GunMultiplicityFlag(NpsimFlag[float]):
 class NpsimOutFileFlag(NpsimFlag[float]):
     flag : Literal["--outputFile"] = "--outputFile"
 
+################################################################################################
+### NOTE: that attribute names must be identical to the attribute names in Simulation Config ###
+################################################################################################
+
 class NpsimModel(BashCommand):
 
     #The string format for the npsim bash executable

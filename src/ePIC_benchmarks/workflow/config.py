@@ -123,6 +123,12 @@ class WorkflowConfig(BaseModel):
 
         benchmark_config = self.benchmark_config(benchmark_name)
         return benchmark_config.get_simulation_config(simulation_name)
+    
+    def parsl_executor_names(self):
+
+        executor_names = [executor.label for executor in self.parsl_config.executors]
+        return executor_names
+
         
     @field_validator('parsl_config', mode='before')
     def validate_parsl_config(cls, value : Any, info : ValidationInfo) -> ParslConfig:

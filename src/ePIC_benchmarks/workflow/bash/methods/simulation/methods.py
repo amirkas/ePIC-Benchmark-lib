@@ -20,12 +20,12 @@ def run_npsim(
         benchmark_name=benchmark_name,
         simulation_name=simulation_name, 
     )
-    if extra_args is None:
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
-    elif isinstance(extra_args, list):
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command, *extra_args)
-    else:
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command, extra_args)
+
+    if isinstance(extra_args, list):
+        npsim_command = npsim_command + " " + " ".join(extra_args)
+    elif isinstance(extra_args, str):
+        npsim_command = npsim_command + " " + extra_args
+    all_commands = concatenate_commands(change_temp_dir_cmd, source_command, npsim_command)
     if container is not None:
         all_commands = container.init_with_extra_commands(all_commands)
     return all_commands
@@ -60,12 +60,12 @@ def run_eicrecon(
         simulation_name=simulation_name, 
     )
     all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
-    if extra_args is None:
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
-    elif isinstance(extra_args, list):
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command, *extra_args)
-    else:
-        all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command, extra_args)
+
+    if isinstance(extra_args, list):
+        eicrecon_command = eicrecon_command + " " + " ".join(extra_args)
+    elif isinstance(extra_args, str):
+        eicrecon_command = eicrecon_command + " " + extra_args
+    all_commands = concatenate_commands(change_temp_dir_cmd, source_command, eicrecon_command)
     if container is not None:
         all_commands = container.init_with_extra_commands(all_commands)
     return all_commands

@@ -34,3 +34,7 @@ This file can be :gitref:`found here <examples/Perlmutter/Headless_Workflow/subm
 
 .. literalinclude:: ../../../examples/Perlmutter/Headless_Workflow/submit_headless_workflow.sl
   :language: bash
+
+.. note::
+
+  The number of nodes in the Parsl Configuration must match the number of nodes in the SBATCH script.

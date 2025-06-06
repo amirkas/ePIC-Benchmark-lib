@@ -10,6 +10,7 @@ from ePIC_benchmarks.simulation import SimulationConfig
 import os
 import sys
 import pandas as pd
+import fcntl
 
 import awkward as ak
 # import ROOT
@@ -303,19 +304,53 @@ def plot_eff(pion_o, pion,eta_bins=np.linspace(-4, 4, 21)):
 
 
 
-def save_dataframe(df : pd.DataFrame, path) -> None:
+def save_dataframe(df : pd.DataFrame, buf=None, path=None) -> None:
 
-    df.to_csv(path, index=False)
+    assert (buf is not None) or (path is not None)
+    
+    if buf is not None:
+        df.to_csv(buf, index=True)
+    else:
+        with open(path, 'w') as f:
+            try:
+                fcntl.lockf(f, fcntl.LOCK_EX)
+                df.to_csv(f, index=True)
+            finally:
+                fcntl.lockf(f, fcntl.LOCK_UN)
 
-def load_dataframe(path) -> pd.DataFrame:
+def append_dataframe_to_file(df : pd.DataFrame, buf=None, path=None) -> None:
 
-    assert(os.path.exists(path))
+    assert (buf is not None) or (path is not None)
+    
+    if buf is not None:
+        df.to_csv(buf, index=True, mode='a', header=False)
+    else:
+        with open(path, 'a') as f:
+            try:
+                fcntl.lockf(f, fcntl.LOCK_EX)
+                df.to_csv(f, index=True, mode='a', header=False)
+            finally:
+                fcntl.lockf(f, fcntl.LOCK_UN)
 
-    try:
-        df = pd.read_csv(path)
-        return df
-    except Exception as e:
-        raise e
+
+def load_dataframe(buf=None, path=None) -> pd.DataFrame:
+
+    assert (buf is not None) or (path is not None)
+    if buf is not None:
+        df = pd.read_csv(buf, index_col=0)
+        df.reset_index(inplace=True)
+    else:
+        assert(os.path.exists(path))
+        with open(path, 'r') as f:
+            try:
+                fcntl.lockf(f, fcntl.LOCK_EX)
+                df = pd.read_csv(f, index_col=0)
+                df.reset_index(inplace=True)
+            finally:
+                fcntl.lockf(f, fcntl.LOCK_UN)
+    return df
+
+
     
 def process_data(column_names, *data_params):
 
@@ -376,22 +411,55 @@ def add_to_generic_dataframe(df : pd.DataFrame, data_columns, *data_params) -> p
     if df is None:
         return init_generic_dataframe(data_columns, *data_params)
 
-    assert(all(df_col == col for df_col, col in zip(df.columns, data_columns)))
+    assert all(df_col == col for df_col, col in zip(df.columns, data_columns)), f"Dataframe columns: {df.columns}\nProvided Columns: {data_columns}"
 
     new_df = init_generic_dataframe(data_columns, *data_params)
-    df = pd.concat([df, new_df], ignore_index=True)
+    df = pd.concat([new_df, df], ignore_index=True, axis=0)
     return df
 
 def add_to_generic_file(path, data_columns, *data_params):
 
     assert len(data_params) == len(data_columns), f"length of data params '{len(data_params)}' does not match the number of columns '{len(data_columns)}'"
-    if not os.path.exists(path):
-        df = init_generic_dataframe(data_columns, *data_params)
-        save_dataframe(df, path)
-    else:
-        df = load_dataframe(path)
-        df = add_to_generic_dataframe(df, data_columns, *data_params)
-        save_dataframe(df, path)
+
+    # try:
+    #     with open(path, 'r+') as f:
+    #         try:
+    #             fcntl.lockf(f, fcntl.LOCK_EX)
+    #             df = load_dataframe(buf=f)
+    #             df = add_to_generic_dataframe(df, data_columns, *data_params)
+    #             save_dataframe(df, buf=f)
+    #         finally:
+    #             fcntl.lockf(f, fcntl.LOCK_UN)
+    # except FileNotFoundError:
+    #     with open(path, 'w') as f:
+    #         try:
+    #             fcntl.lockf(f, fcntl.LOCK_EX)
+    #             df = init_generic_dataframe(data_columns, *data_params)
+    #             save_dataframe(df, buf=f)
+    #         finally:
+    #             fcntl.lockf(f, fcntl.LOCK_UN)
+
+    with open(path, 'a+') as f:
+        try:
+            fcntl.lockf(f, fcntl.LOCK_EX)
+            #Update file pointer to the beginning of the file
+            f.seek(0, 0)
+            #Check if file exists and has data
+            _ = load_dataframe(buf=f)
+            #Update file pointer to the end of the file
+            f.seek(0, 2)
+            df = init_generic_dataframe(data_columns, *data_params)
+
+            # assert all(old_col == col for old_col, col in zip(old_df.columns.sort_values(), df.columns.sort_values()))
+            append_dataframe_to_file(df, buf=f)
+            # df = add_to_generic_dataframe(df, data_columns, *data_params)
+            # save_dataframe(df, buf=f)
+        except pd.errors.EmptyDataError:
+            df = init_generic_dataframe(data_columns, *data_params)
+            save_dataframe(df, buf=f)
+        finally:
+            fcntl.lockf(f, fcntl.LOCK_UN)
+
 
 RESOLUTION_COLUMNS = [
     'config_name',
@@ -438,6 +506,7 @@ def plot_resol(pion, params, plot_resol_zscores=False):
     fig, axs = plt.subplots(2, 2, figsize=(10,6), dpi=300)
     plt.title("")
 
+    hist_gauss_err_occured = False
     # logging.info(f"Generating resolution plots")
 
     ## calculate resolutions
@@ -462,6 +531,8 @@ def plot_resol(pion, params, plot_resol_zscores=False):
         header=None,
         plot_zcores=plot_resol_zscores
     )
+    if mean_mom == -1 and sig_mom == -1 and err_mom == -1:
+        hist_gauss_err_occured = True
     ax.set_xlabel(r'$\delta p/p$ [%]')#, fontsize=20)
 
     # ----------------theta resolution----------------------
@@ -479,6 +550,8 @@ def plot_resol(pion, params, plot_resol_zscores=False):
         header=None,
         plot_zcores=plot_resol_zscores
     )
+    if mean_th == -1 and sig_th == -1 and err_th == -1:
+        hist_gauss_err_occured = True
     ax.set_xlabel(r'$d\theta$ [rad]')#, fontsize=20)
 
     # ----------------phi resolution----------------------
@@ -496,6 +569,8 @@ def plot_resol(pion, params, plot_resol_zscores=False):
         header=None,
         plot_zcores=plot_resol_zscores
     )
+    if mean_ph == -1 and sig_ph == -1 and err_ph == -1:
+        hist_gauss_err_occured = True
     ax.set_xlabel(r'$d\phi$ [rad]')#, fontsize=20)
 
     # ----------------theta resolution----------------------
@@ -513,8 +588,10 @@ def plot_resol(pion, params, plot_resol_zscores=False):
         header=None,
         plot_zcores=plot_resol_zscores
     )
+    if mean_dca == -1 and sig_dca == -1 and err_dca == -1:
+        hist_gauss_err_occured = True
     ax.set_xlabel(r'DCA$_r$ [mm]')#, fontsize=20)
-    return sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig
+    return sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig, hist_gauss_err_occured
 
 
 def final_output_name(file_path, output_name : Optional[str] = None):
@@ -601,14 +678,19 @@ def performance_plot(
     ## resolutions    
     if len(resol_eta_bins) > 0:
 
+        error_occured = False
+
         if len(resol_eta_bins) == 1:
 
             eta_min = resol_eta_bins[0]
             eta_max = None
 
-            sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig = plot_resol(
+            sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig, resol_err_status = plot_resol(
                 pion, params, plot_resol_zscores=plot_resol_zscores
             )
+
+            if resol_err_status:
+                error_occured = True
 
             fig.axes[0].set_title(f"{output_name}")
 
@@ -639,7 +721,10 @@ def performance_plot(
                 ## only proceed with good stats
                 if len(pion_slice) > 100:
 
-                    sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig = plot_resol(pion_slice, params_slice)
+                    sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca, fig, resol_err_status = plot_resol(pion_slice, params_slice)
+
+                    if resol_err_status:
+                        error_occured = True
 
                     fig.axes[0].set_title(f"{eta_min:.2f} < eta < {eta_max:.2f} in {output_name}")
 
@@ -652,6 +737,23 @@ def performance_plot(
                     data_entry = [output_name, momentum_min, momentum_max, eta_min, eta_max, sig_mom, err_mom, sig_th, err_th, sig_ph, err_ph, sig_dca, err_dca]
                     temp_path = os.path.join(output_dir, 'resolution_data.txt')
                     add_to_resolution_file(temp_path, *data_entry)
+    
+        if error_occured:
+            err = (
+                "Hist Gauss error occured when generating plots with input parameters:\n"
+                f"file_path : {file_path}\n"
+                f"dir_path : {dir_path}\n"
+                f"eff_eta_bins : {eff_eta_bins}\n"
+                f"resol_eta_bins : {resol_eta_bins}\n"
+                f"momentum_min : {momentum_min}\n"
+                f"momentum_max : {momentum_max}\n"
+                f"simulation_config : {simulation_config}\n"
+                f"kchain : {kchain}\n"
+                f"output_name : {output_name}\n"
+                f"output_dir : {output_dir}\n"
+                f"plot_resol_zscores : {plot_resol_zscores}\n"
+            )
+            raise RuntimeError(err)
 
 
 

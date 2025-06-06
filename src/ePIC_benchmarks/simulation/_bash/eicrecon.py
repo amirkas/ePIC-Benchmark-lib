@@ -32,6 +32,10 @@ class EicreconInFileFlag(EicreconFlag[PathType]):
     flag : Literal[""] = ""
 
 
+################################################################################################
+### NOTE: that attribute names must be identical to the attribute names in Simulation Config ###
+################################################################################################
+
 #Model that produces the full eicrecon command with required and optional flags
 class EicreconModel(BashCommand):
 
