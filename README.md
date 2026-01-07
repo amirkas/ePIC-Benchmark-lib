@@ -5,6 +5,8 @@
 - Under the hood, simulations are run using npsim and eicrecon, which are contained within the eicshell container available as a stable or nightly build.
 - The library contains multiple modules to support benchmark workflows, such as configuration & filesystem management, execution configuration on various systems (local, HPC, etc.), and data analytic tools
 
+[Link to the full documentation](https://epic-benchmark-lib.readthedocs.io/en/latest/)
+
 # Installation
 
 ## Requirements:
